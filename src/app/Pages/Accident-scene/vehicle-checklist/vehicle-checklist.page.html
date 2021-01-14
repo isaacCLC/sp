@@ -1,0 +1,66 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Vehicle Checklist</ion-title>
+  </ion-toolbar>
+</ion-header>
+<div class="orderStatus">
+    <ul class="row">
+      <li class="col done">1</li>
+      <li class="col done">2</li>
+      <li class="col done">3</li>
+      <li class="col done">4</li>
+      <li class="col done ">5</li>
+      <li  style="font-weight: bold; color: rgb(14, 48, 131)" class="col">6</li> 
+      <li class="col">7</li>
+      <li class="col">8</li>
+    </ul>
+  </div>
+
+<ion-content class="center no-scroll"  >
+  <ion-list>
+    <ion-item *ngFor="let entry of vehicleCheckList, let i = index">
+      <ion-label>{{entry.listItem}}</ion-label>
+      <ion-checkbox slot="end" (ionChange)="getChecked($event,i)"></ion-checkbox>
+    </ion-item>
+  </ion-list> 
+  <!-- <ion-label position="floating"><strong>Take Photo Of Tow Slip</strong></ion-label>
+  <ion-button expand="block" (click)="towSlipPhoto()">
+    <ion-icon name="camera"></ion-icon>
+  </ion-button> -->
+  <ion-img *ngIf="towSlip != null" [src]="towSlip">
+  </ion-img>
+  <ion-label position="floating"><strong>Signature</strong></ion-label><br>
+  <ion-label>Please ask client to sign below (optional)</ion-label>
+  <div>
+    <ion-grid>
+      <ion-row>
+        <ion-col>
+          <canvas #imageCanvas (touchstart)="startDrawing($event)" (touchmove)="moved($event)"></canvas> <br>
+          <ion-label style="color:green; font-size:10px;"><strong>By signing above, you confirm that the checklist above
+              is
+              accurate</strong></ion-label>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col> 
+          <ion-button color="danger" (click)="clearCanvasImage()">Clear Signature</ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+</ion-content>
+<ion-footer>
+  <div>
+    <ion-grid>
+      <ion-row>
+        <ion-col size="6">
+          <ion-button expand="block" (click)="goBack()">Previous</ion-button>
+        </ion-col>
+        <ion-col size="6">
+          <ion-button expand="block" (click)="postVehicleCheckList()" type="submit">Next</ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+</ion-footer>

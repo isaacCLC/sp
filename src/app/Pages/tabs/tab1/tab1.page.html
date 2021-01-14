@@ -1,0 +1,95 @@
+<!-- <ion-header id="btnOnline">
+  <ion-toolbar color="primary">
+    <ion-title>
+      Home
+    </ion-title>
+  </ion-toolbar>
+</ion-header> -->
+
+<section class="avail-data" id="head-data">
+  <ion-row >
+    <ion-col size="4">
+      <ion-avatar>
+        <ion-img
+          *ngIf="spDetails.driverImageUrl != null || spDetails.driverImageUrl != undefined || spDetails.driverImageUrl != ''"
+          [src]="spDetails.driverImageUrl"></ion-img>
+        <!-- <ion-img *ngIf="spDetails.driverImageUrl == null || spDetails.driverImageUrl == undefined || spDetails.driverImageUrl == ''"
+          src="https://www.pinclipart.com/picdir/middle/60-602450_profile-clipart-profile-icon-round-profile-pic-png.png"> 
+        </ion-img>-->
+      </ion-avatar>
+    </ion-col>
+    <ion-col class="avail-col" size="8">
+      <h2 *ngIf="isAvailable ">On Duty</h2>
+      <h3 color="primary" *ngIf="!isAvailable">Off Duty</h3>
+    </ion-col>
+  </ion-row>
+  <ion-item class="pad-items" >
+    <ion-label>Are You Available?</ion-label>
+    <ion-toggle [disabled]="!iscarSelected || navigationStarted || isReqAccepted || awaitingFD" [(ngModel)]="isToggled" (ionChange)="availableClick()"></ion-toggle>
+  </ion-item>
+</section>
+<!-- <ion-content class="ion-padding" class="center"> -->
+
+
+<div id="map_canvas">
+</div>
+
+<div *ngIf="( tripDetails != null && isJobAllocaed == true) || (navigationStarted == true && tripDetails != null )"
+  id="over_map">
+  <label>ETA: {{tripDetails.Eta}}... <strong><i>{{tripDetails.Distance}}</i></strong></label>
+</div>
+
+<ion-button *ngIf="!isAvailable && iscarSelected " color="warning" primary block>
+  <ion-label> You're Offline</ion-label>
+</ion-button>
+<ion-button *ngIf="isAvailable &&  (!isReqAccepted && !startTow) " color="success" primary block>
+  <ion-label *ngIf="isAvailable && (!isReqAccepted && !startTow)"> You're Online</ion-label>
+</ion-button>
+
+<div *ngIf="isReqAccepted || startTow" class="job-btns">
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <ion-button *ngIf="isReqAccepted || startTow" color="danger" (click)="canceljob()" primary block>
+          <ion-label><strong>Cancel Job</strong></ion-label>
+        </ion-button>
+      </ion-col>
+      <ion-col>
+        <ion-button *ngIf="isReqAccepted || startTow" color="primary" (click)="jobInfo()" primary block>
+          <ion-label><strong>Job Info</strong></ion-label>
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</div>
+
+<ion-button *ngIf="isJobAllocaed && isReqAccepted && !navigationStarted && !startTow && !awaitingFD" color="tertiary" primary block
+  (click)="navigate();">
+  <ion-icon name="navigate"></ion-icon>&nbsp;&nbsp;
+  <ion-label> Navigate</ion-label>
+</ion-button>
+
+<ion-button *ngIf="startTow && driveFinDistTarget == null && !awaitingFD" #startTowing color="success" primary block
+  (click)="navigate();">
+  <ion-icon name="navigate"></ion-icon>&nbsp;&nbsp;
+  <ion-label> Start Tow</ion-label>
+</ion-button>
+<button (click)="alert('awaitingAllocation');" type="button" class="await-btn" *ngIf="isReqAccepted && !navigationStarted && !isJobAllocaed && !awaitingFD">
+  <ion-label> Awaiting Allocation....</ion-label>
+</button>
+<button (click)="alert('awaitingFD');" type="button" class="await-btn" *ngIf="awaitingFD">
+  <ion-label> Awaiting Final Destination....</ion-label>
+</button>
+<ion-button *ngIf="!iscarSelected" color="secondary" primary block (click)="selectVeh()">
+  <ion-label>Select A Vehicle</ion-label>
+</ion-button>
+<button class="await-btn" *ngIf="clientDriverTarget <= 10 && clientDriverTarget != null " color="tertiary" primary block
+  (click)="arrived();">
+  <!-- <ion-label> Arrived An Final Dest</ion-label> -->
+  <ion-label>Arrived At Scene</ion-label>
+</button>
+<button class="await-btn" *ngIf="driveFinDistTarget <= 10 && driveFinDistTarget != null " color="tertiary" primary block
+  (click)="arrivedFinDist();">
+  <ion-label>Arrived At Final Dist</ion-label>
+</button>
+

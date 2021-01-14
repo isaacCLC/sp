@@ -1,0 +1,43 @@
+ion-title {
+    text-align: center;
+}
+
+#settings-buttons {
+    margin-top: 10%;
+    padding: 0 8px;
+
+    ion-button {
+        margin: 21px 0px;
+    }
+
+}
+.main-block{
+    border: 2px solid black;
+}
+
+// .block-one {
+    
+//     padding: 12%;
+//     border: 2px solid black
+
+//     ion-col {
+//         text-align: center;
+//     }
+// }
+
+.block-one>ion-col:first-child {
+    border-right: 1px solid  #0e2683;
+    // h4{
+    //     text-align: center;
+    // }
+}
+
+ion-thumbnail {
+    width: 100% !important;
+    height: 100% !important;
+    // max-width: 300px !important;
+    // max-height: 300px !important;
+    // left: 50%;
+    margin: auto;
+    position: relative;
+}

@@ -1,0 +1,60 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Additional Content</ion-title>
+  </ion-toolbar>
+</ion-header>
+<div class="orderStatus">
+    <ul class="row">
+      <li class="col done">1</li>
+      <li class="col done">2</li>
+      <li class="col done">3</li>
+      <li  class="col done">4</li>
+      <li class="col done">5</li>
+      <li  style="font-weight: bold; color: rgb(14, 48, 131)"  class="col">7</li>
+      <li class="col">8</li>
+    </ul>
+  </div>
+
+<ion-content>
+  <ion-grid>
+    <ion-row color="primary" justify-content-center>
+      <ion-col align-self-center size-md="6" size-lg="5" size-xs="12"> 
+        <div class="ion-padding">
+  
+  <ion-item>
+    <ion-label position="floating">Are there any other good in the vehicle?</ion-label>
+    <ion-textarea></ion-textarea>
+  </ion-item>
+        </div>
+      </ion-col>
+    </ion-row>
+
+      <ion-row>
+      <ion-col *ngFor="let additionalGood of additionalGoods;let idx = index" size="6">
+        <div class="cc">
+          <ion-spinner *ngIf="tyma == 3"></ion-spinner>
+          <ion-button class="img-btn" (click)="capturePhoto(idx+1)"> Photo {{idx+1}}</ion-button>
+          <ion-img *ngIf="scenePhotos[idx+1] == empty"
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTs2MLrotUUZh7DoUoWoz5qHayN5YepArgvkSgzw2D0YhWUlbOU">
+          </ion-img>
+          <ion-img *ngIf="scenePhotos[idx+1] != empty" [src]="scenePhotos[idx+1]">{{scenePhotos[idx+1]}}
+          </ion-img>
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid> 
+</ion-content>
+<ion-footer>
+  <div>
+    <ion-grid>
+      <ion-row>
+        <ion-col size="6">
+          <ion-button expand="block" (click)="goBack()">Previous</ion-button>
+        </ion-col>
+        <ion-col size="6">
+          <ion-button expand="block" (click)="nextPage()" type="submit">Next</ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+</ion-footer>

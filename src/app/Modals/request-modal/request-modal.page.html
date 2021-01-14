@@ -1,0 +1,76 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-row>
+      <ion-col size="10">
+        <ion-title>Incoming Assist Request</ion-title>
+      </ion-col>
+      <!-- <ion-col size="2">
+        <button ion-button icon-only (click)="closemodal()">
+          <ion-icon name="close"></ion-icon>
+        </button>
+      </ion-col> -->
+    </ion-row>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content  class="ion-padding">
+  <div *ngIf="!gotToTns" class="my-content center clr">
+    <h4>Service Request from:</h4>
+    <ion-label>{{clientDetails.firstName}} {{clientDetails.LastName}}</ion-label>
+    <hr>
+    <div id="location-info">
+      <h4>Client Location</h4>
+      <div id="map_canvas4">
+      why u not loading  
+      </div>
+      <!-- <div> 
+        <ion-img [src]="imgSrc"></ion-img>
+      </div> -->
+    </div>
+    <hr>
+    <div id="location-info">
+      <h4>Final Destination Location</h4>
+      <p>Precision & Sons Panelbeaters</p>
+      <p>Address: 126 Edison Cres, Hennopspark, Centurion, 0172</p>
+    </div>
+    <hr>
+    <div id="job-details">
+      <h4>Job Details</h4>
+      <p>Distance To Client Location Is: <strong>{{distance}}</strong></p>
+      <p>Distance To Final From Client Location Is: <strong>12 Km</strong></p>
+      <p>Job Type: <strong>Towing Of Vehicle</strong></p>
+    </div>
+    <hr>
+    <ion-button color="success" primary block (click)="acceptRequest()">Accept Job</ion-button>
+    <ion-button color="danger" primary block (click)="cancelRequest()">Decline Job</ion-button>
+  </div>
+
+
+  <div *ngIf="gotToTns">
+    <h3 class="center"><strong>Disclaimer</strong></h3>
+    <ul>
+      <li>limit or exclude our or your liability for death or personal injury;</li>
+      <li>limit or exclude our or your liability for fraud or fraudulent misrepresentation;</li>
+      <li>limit any of our or your liabilities in any way that is not permitted under applicable law; or</li>
+      <li>exclude any of our or your liabilities that may not be excluded under applicable law.</li>
+    </ul>
+
+    <ion-radio-group>
+      <ion-item>
+        <ion-label>I Agree To The Terms Of Service</ion-label>
+        <ion-radio slot="start" value="IAgree" (ionSelect)="getTermsState($event)">
+        </ion-radio>
+      </ion-item>
+      <ion-item>
+        <ion-label>I Don't Agree To The Terms Of Service</ion-label>
+        <ion-radio slot="start" value="IDontAgree" (ionSelect)="getTermsState($event)">
+        </ion-radio>
+      </ion-item>
+    </ion-radio-group>
+    <br>
+    <ion-button expand="block" (click)="continue()">Continue</ion-button>
+
+
+  </div>
+
+</ion-content>

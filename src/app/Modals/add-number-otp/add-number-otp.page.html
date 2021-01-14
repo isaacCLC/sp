@@ -1,0 +1,38 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-grid>
+      <ion-row>
+        <ion-col size="2">
+          <ion-button (click)="goToHome()">
+            <ion-icon name="arrow-back"></ion-icon>
+          </ion-button>
+        </ion-col>
+        <ion-col size="10">
+          <ion-title class="my-ion-title">Enter OTP</ion-title>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="center ion-padding">
+
+  <div class="otp-section">
+    <h6>Enter the OTP Sent To {{cellNumber}}</h6>
+    <!-- <ion-input type="number" [(ngModel)]="otpNum" placeholder="Please Enter OTP" (ionInput)="onKeypress($event)"
+      name="otpNum"></ion-input> -->
+    <code-input [code]="otpNum" [isCodeHidden]="false" [isNonDigitsCode]="false" [codeLength]="4"
+      (codeCompleted)="verifyOtp($event)">
+    </code-input>
+    <br>
+    <!-- <ion-button [disabled]="!isOtpEntered" (click)="verifyOtp()"> Verify OTP
+    </ion-button> -->
+    <ion-button [disabled]="countdown>0" (click)="resendOTP()"> Resend OTP
+    </ion-button>
+    <p *ngIf="otpResend" style="color:green">An OTP Has Been Resent To {{cellNumber}} </p>
+  </div>
+  <div *ngIf="countdown>0">
+    <h6>Resend OTP In</h6>
+    <h1>{{countdown}}s</h1>
+  </div>
+</ion-content>

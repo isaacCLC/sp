@@ -1,0 +1,49 @@
+<!-- <ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>
+      App Settings
+    </ion-title>
+  </ion-toolbar>
+</ion-header> -->
+
+<ion-content class="ion-padding">
+<div *ngIf="!mySelectedCar" class="main-block center">
+<h4>No vehicle selected</h4>
+<ion-button size="small" (click)="changeVehicle()">Select Vehicle</ion-button>
+</div>
+
+  <div *ngIf="mySelectedCar" class="main-block">
+    <h4 class="ion-text-center">Current vehicle</h4>
+    <ion-row class="block-one">
+      <ion-col size="6">
+        <div>
+
+          <ion-thumbnail (click)="photoViewer.show(mySelectedCar.vehicle_image_url)" style="text-align:center">
+
+            <!-- <ion-label position="floating"><strong>{{mySelectedCar.registration_number}}</strong> </ion-label> -->
+            <!-- <img src="https://d3lp4xedbqa8a5.cloudfront.net/imagegen/max/ccr/860/-/s3/digital-cougar-assets/traderspecs/2017/11/22/Misc/Volkswagen-Amarok-V6-DualCabUtility-2018-1.jpg"> -->
+            <img style="max-height: 200px;"  [src]="mySelectedCar.vehicle_image_url">
+              
+          </ion-thumbnail>
+
+        </div>
+      </ion-col>
+      <ion-col style="text-align:center" size="6">
+        <h4 style="text-align:center">{{mySelectedCar.make_description}} {{mySelectedCar.model}}</h4>
+        <h5 style="text-align:center"><strong>{{mySelectedCar.registration_number}}</strong></h5>
+
+        <ion-button (click)="changeVehicle()"> Change</ion-button>
+        <ion-button color="danger" (click)="removeVehicle()"> Remove</ion-button>
+      </ion-col>
+     
+
+    </ion-row>
+  </div>
+  <div id="settings-buttons">
+    <ion-button expand="block" (click)="presentModal({ heading: 'Notifications'})" >View Notifications</ion-button>
+    <ion-button expand="block" (click)="chnageCellNum()">Change Cell Number</ion-button>
+    <ion-button expand="block" (click)="presentModal({ heading: 'Terms and Conditions'})">Terms And Conditions</ion-button>
+    <ion-button expand="block" (click)="presentModal({ heading: 'Frequently Asked Question'})" >FAQs</ion-button>
+    <ion-button expand="block" (click)="presentModal({ heading: 'Contact Information'})">Contact Us</ion-button>
+    <ion-button expand="block" (click)="logout()">Sign Out</ion-button>
+  </div>

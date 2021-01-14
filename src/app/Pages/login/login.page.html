@@ -1,0 +1,43 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Supplier Login</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="main-content">
+    <div  id="image-container">
+      <ion-img [src]="imgSrc"></ion-img>
+    </div>
+    <form #form="ngForm" (ngSubmit)="login(form)">
+      <ion-grid>
+        <ion-row class="ion-justify-content-center">
+          <ion-col class="ion-align-self-center" size-md="6" size-lg="5" size-xs="12">
+            <div class="ion-text-center">
+              <h3>Welcome!</h3>
+              <ion-label position="floating">Hello and welcome to the CLC app.</ion-label> 
+            </div>
+            <div  class="ion-padding">
+              <ion-item>
+                <ion-input name="username" [value]='username' type="username" placeholder="Username" ngModel required></ion-input>
+              </ion-item>
+              <br> 
+              <ion-item> 
+                <ion-input name="password"   [type]="showPass ? 'text' : 'password'" placeholder="Password" ngModel required></ion-input>
+                <ion-icon  name="eye" class=" passwordIcon" (click)='hideShowPassword()'></ion-icon>
+              </ion-item>
+            </div>
+            <div class="ion-padding center"  >
+              <ion-button type="submit" [disabled]="form.invalid" expand="block">SIGN IN</ion-button>
+              <ion-label (click)="forgotPass()">Forgot your password?</ion-label>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </form>
+    <!-- <ion-button size="medium" expand="block" (click)="scan()">Launch CLC Assit</ion-button>  -->
+  </div>
+</ion-content>
+
+
+<!-- <ion-button (click)="navTabs()" expand="block">Navigate to tabs</ion-button> -->

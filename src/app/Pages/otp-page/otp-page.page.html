@@ -1,0 +1,34 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title *ngIf="isCellEntered">Enter OTP</ion-title>
+    <ion-title *ngIf="!isCellEntered">Enter Cell Number</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="center ion-padding" >
+  <div *ngIf="isCellEntered" class=" otp-section">
+    <h6>An OTP Has Been Sent To {{cellNum}}</h6>
+    <ion-input type="number" [(ngModel)]="otpNum" placeholder="Please Enter OTP" (ionInput)="onKeypress($event)"
+      name="otpNum"></ion-input>
+    <br>
+    <ion-button [disabled]="!isOtpEntered" (click)="verifyOtp()"> Verify OTP
+    </ion-button>
+    <ion-button (click)="resendOTP()"> Resend OTP
+    </ion-button>
+    <p *ngIf="otpResend" style="color:rgb(177, 201, 177)">An OTP Has Been Resent To {{cellNum}} </p>
+  </div>
+
+
+  <div *ngIf="!isCellEntered" class="pad-content cell-num-section">
+    <h6>Enter Your Mobile Number To Send OTP</h6>
+
+    <ion-input type="tel" [(ngModel)]="cellNum" maxlength="10" placeholder="071 234 5678"
+      (ionInput)="onKeyCellpress($event)" name="cellNum"></ion-input>
+    <ion-label class="err-message" *ngIf="!cellValid">Cell Number Invalid, Enter A Valid Number</ion-label>
+    <br>
+    <ion-button [disabled]="!enaableBth" (click)="sendCellNum()"> Continue
+    </ion-button>
+
+  </div>
+
+</ion-content>

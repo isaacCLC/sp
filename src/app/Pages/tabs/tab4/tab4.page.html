@@ -1,0 +1,63 @@
+<!-- <ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>
+      My Job Cards
+    </ion-title>
+  </ion-toolbar>
+</ion-header> -->
+
+<ion-content>
+  <h4>Services Rendered</h4>
+  <ion-row>
+    <ion-col size="6">
+      <h6>Filter Services:
+        <ion-icon color="primary" name="calendar"></ion-icon>
+      </h6>
+    </ion-col>
+    <ion-col size="6" style="padding: 12px 0px">
+      <ion-select id="date-dropDown" [(ngModel)]="dateOption" okText="Okay" cancelText="Dismiss"
+        (ionChange)="optionsFn()">
+        <ion-select-option value="Last 3 Months">Last 3 Months</ion-select-option>
+        <ion-select-option value="Last 6 Months">Last 6 Months</ion-select-option>
+        <ion-select-option value="2018">2018</ion-select-option>
+        <ion-select-option value="2017">2017</ion-select-option>
+      </ion-select>
+    </ion-col>
+  </ion-row>
+
+
+  <div *ngIf="previousJobs.length > 0">
+    <ion-card *ngFor="let previousJob of previousJobs; let i = index">
+      <ion-card-header>
+        <ion-card-title>{{previousJob.client}}</ion-card-title>
+        <ion-card-subtitle>{{previousJob.date_opened}}</ion-card-subtitle>
+        <ion-row>
+          <ion-col size="7">
+            <ion-label><strong>REF #{{previousJob.call_reference_number}}</strong></ion-label>
+          </ion-col>
+          <ion-col size="5" (click)="showJobDetails();">
+            <!-- <ion-label color="primary">Job Details -></ion-label> -->
+            <ion-label color="success">{{previousJob.status}}</ion-label>
+
+          </ion-col>
+        </ion-row>
+      </ion-card-header>
+      <ion-card-content>
+        {{previousJob.sub_sub_product_name}} -
+        {{previousJob.problem_summary}}
+      </ion-card-content>
+    </ion-card>
+  </div>
+  <div *ngIf="previousJobs.length == 0">
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>No Jobs</ion-card-title>
+      </ion-card-header>
+    </ion-card>
+
+  </div>
+
+</ion-content>
+
+
+

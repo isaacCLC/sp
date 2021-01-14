@@ -1,0 +1,29 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button (click)="closemodal()" defaultHref="app/tabs/tab3"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Select A Vehicle</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="center">
+    <h5>Select A Vehicle That You Will Be Using</h5>
+    <hr>
+    <br>
+    <ion-list>
+      <ion-item *ngFor="let car of myVehicles;let idx = index" (click)="confirmCar(idx)">
+        <ion-avatar slot="start">
+          <ion-img [src]="vehLogo"></ion-img>
+        </ion-avatar>
+        <ion-label>
+          {{car.vehicleDescription}}
+          <p><strong>{{car.registrationNumber}}</strong></p>
+        </ion-label>
+      </ion-item>
+      <br>
+    </ion-list>
+    <ion-button *ngIf="myVehicles.length > 0" color="danger" primary (click)="cancelCarSelection()">Cancel</ion-button>
+  </div>
+</ion-content>

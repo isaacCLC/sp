@@ -1,0 +1,77 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button (click)="closemodal()" defaultHref="app/tabs/tab3"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{data.heading}}</ion-title>
+    <!-- <ion-title *ngIf="notifications != undefined">{{data[0].heading}}</ion-title> -->
+    <ion-buttons *ngIf='notifications.length > 0' slot='end'>
+      <ion-button (click)="clearAllNotifications()">Clear All</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content *ngIf="data.heading == 'Terms and Conditions'">
+  <div [innerHTML]="termsAndConditions"></div>
+</ion-content>
+
+<ion-content *ngIf="data.heading == 'Contact Information'">
+  <div [innerHTML]="contactInfo"></div>
+</ion-content>
+
+<ion-content *ngIf="data.heading == 'Frequently Asked Question'">
+  <div class="container">
+    <app-accordion [items]='items' class="accordian"></app-accordion>
+  </div>
+</ion-content>
+
+<ion-content *ngIf="data.heading == 'Notifications'">
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class='container'>
+    <div class='ion-padding'>
+
+      <div class='ion-text-center' *ngIf='notifications.length <= 0'>
+        <p>You have no notifications.</p>
+      </div>
+
+      <!-- Test notification -->
+      <!-- <ion-item-sliding #slidingItem>
+        <ion-item detail='true' (click)='doActionTest()'>
+          <ion-label class="ion-text-wrap">
+            <ion-text>Protect Me has been appointed, ETA is 12:25</ion-text>
+            <p>Sent: Now</p>
+          </ion-label>
+        </ion-item>
+      </ion-item-sliding> -->
+
+      <ion-list class='shadow' *ngIf='notifications.length > 0'>
+        <ion-item-sliding *ngFor="let notification of notifications" #slidingItem>
+          <ion-item detail='true' (click)='doAction($event, notification)'>
+            <ion-label class="ion-text-wrap">
+              <ion-text [class.bold]='!notification.hasRead'>{{notification.messageTitle}}</ion-text>
+              <!-- <p>Sent: {{notification.dateSent | date:'dd MMMM yyyy hh:mm aa'}}</p> -->
+              <p>Sent: {{notification.age}}</p>
+            </ion-label>
+          </ion-item>
+
+          <ion-item-options side="end">
+            <ion-item-option *ngIf='!notification.hasRead' color="primary"
+              (click)="doAction($event, notification)">
+              Read
+            </ion-item-option>
+            <ion-item-option color="danger" (click)="clearNotification($event, notification)">
+              Clear
+            </ion-item-option>
+          </ion-item-options>
+
+
+        </ion-item-sliding>
+
+      </ion-list>
+    </div>
+  </div>
+
+</ion-content>

@@ -1,0 +1,99 @@
+@import "./vars";
+@import "./media";
+@import "./mixins";
+
+.shadow-sm {
+  box-shadow: 0 .125rem .25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+.shadow {
+  box-shadow: 0 .5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.shadow-lg {
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+}
+
+.shadow-none {
+  box-shadow: none !important;
+}
+
+// disable number input spinners
+//https://css-tricks.com/snippets/css/turn-off-number-input-spinners/
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.heading {
+  font-size: 1rem;
+  color: var(--ion-color-primary);
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+}
+
+hr {
+  margin-left: 10vw;
+  margin-right: 10vw;
+  background: rgba(100,100,100,.125);
+  @include media-breakpoint-up(sm) {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+  }
+}
+
+.custom-location {
+  display: flex;
+  align-items: center;
+  width: 100%;
+
+  app-validated-form-control {
+    max-width: 100%;
+    min-width: 93%;
+  }
+
+  .location-btn {
+    width: 20px;
+
+    ion-button {
+      margin: 0;
+      --padding-bottom: 0;
+      --padding-end: 0;
+      --padding-start: 0;
+      --padding-top: 0;
+
+      // width: 10%;
+    }
+  }
+}
+
+.empty {
+  display: flex;
+  justify-content: center;
+
+  p {
+    color: rgb(100,100,100);
+    margin: 6px 0 0;
+  }
+}
+
+.custom-select {
+  --background: white;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  font-size: .9rem;
+  --color: #363948;
+  margin-bottom: 1rem;
+  // border: 1px solid rgba(205, 211, 216, 0.5);
+  --border-style: solid;
+  --border-radius: 3px;
+  --border-color: rgba(205, 211, 216, 0.5);
+  --border-width: 1px;
+
+  ion-label {
+    font-size: .9rem;
+  }
+}

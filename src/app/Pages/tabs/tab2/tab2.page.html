@@ -1,0 +1,46 @@
+<!-- <ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>
+      User Profile
+    </ion-title>
+  </ion-toolbar>
+</ion-header> -->
+
+<ion-content>
+  <div id="content">
+    <div id="profile-info">
+      <img id="profile-image" (click)="getImage()" src="{{userProfile.driverImageUrl}}">
+      <h3 id="profile-name">{{userProfile.driverFirstName }} {{userProfile.driverLastName}}</h3>
+      <span id="profile-description">{{userProfile.serviceProviderName}}</span>
+    </div>
+    <form id="userForm" (ngSubmit)="updateProfile()">
+      <ion-item>
+        <ion-label><strong>Name:</strong></ion-label>
+        <ion-input type="text" [(ngModel)]="userProfile.driverFirstName" name="name" readonly></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label><strong>Surname:</strong></ion-label>
+        <ion-input type="text" [(ngModel)]="userProfile.driverLastName" name="surname" readonly></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label><strong>Cell Num:</strong></ion-label>
+        <ion-input type="text" [(ngModel)]="userProfile.driverContactNumber" name="cell" readonly></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label><strong>Address:</strong></ion-label>
+        <ion-textarea [(ngModel)]="userProfile.driverAddressDescription" name="address" readonly></ion-textarea>
+      </ion-item>
+      <!-- <ion-item>
+        <ion-label><strong>Company:</strong></ion-label>
+        <ion-input type="text" [(ngModel)]="userProfile.serviceProviderName" name="company" readonly></ion-input>
+      </ion-item> -->
+      <!-- <ion-item>
+        <ion-label><strong>Password:</strong></ion-label>
+        <ion-input type="password" [(ngModel)]="userProfile.password" name="password"></ion-input>
+      </ion-item> -->
+      <!-- <br /> -->
+      <!-- <ion-button expand="block" type="submit">Update Details</ion-button> -->
+    </form>
+  </div>
+</ion-content>
+

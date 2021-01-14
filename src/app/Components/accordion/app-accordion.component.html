@@ -1,0 +1,14 @@
+<div class="accordion">
+    <dl>
+        <div *ngFor="let item of items">
+
+            <dt class='shadow-sm'>
+                <div aria-expanded="false" class="accordion-title accordionTitle js-accordionTrigger" [class.is-expanded]='item.expanded' (click)='expand(item)'><span>{{item.heading}}</span></div>
+            </dt>
+            <dd class="accordion-content accordionItem" [class.is-collapsed]='!item.expanded' [class.is-expanded]='item.expanded' [class.animateIn]='item.expanded' aria-hidden="true">
+                <p [innerHTML]='item.body'> </p>
+            </dd>
+
+        </div>
+    </dl>
+</div>
