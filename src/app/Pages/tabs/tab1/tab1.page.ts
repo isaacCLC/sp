@@ -54,10 +54,12 @@ export class Tab1Page {
         longitude: 0
       },
       finalDestination: "",
-      driverStatus: false,
+      driverStatus: 0,
       client: {}
     }
   };
+  navigatingToFD: boolean;
+  checkingRequest: boolean;
   spDetails: ServiceProviderDetails = {};
   firstTime: boolean;
   map: GoogleMap;
@@ -87,13 +89,12 @@ export class Tab1Page {
   iscarSelected: boolean;
   isInternetAvailable: boolean;
 
-  spLocation: Geoposition;
   tripDetails: TripDetails = {
     Distance: null,
     Eta: null,
     finalDestination: null
   };
-  clientDetails: ClientDetails = {};
+  // clientDetails: ClientDetails = {};
   spMarker: Marker;
   stayActive: boolean;
   appPaused: boolean = false;
@@ -170,18 +171,7 @@ export class Tab1Page {
       this.spDetails.fullAddress == "Your Location";
       this.helpers.getCurrentLocation().then(locationData => {
         if (locationData.coords) {
-          this.spLocation = locationData;
-          // this._api.getGeoCoding(this.spLocation.coords.latitude, this.spLocation.coords.longitude).subscribe(
-          //   address => {
-          //     if (address.body.status == true) {
-          //       this.spDetails.fullAddress = address.body.data.results[0].address_components[0].short_name + " " + address.body.data.results[0].address_components[1].short_name + ", " + address.body.data.results[0].address_components[2].short_name;
-          //     } else {
-          //       this.spDetails.fullAddress == "Your Location";
-          //     }
-          //   },
-          //   err => {
-          //     this.spDetails.fullAddress == "No Address";
-          //   });
+          this.spDetails.location = locationData;
           this.map.animateCamera({
             target: {
               lat: locationData.coords.latitude,
@@ -348,80 +338,79 @@ export class Tab1Page {
       })
       .subscribe(location => {
         if ("coords" in location) {
-          if (this.map && this.route.isActive('app/tabs/tab1', false) && this.isAvailable && !this.isJobAllocaed && !this.startTow) {
-            this.map.animateCamera({
-              target: {
-                lat: location.coords.latitude,
-                lng: location.coords.longitude
-              },
-              zoom: 18,
-              duration: 1000
-            });
-          }
-          this.spLocation = location
-          if (this.serviceReq.data.driverStatus) {
-            this._api.setSpLocation({
-              latitude: location.coords.latitude,
-              longitude: location.coords.longitude,
-              driverId: this.spDetails.driverId,
-              mobileNumber: this.spDetails.driverContactNumber,
-              call_id: this.serviceReq.data.serviceRequests.callId
-            }).subscribe(
-              data => {
-                if (data.status == true) {
-                  this.failedToSetLocationCounter = 0;
-                  if (this.navigationStarted) {
-                    let destinationLat = this.clientDetails.lat;
-                    let destinationLng = this.clientDetails.lng;
-                    if (this.startTow) {
-                      destinationLat = this.navToFinDist.lat;
-                      destinationLng = this.navToFinDist.lng;
-                    }
-                    this._api.getDistance({
-                      latA: location.coords.latitude,
-                      lonA: location.coords.longitude,
-                      latB: destinationLat,
-                      lonB: destinationLng
-                    }).then(res => {
-                      if (res) {
-                        this.tripDetails.Eta = res.data.time;
-                        this.tripDetails.Distance = res.data.distance
 
-                      }
-                    }, err => {
-                      alert(JSON.stringify(err))
-                    });
-                    if (this.spMarker && this.map && this.route.isActive('app/tabs/tab1', false) && this.isAvailable) {
-                      this.spMarker.setPosition({
-                        // lat: 1,
-                        // lng: 2
-                        lat: location.coords.latitude,
-                        lng: location.coords.longitude
-                      });
-                    }
-                  } else {
-                    if (this.spMarker && this.map && this.route.isActive('app/tabs/tab1', false) && this.isAvailable) {
-                      this.spMarker.setPosition({
-                        lat: location.coords.latitude,
-                        lng: location.coords.longitude
-                      });
-                    }
-                  }
-                }
-              },
-              err => {
-                this.failedToSetLocationCounter++;
-                if (this.failedToSetLocationCounter > 10) {
-                  this.alertprovider.presentAlert(
-                    "Server Error",
-                    "Couldn't connect to our servers and set your location, Please Try Again"
-                  );
-                  this.isToggled = false;
-                  this.isAvailable = false;
-                }
-              }
-            );
+          if (this.route.isActive('app/tabs/tab1', false)) {
+            this.spMarker.setPosition({
+              lat: location.coords.latitude,
+              lng: location.coords.longitude
+            });
+            switch (this.serviceReq.data.serviceRequests.status) {
+              case 0:
+              case 1:
+              case 2:
+              case 3:
+              case 5:
+              case 6:
+              case 7:
+              case 8:
+              case 9:
+                this.map.animateCamera({
+                  target: {
+                    lat: location.coords.latitude,
+                    lng: location.coords.longitude
+                  },
+                  zoom: 18,
+                  duration: 1000
+                });
+                break;
+              case 4:
+                this.map.animateCamera({
+                  target: [
+                    { lat: this.serviceReq.data.clientLocation.latitude, lng: this.serviceReq.data.clientLocation.longitude },
+                    { lat: this.spDetails.location.coords.latitude, lng: this.spDetails.location.coords.longitude }
+                  ],
+                  duration: 1000,
+                  zoom: 10
+                });
+              case 13:
+                this.map.animateCamera({
+                  target: [
+                    { lat: this.serviceReq.data.clientLocation.latitude, lng: this.serviceReq.data.clientLocation.longitude },
+                    { lat: this.spDetails.location.coords.latitude, lng: this.spDetails.location.coords.longitude }
+                  ],
+                  duration: 1000,
+                  zoom: 10
+                });
+                break
+            }
           }
+
+          this._api.setSpLocation({
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+            driverId: this.spDetails.driverId,
+            mobileNumber: this.spDetails.driverContactNumber,
+            call_id: this.serviceReq.data.serviceRequests.callId
+          }).subscribe(
+            setLocationResponse => {
+              if (setLocationResponse.status == true) {
+                this.failedToSetLocationCounter = 0;
+                this.tripDetails.Eta = setLocationResponse.data.distance.time;
+                this.tripDetails.Distance = setLocationResponse.data.distance.distance
+              }
+            },
+            err => {
+              this.failedToSetLocationCounter++;
+              if (this.failedToSetLocationCounter > 10) {
+                this.alertprovider.presentAlert(
+                  "Server Error",
+                  "Couldn't connect to our servers and set your location, Please Try Again"
+                );
+                this.isToggled = false;
+                this.isAvailable = false;
+              }
+            }
+          );
         }
       });
 
@@ -429,256 +418,281 @@ export class Tab1Page {
   async getRequests() {
     return this._api.checkServiceRequests(this.spDetails.driverId).subscribe(serviceRequestResponse => {
       this.serviceReq = serviceRequestResponse
-      switch (this.serviceReq.data.serviceRequests.status) {
-        case 4:
-
+      if (!this.checkingRequest) {
+        switch (this.serviceReq.data.serviceRequests.status) {
+          case 1:
+          case 2:
+            this.checkRequest("reviewing");
+          case 3:
+            break;
+          case 4:
+            this.isJobAllocaed ? this.allocateJob() : "";
+            break;
+          case 4:
+            this.isJobAllocaed ? this.allocateJob() : "";
+            break;
+          case 8:
+            this.checkRequest("notAllocated");
+            break;
+          case 10:
+            this.route.isActive('app/tabs/tab1', false) ? this.arrived() : "";
+            break;
+          case 11:
+            this.clearMap()
+            this.checkRequest("endTow");
+            break;
+          case 13:
+            this.navigatingToFD ? this.navToFinalDest() : "";
+            break;
+          case 14:
+            break;
+        }
       }
     })
   }
 
-
-  async getRequestsOld() {
-    return this._api.checkServiceRequests(this.spDetails.driverId).subscribe(serviceRequestResponse => {
-      this.serviceReq = serviceRequestResponse
-      if (this.iscarSelected && this.spLocation) {
-        let status = (this.serviceReq.data.driverStatus == 1) ? true : false;
-        if (this.isToggled != status) {
-          this.isToggled = status;
-          this.availableClick();
-        }
-
-        if (status) {
-          switch (this.serviceReq.data.serviceRequests.status) {
-            case 4:
-
-          }
-        }
-        if (this.serviceReq.data.serviceRequests.status == 4) {
-          this._api.getDistance({
-            latA: this.spLocation.coords.latitude,
-            lonA: this.spLocation.coords.longitude,
-            latB: this.serviceReq.data.clientLocation.latitude,
-            lonB: this.serviceReq.data.clientLocation.longitude
-          })
-            .then(res => {
-              if (res) {
-                this.serviceReq.data.client.distance = res.data.distance;
-                this.tripDetails.Eta = res.data.time
-                this.tripDetails.Distance = res.data.distance
-                this.awaitingFD = false;
-                if (!this.isJobAllocaed) {
-                  this.allocateJob(this.serviceReq.data.clientLocation.latitude, this.serviceReq.data.clientLocation.longitude);
-                }
-                this.spArrived = false;
-                this.isReqAccepted = true;
-                this.map.animateCamera({
-                  target: [
-                    { lat: this.serviceReq.data.clientLocation.latitude, lng: this.serviceReq.data.clientLocation.longitude },
-                    { lat: this.spLocation.coords.latitude, lng: this.spLocation.coords.longitude }
-                  ],
-                  duration: 1000,
-                  zoom: 10
-                });
-              }
-              try {
-                //this.addPolyLines(res.lat, res.lng);
-              } catch (error) { }
-              this.clientDetails.lat = this.serviceReq.data.clientLocation.latitude;
-              this.clientDetails.lng = this.serviceReq.data.clientLocation.longitude;
-              this.clientDetails.callID = this.serviceReq.data.serviceRequests.callId
-              this.clientDetails.callRef = this.serviceReq.data.serviceRequests.callRef
-              this.clientDetails.sub_sub_product_name = this.serviceReq.data.serviceRequests.sub_sub_product_name
-              this.clientDetails.finallocation = this.serviceReq.data.finalDestination
-
-
-              this.finalDestination = this.serviceReq.data.finalDestination
-              this.setClientDetails(this.serviceReq.data.client);
-            }, err => {
-              console.log(err)
-              alert(JSON.stringify(err))
-            });
-        } else {
-          if ((this.serviceReq.data.serviceRequests.status == 1 || this.serviceReq.data.serviceRequests.status == 2) && !this.route.isActive('request-alert', false)) {
-            this.clientDetails.callID = this.serviceReq.data.serviceRequests.callId
-            this.checkRequest(this.serviceReq, "reviewing");
-          }
-        }
-        if (this.serviceReq.data.serviceRequests.status == 10) {
-          console.log(this.serviceReq.data.finalDestination)
-          if (this.serviceReq.data.finalDestination) {
-            this._api.getReverseGeocoding(this.serviceReq.data.finalDestination).subscribe(reponse => {
-              console.log(reponse.body.data.latitude)
-              this._api.getDistance({
-                latA: this.spLocation.coords.latitude,
-                lonA: this.spLocation.coords.longitude,
-                latB: reponse.body.data.latitude,
-                lonB: reponse.body.data.longitude
-              }).then(res => {
-                if (res) {
-                  console.log(res)
-                  this.awaitingFD = false;
-                  this.serviceReq.data.client.distance = res.data.distance;
-                  this.tripDetails.Eta = res.data.time
-                  this.tripDetails.Distance = res.data.distance
-                  console.log(this.startTow)
-                  this.navToFinDist = {
-                    corpName: "Tow",
-                    lat: reponse.body.data.latitude,
-                    lng: reponse.body.data.longitude
-                  }
-
-                  if (!this.startTow) {
-                    this.navToFinalDest({
-                      lat: reponse.body.data.latitude,
-                      lng: reponse.body.data.longitude,
-                      corpName: "Panel Beaters",
-                      // navToFinDist: true
-                    });
-                  }
-
-
-                  this.spArrived = false;
-                  this.isReqAccepted = true;
-                  this.map.animateCamera({
-                    target: [
-                      { lat: reponse.body.data.latitude, lng: reponse.body.data.longitude },
-                      { lat: this.spLocation.coords.latitude, lng: this.spLocation.coords.longitude }
-                    ],
-                    duration: 1000,
-                    zoom: 10
-                  });
-                }
-
-                this.clientDetails.lat = this.serviceReq.data.clientLocation.latitude;
-                this.clientDetails.lng = this.serviceReq.data.clientLocation.longitude;
-                this.clientDetails.callID = this.serviceReq.data.serviceRequests.callId
-                this.clientDetails.callRef = this.serviceReq.data.serviceRequests.callRef
-                this.clientDetails.sub_sub_product_name = this.serviceReq.data.serviceRequests.sub_sub_product_name
-                this.clientDetails.finallocation = this.serviceReq.data.finalDestination
-
-
-                this.finalDestination = this.serviceReq.data.finalDestination
-                this.setClientDetails(this.serviceReq.data.client);
-
-              }, err => {
-                console.log(err)
-                alert(JSON.stringify(err))
-              });
-            })
-          } else {
-            this.clientDetails.lat = this.serviceReq.data.clientLocation.latitude;
-            this.clientDetails.lng = this.serviceReq.data.clientLocation.longitude;
-            this.clientDetails.callID = this.serviceReq.data.serviceRequests.callId
-            this.clientDetails.callRef = this.serviceReq.data.serviceRequests.callRef;
-            this.clientDetails.sub_sub_product_name = this.serviceReq.data.serviceRequests.sub_sub_product_name;
-            this.clientDetails.finallocation = this.serviceReq.data.finalDestination;
-
-            this.map.clear();
-            this.isReqAccepted = true;
-            this.awaitingFD = true;
-            // this.startTow = true;
-
-            this.tripDetails.Eta = "Awaiting FD"
-            this.tripDetails.Distance = ""
-          }
-
-        }
-        if (this.serviceReq.data.serviceRequests.status == 3) {
-          this.isReqAccepted = true
-          this._api.getDistance({
-            latA: this.spLocation.coords.latitude,
-            lonA: this.spLocation.coords.longitude,
-            latB: this.serviceReq.data.clientLocation.latitude,
-            lonB: this.serviceReq.data.clientLocation.longitude
-          })
-            .then(res => {
-              if (res) {
-                this.serviceReq.data.client.distance = res.data.distance;
-                this.tripDetails.Eta = res.data.time
-                this.tripDetails.Distance = res.data.distance
-              }
-              try {
-                //this.addPolyLines(res.lat, res.lng);
-              } catch (error) { }
-              this.clientDetails.lat = this.serviceReq.data.clientLocation.latitude;
-              this.clientDetails.lng = this.serviceReq.data.clientLocation.longitude;
-              this.clientDetails.callID = this.serviceReq.data.serviceRequests.callId
-              this.clientDetails.callRef = this.serviceReq.data.serviceRequests.callRef;
-              this.clientDetails.sub_sub_product_name = this.serviceReq.data.serviceRequests.sub_sub_product_name;
-              this.clientDetails.finallocation = this.serviceReq.data.finalDestination;
-
-
-              this.finalDestination = this.serviceReq.data.finalDestination
-              this.setClientDetails(this.serviceReq.data.client);
-            }, err => {
-              console.log(err)
-              alert(JSON.stringify(err))
-            });
-        }
-        if (this.serviceReq.data.serviceRequests.status == 8) {
-          this.checkRequest(this.serviceReq, "notAllocated");
-          this.map.clear();
-          this.isAvailable = true;
-          this.isReqAccepted = false;
-          this.isJobAllocaed = false;
-          this.tripDetails.Eta = null;
-          this.navigationStarted = false;
-          this.startTow = false;
-          // this.alertprovider.presentAlert(
-          //       "Job Allocation",
-          //       "Unfortunately we could not allocate the job to you!"
-          // );  
-
-        }
-        if (this.serviceReq.data.serviceRequests.status == 11) {
-          this.checkRequest(this.serviceReq, "endTowResponse");
-          this.navigationStarted = false
-          this.isReqAccepted = false
-          this.startTow = false
-          this.tripDetails = null
-          this.storage.remove("callComplete")
-
-          let spTitle = this.spDetails.fullAddress;
-          this.map.clear();
-        }
-      }
-
-    })
-  }
-
-  setClientDetails(param: any) {
-    this.clientDetails.name = param.name;
-    this.clientDetails.surname = param.surname;
-    this.clientDetails.number = param.number;
-    // this.clientDetails.lat = param.lat;
-    // this.clientDetails.lng = param.lng;
-    // this.clientDetails.requestDate = param.requestDate;
-    // this.clientDetails.address = param.clientAddress;
-    this.clientDetails.distance = param.distance;
-    this._api.getGeoCoding(this.clientDetails.lat, this.clientDetails.lng).subscribe(address => {
-      // console.log(address)
-      if (address.body.status == true) {
-        this.clientDetails.address = address.body.data.results[0].address_components[0].short_name + " " + address.body.data.results[0].address_components[1].short_name + ", " + address.body.data.results[0].address_components[2].short_name;
-      }
+  clearMap() {
+    this.map.clear()
+    this.map.animateCamera({
+      target: {
+        lat: this.spDetails.location.coords.latitude,
+        lng: this.spDetails.location.coords.longitude,
+      },
+      zoom: 18,
+      duration: 1000
     });
   }
 
-  async checkRequest(clientDetails: any, acceptResponse) {
+
+  // async getRequestsOld() {
+  //   return this._api.checkServiceRequests(this.spDetails.driverId).subscribe(serviceRequestResponse => {
+  //     this.serviceReq = serviceRequestResponse
+  //     if (this.iscarSelected && this.spDetails.location) {
+  //       let status = (this.serviceReq.data.driverStatus == 1) ? true : false;
+  //       if (this.isToggled != status) {
+  //         this.isToggled = status;
+  //         this.availableClick();
+  //       }
+  //       if (this.serviceReq.data.serviceRequests.status == 4) {
+  //         this._api.getDistance({
+  //           latA: this.spDetails.location.coords.latitude,
+  //           lonA: this.spDetails.location.coords.longitude,
+  //           latB: this.serviceReq.data.clientLocation.latitude,
+  //           lonB: this.serviceReq.data.clientLocation.longitude
+  //         })
+  //           .then(res => {
+  //             if (res) {
+  //               this.serviceReq.data.client.distance = res.data.distance;
+  //               this.tripDetails.Eta = res.data.time
+  //               this.tripDetails.Distance = res.data.distance
+  //               this.awaitingFD = false;
+  //               if (!this.isJobAllocaed) {
+  //                 this.allocateJob(this.serviceReq.data.clientLocation.latitude, this.serviceReq.data.clientLocation.longitude);
+  //               }
+  //               this.spArrived = false;
+  //               this.isReqAccepted = true;
+
+  //             }
+  //             try {
+  //               //this.addPolyLines(res.lat, res.lng);
+  //             } catch (error) { }
+  //             this.clientDetails.lat = this.serviceReq.data.clientLocation.latitude;
+  //             this.clientDetails.lng = this.serviceReq.data.clientLocation.longitude;
+  //             this.clientDetails.callID = this.serviceReq.data.serviceRequests.callId
+  //             this.clientDetails.callRef = this.serviceReq.data.serviceRequests.callRef
+  //             this.clientDetails.sub_sub_product_name = this.serviceReq.data.serviceRequests.sub_sub_product_name
+  //             this.clientDetails.finallocation = this.serviceReq.data.finalDestination
+
+
+  //             this.finalDestination = this.serviceReq.data.finalDestination
+  //             this.setClientDetails(this.serviceReq.data.client);
+  //           }, err => {
+  //             console.log(err)
+  //             alert(JSON.stringify(err))
+  //           });
+  //       } else {
+  //         if ((this.serviceReq.data.serviceRequests.status == 1 || this.serviceReq.data.serviceRequests.status == 2) && !this.route.isActive('request-alert', false)) {
+  //           this.clientDetails.callID = this.serviceReq.data.serviceRequests.callId
+  //         }
+  //       }
+  //       if (this.serviceReq.data.serviceRequests.status == 10) {
+  //         console.log(this.serviceReq.data.finalDestination)
+  //         if (this.serviceReq.data.finalDestination) {
+  //           this._api.getReverseGeocoding(this.serviceReq.data.finalDestination).subscribe(reponse => {
+  //             console.log(reponse.body.data.latitude)
+  //             this._api.getDistance({
+  //               latA: this.spDetails.location.coords.latitude,
+  //               lonA: this.spDetails.location.coords.longitude,
+  //               latB: reponse.body.data.latitude,
+  //               lonB: reponse.body.data.longitude
+  //             }).then(res => {
+  //               if (res) {
+  //                 console.log(res)
+  //                 this.awaitingFD = false;
+  //                 this.serviceReq.data.client.distance = res.data.distance;
+  //                 this.tripDetails.Eta = res.data.time
+  //                 this.tripDetails.Distance = res.data.distance
+  //                 console.log(this.startTow)
+  //                 this.navToFinDist = {
+  //                   corpName: "Tow",
+  //                   lat: reponse.body.data.latitude,
+  //                   lng: reponse.body.data.longitude
+  //                 }
+
+  //                 if (!this.startTow) {
+  //                   this.navToFinalDest({
+  //                     lat: reponse.body.data.latitude,
+  //                     lng: reponse.body.data.longitude,
+  //                     corpName: "Panel Beaters",
+  //                     // navToFinDist: true
+  //                   });
+  //                 }
+
+
+  //                 this.spArrived = false;
+  //                 this.isReqAccepted = true;
+  //                 this.map.animateCamera({
+  //                   target: [
+  //                     { lat: reponse.body.data.latitude, lng: reponse.body.data.longitude },
+  //                     { lat: this.spDetails.location.coords.latitude, lng: this.spDetails.location.coords.longitude }
+  //                   ],
+  //                   duration: 1000,
+  //                   zoom: 10
+  //                 });
+  //               }
+
+  //               this.clientDetails.lat = this.serviceReq.data.clientLocation.latitude;
+  //               this.clientDetails.lng = this.serviceReq.data.clientLocation.longitude;
+  //               this.clientDetails.callID = this.serviceReq.data.serviceRequests.callId
+  //               this.clientDetails.callRef = this.serviceReq.data.serviceRequests.callRef
+  //               this.clientDetails.sub_sub_product_name = this.serviceReq.data.serviceRequests.sub_sub_product_name
+  //               this.clientDetails.finallocation = this.serviceReq.data.finalDestination
+
+
+  //               this.finalDestination = this.serviceReq.data.finalDestination
+  //               this.setClientDetails(this.serviceReq.data.client);
+
+  //             }, err => {
+  //               console.log(err)
+  //               alert(JSON.stringify(err))
+  //             });
+  //           })
+  //         } else {
+  //           this.clientDetails.lat = this.serviceReq.data.clientLocation.latitude;
+  //           this.clientDetails.lng = this.serviceReq.data.clientLocation.longitude;
+  //           this.clientDetails.callID = this.serviceReq.data.serviceRequests.callId
+  //           this.clientDetails.callRef = this.serviceReq.data.serviceRequests.callRef;
+  //           this.clientDetails.sub_sub_product_name = this.serviceReq.data.serviceRequests.sub_sub_product_name;
+  //           this.clientDetails.finallocation = this.serviceReq.data.finalDestination;
+
+  //           this.map.clear();
+  //           this.isReqAccepted = true;
+  //           this.awaitingFD = true;
+  //           // this.startTow = true;
+
+  //           this.tripDetails.Eta = "Awaiting FD"
+  //           this.tripDetails.Distance = ""
+  //         }
+
+  //       }
+  //       if (this.serviceReq.data.serviceRequests.status == 3) {
+  //         this.isReqAccepted = true
+  //         this._api.getDistance({
+  //           latA: this.spDetails.location.coords.latitude,
+  //           lonA: this.spDetails.location.coords.longitude,
+  //           latB: this.serviceReq.data.clientLocation.latitude,
+  //           lonB: this.serviceReq.data.clientLocation.longitude
+  //         })
+  //           .then(res => {
+  //             if (res) {
+  //               this.serviceReq.data.client.distance = res.data.distance;
+  //               this.tripDetails.Eta = res.data.time
+  //               this.tripDetails.Distance = res.data.distance
+  //             }
+  //             try {
+  //               //this.addPolyLines(res.lat, res.lng);
+  //             } catch (error) { }
+  //             this.clientDetails.lat = this.serviceReq.data.clientLocation.latitude;
+  //             this.clientDetails.lng = this.serviceReq.data.clientLocation.longitude;
+  //             this.clientDetails.callID = this.serviceReq.data.serviceRequests.callId
+  //             this.clientDetails.callRef = this.serviceReq.data.serviceRequests.callRef;
+  //             this.clientDetails.sub_sub_product_name = this.serviceReq.data.serviceRequests.sub_sub_product_name;
+  //             this.clientDetails.finallocation = this.serviceReq.data.finalDestination;
+
+
+  //             this.finalDestination = this.serviceReq.data.finalDestination
+  //             this.setClientDetails(this.serviceReq.data.client);
+  //           }, err => {
+  //             console.log(err)
+  //             alert(JSON.stringify(err))
+  //           });
+  //       }
+  //       if (this.serviceReq.data.serviceRequests.status == 8) {
+  //         this.checkRequest(this.serviceReq, "notAllocated");
+  //         this.map.clear();
+  //         this.isAvailable = true;
+  //         this.isReqAccepted = false;
+  //         this.isJobAllocaed = false;
+  //         this.tripDetails.Eta = null;
+  //         this.navigationStarted = false;
+  //         this.startTow = false;
+  //         // this.alertprovider.presentAlert(
+  //         //       "Job Allocation",
+  //         //       "Unfortunately we could not allocate the job to you!"
+  //         // );  
+
+  //       }
+  //       if (this.serviceReq.data.serviceRequests.status == 11) {
+  //         this.checkRequest(this.serviceReq, "endTowResponse");
+  //         this.navigationStarted = false
+  //         this.isReqAccepted = false
+  //         this.startTow = false
+  //         this.tripDetails = null
+  //         this.storage.remove("callComplete")
+
+  //         let spTitle = this.spDetails.fullAddress;
+  //         this.map.clear();
+  //       }
+  //     }
+
+  //   })
+  // }
+
+  // setClientDetails(param: any) {
+  //   this.clientDetails.name = param.name;
+  //   this.clientDetails.surname = param.surname;
+  //   this.clientDetails.number = param.number;
+  //   // this.clientDetails.lat = param.lat;
+  //   // this.clientDetails.lng = param.lng;
+  //   // this.clientDetails.requestDate = param.requestDate;
+  //   // this.clientDetails.address = param.clientAddress;
+  //   this.clientDetails.distance = param.distance;
+  //   this._api.getGeoCoding(this.clientDetails.lat, this.clientDetails.lng).subscribe(address => {
+  //     // console.log(address)
+  //     if (address.body.status == true) {
+  //       this.clientDetails.address = address.body.data.results[0].address_components[0].short_name + " " + address.body.data.results[0].address_components[1].short_name + ", " + address.body.data.results[0].address_components[2].short_name;
+  //     }
+  //   });
+  // }
+
+  async checkRequest(acceptResponse) {
+    this.checkingRequest = true;
     this.loadingCtrl.create({
       message: "Please wait..."
     }).then(loader => {
       loader.present()
-      this._api.acceptJob(this.spDetails.driverId, clientDetails.data.serviceRequests.callId, acceptResponse).subscribe(response => {
+      this._api.acceptJob(this.spDetails.driverId, this.serviceReq.data.serviceRequests.callId, acceptResponse, this.serviceReq.data.serviceRequests.callRef).subscribe(response => {
+        this.checkingRequest = false;
         loader.dismiss();
         if (acceptResponse == "notAllocated") {
           this.alertprovider.presentAlert(
-            "Job REF" + clientDetails.data.serviceRequests.callRef,
+            "Job REF" + this.serviceReq.data.serviceRequests.callRef,
             "Unfortunately we could not allocate the job to you!"
           );
         }
-        if (acceptResponse == "callComplete") {
+        if (acceptResponse == "endTow") {
           this.alertprovider.presentAlert(
-            "Job REF" + clientDetails.data.serviceRequests.callRef,
+            "Job REF" + this.serviceReq.data.serviceRequests.callRef,
             "Thank you for completing this job!"
           );
         }
@@ -686,13 +700,13 @@ export class Tab1Page {
         if (acceptResponse == "reviewing") {
           this.route.navigate(["request-alert"], {
             queryParams: {
-              clientDetails: JSON.stringify(clientDetails),
-              spDetials: JSON.stringify(this.spDetails),
-              spLocation: JSON.stringify({ lat: this.spLocation.coords.latitude, lng: this.spLocation.coords.longitude })
+              serviceReqeust: JSON.stringify(this.serviceReq),
+              serviceProvider: JSON.stringify(this.spDetails)
             }
           });
         }
       }, err => {
+        this.checkingRequest = false;
         console.log(err)
         loader.dismiss();
       })
@@ -723,25 +737,41 @@ export class Tab1Page {
   }
 
 
-  async navToFinalDest(finalDest: iFinalDest) {
+  async navToFinalDest() {
     try {
+      this.navigatingToFD = true;
       await this.map.clear();
-      this.startTow = true;
-      this.navigationStarted = true;
+      this.map.animateCamera({
+        target: [
+          { lat: this.serviceReq.data.finalDestination.latitude, lng: this.serviceReq.data.finalDestination.longitude },
+          { lat: this.spDetails.location.coords.latitude, lng: this.spDetails.location.coords.longitude }
+        ],
+        duration: 1000,
+        zoom: 10
+      });
       let marker: Marker = await this.map.addMarkerSync({
         position: {
-          lat: finalDest.lat,
-          lng: finalDest.lng
+          lat: this.serviceReq.data.finalDestination.latitude,
+          lng: this.serviceReq.data.finalDestination.longitude
         },
         title: "Final Destination"
       });
       marker.showInfoWindow();
-      await this.addPolyLines(this.spLocation.coords.latitude, this.spLocation.coords.longitude, finalDest.lat, finalDest.lng);
+      await this.addPolyLines(this.spDetails.location.coords.latitude, this.spDetails.location.coords.longitude, this.serviceReq.data.finalDestination.latitude, this.serviceReq.data.finalDestination.longitude);
       await this.storage.remove('navToFinDist');
     } catch (error) { }
   }
 
-  async allocateJob(lat, lng) {
+  async allocateJob() {
+    this.map.animateCamera({
+      target: [
+        { lat: this.serviceReq.data.clientLocation.latitude, lng: this.serviceReq.data.clientLocation.longitude },
+        { lat: this.spDetails.location.coords.latitude, lng: this.spDetails.location.coords.longitude }
+      ],
+      duration: 1000,
+      zoom: 10
+    });
+
     let icon = {
       url: this.helpers.clientIcon,
       size: {
@@ -751,6 +781,7 @@ export class Tab1Page {
     };
 
     if (!this.isJobAllocaed) {
+      this.isJobAllocaed = true;
       if (this.appPaused) {
         this.helpers.allocationPush(
           "Congragulations!! The job has been allocated to you"
@@ -763,18 +794,16 @@ export class Tab1Page {
       }
     }
 
-    this.isJobAllocaed = true;
-
     try {
       this.map.addMarkerSync({
         position: {
-          lat: lat,
-          lng: lng
+          lat: this.serviceReq.data.clientLocation.latitude,
+          lng: this.serviceReq.data.clientLocation.longitude
         },
-        title: "Your Destination",
+        title: "Scene Location",
         icon: icon
       }).showInfoWindow()
-      this.addPolyLines(this.spLocation.coords.latitude, this.spLocation.coords.longitude, lat, lng);
+      this.addPolyLines(this.spDetails.location.coords.latitude, this.spDetails.location.coords.longitude, this.serviceReq.data.clientLocation.latitude, this.serviceReq.data.clientLocation.longitude);
     } catch (error) {
       throw error;
     }
@@ -854,7 +883,7 @@ export class Tab1Page {
           text: "Yes",
           cssClass: "secondary",
           handler: blah => {
-            this._api.acceptJob(this.spDetails.driverId, this.clientDetails.callID, "cancel").subscribe(response => {
+            this._api.acceptJob(this.spDetails.driverId, this.serviceReq.data.serviceRequests.callId, "cancel", this.serviceReq.data.serviceRequests.callRef).subscribe(response => {
               this.map.clear();
               this.isAvailable = true;
               this.isReqAccepted = false;
@@ -886,27 +915,11 @@ export class Tab1Page {
       )
     } else {
       if (!this.awaitingFD) {
-        this._api.getDistance({
-          latA: this.spLocation.coords.latitude,
-          lonA: this.spLocation.coords.longitude,
-          latB: this.clientDetails.lat,
-          lonB: this.clientDetails.lng
-        }).then(res => {
-          if (res) {
-            this.tripDetails.Eta = res.data.time;
-            this.tripDetails.Distance = res.data.distance
-            this.tripDetails.finalDestination = this.finalDestination
-
             this.route.navigate(["job-info"], {
               queryParams: {
-                clientDetalis: JSON.stringify(this.clientDetails),
-                jobInfo: JSON.stringify(this.tripDetails)
+                jobInfo: JSON.stringify(this.serviceReq)
               }
-            });
-          }
-        }, err => {
-          alert(JSON.stringify(err))
-        });
+            }); 
       } else {
         this.tripDetails.Eta = "Awaiting FD";
         this.tripDetails.Distance = "Awaiting FD"
@@ -914,8 +927,7 @@ export class Tab1Page {
 
         this.route.navigate(["job-info"], {
           queryParams: {
-            clientDetalis: JSON.stringify(this.clientDetails),
-            jobInfo: JSON.stringify(this.tripDetails)
+            jobInfo: JSON.stringify(this.serviceReq)
           }
         });
       }
@@ -929,10 +941,10 @@ export class Tab1Page {
     let destination = []
     this.navigationStarted = true;
     // await this.getLatestLocation();
-    if (this.startTow) {
+    if (this.navToFinDist) {
       // this.startTowing.nativeElement.remove();
-      destination.push(this.navToFinDist.lat)
-      destination.push(this.navToFinDist.lng)
+      destination.push(this.serviceReq.data.finalDestination.latitude)
+      destination.push(this.serviceReq.data.finalDestination.longitude)
       this.helpers.navigate(destination);
       //this.startTow =false;
       this.driveFinDistTarget = 80;
@@ -943,8 +955,8 @@ export class Tab1Page {
       return;
     }
     this.clientDriverTarget = 80;
-    destination.push(this.clientDetails.lat);
-    destination.push(this.clientDetails.lng);
+    destination.push(this.serviceReq.data.clientLocation.latitude);
+    destination.push(this.serviceReq.data.clientLocation.longitude);
     this.helpers.navigate(destination);
     this.checkRadius = interval(1000).subscribe(() => {
       this.clientDriverTarget = this.clientDriverTarget - 10;
@@ -973,7 +985,7 @@ export class Tab1Page {
       message: "Please wait..."
     }).then(loader => {
       loader.present()
-      this._api.acceptJob(this.spDetails.driverId, this.clientDetails.callID, "arrived").subscribe(response => {
+      this._api.acceptJob(this.spDetails.driverId, this.serviceReq.data.serviceRequests.callId, "arrived", this.serviceReq.data.serviceRequests.callRef).subscribe(response => {
         loader.dismiss();
         this.route.navigateByUrl("accident-scene1");
       })
@@ -1002,8 +1014,8 @@ export class Tab1Page {
       this.map.addMarker({
         title: title,
         position: {
-          lat: this.spLocation.coords.latitude,
-          lng: this.spLocation.coords.longitude
+          lat: this.spDetails.location.coords.latitude,
+          lng: this.spDetails.location.coords.longitude
         },
         icon: icon
       }).then(marker => {

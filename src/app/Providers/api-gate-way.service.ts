@@ -65,14 +65,15 @@ export class ApiGateWayService {
     }
   }
 
-  acceptJob(driverId: any, callRef, acceptJob): Observable<any> {
+  acceptJob(driverId: any, callId, acceptJob, callRef): Observable<any> {
     try {
       return this._http.get(this.serverHost + "/rest/cca/v1/sp/acceptServiceRequest.php", {
         params: {
           key: this.api_key,
           driverId: driverId,
           callRef: callRef,
-          acceptJob: acceptJob
+          acceptJob: acceptJob,
+          callId: callId
         }
       });
 

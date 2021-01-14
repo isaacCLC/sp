@@ -57,8 +57,11 @@ export interface iServiceRequest{
         latitude: number,
         longitude: number
       },
-      finalDestination: string,
-      driverStatus: boolean,
+      finalDestination: {
+        latitude: number,
+        longitude: number
+      },
+      driverStatus: number,
       client: any
   }
 }
