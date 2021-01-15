@@ -38,7 +38,7 @@ export class FinalChecklistPage implements OnInit {
       }
       this._api.checkServiceRequests(payLoad).subscribe(data => {
         console.log(data)
-        this._api.acceptJob(driverID, data.data.serviceRequests.callId, "endTow").subscribe(response => {
+        this._api.acceptJob(driverID, data.data.serviceRequests.callId, "endTow", data.data.serviceRequests.callRef).subscribe(response => {
           console.log(response)
           // alert("Thank you for submitting the claim, your ref num is:"+ 345)
           this.route.navigate(["app/tabs/tab1"])

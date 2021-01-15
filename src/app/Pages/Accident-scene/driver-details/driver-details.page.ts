@@ -43,7 +43,7 @@ export class DriverDetailsPage implements OnInit {
         driverId: driverID
       }
       this._api.checkServiceRequests(payLoad).subscribe(data => {
-        this._api.acceptJob(driverID, data.data.serviceRequests.callId, "startTow").subscribe(response => {
+        this._api.acceptJob(driverID, data.data.serviceRequests.callId, "startTow", data.data.serviceRequests.callRef).subscribe(response => {
           console.log(response)
           this.route.navigate(["app/tabs/tab1"]);
         })

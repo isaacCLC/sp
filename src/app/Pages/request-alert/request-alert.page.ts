@@ -6,7 +6,7 @@ import { GoogleMaps, GoogleMap, Marker, GoogleMapOptions, Circle, GoogleMapsEven
 import { Storage } from "@ionic/storage";
 import { Router, ActivatedRoute, NavigationExtras } from "@angular/router";
 import { AlertsProviderService } from "../../Providers/alerts-provider.service";
-import { iServiceRequest } from '../../models/appModels';
+import { iServiceRequest, ServiceProviderDetails } from '../../models/appModels';
 
 @Component({
   selector: "app-request-alert",
@@ -15,7 +15,7 @@ import { iServiceRequest } from '../../models/appModels';
 })
 export class RequestAlertPage implements OnInit {
   reqAccepted: boolean;
-  clientDetails: iServiceRequest = {
+  serviceRequest: iServiceRequest = {
     status: false,
     data: {
       driverId: 0,
@@ -39,18 +39,21 @@ export class RequestAlertPage implements OnInit {
         latitude: 0,
         longitude: 0
       },
-      finalDestination: "Unknown",
+      finalDestination: {
+        latitude: 0,
+        longitude: 0
+      },
       driverStatus: 0,
       client: {}
     }
 
   };
+  serviceProvider: ServiceProviderDetails = {};
   clientFullAddress: any;
   distance: any = 0;
   eta: any = "0";
   map2: GoogleMap;
   spDetials: any;
-  spLocation: any;
   termsState: boolean;
   tNc: string
   gotToTns: boolean;
@@ -113,47 +116,16 @@ export class RequestAlertPage implements OnInit {
   }
 
   initMap(params) {
-    console.log(this.map2)
-    console.log("Printing query parameters")
-    console.log(params)
     if (params) {
-      this.clientDetails = JSON.parse(params.clientDetails);
-      this.clientDetails = this.clientDetails;
-      this.spDetials = JSON.parse(params.spDetials);
-      this.spLocation = JSON.parse(params.spLocation);
-      this.vehicleDescription = this.clientDetails.data.driverVehicle.vehicleDescription
-      this.vehicleRegistration = this.clientDetails.data.driverVehicle.vehicleRegistration
-      if (this.clientDetails.data.finalDestination) {
-        this.finalDest = this.clientDetails.data.finalDestination
-      }
+      this.serviceRequest = JSON.parse(params.serviceRequest);
+      this.serviceProvider = JSON.parse(params.serviceProvider);
 
-      // this.map2.animateCamera({
-      //   target: {
-      //     lat: this.clientDetails.data.clientLocation.latitude,
-      //     lng: this.clientDetails.data.clientLocation.longitude
-      //   },
-      //   zoom: 12,
-      //   duration: 1000
-      // }).then(moved=>{
-      //   console.log(moved)
-      //   this.map2.addCircleSync({
-      //     'center': {
-      //       lat: this.clientDetails.data.clientLocation.latitude,
-      //       lng: this.clientDetails.data.clientLocation.longitude
-      //     },
-      //     'radius': 3000,
-      //     // 'strokeColor': '#AA00FF',
-      //     'strokeWidth': 2,
-      //     'fillColor': '#ffcccc'
-      //   })
-      // }).catch(err=>{
-      //   console.log(err)
-      // })
+      console.log(this.serviceProvider)
       this.getDistance({
-        latA: this.spLocation.lat,
-        lonA: this.spLocation.lng,
-        latB: this.clientDetails.data.clientLocation.latitude,
-        lonB: this.clientDetails.data.clientLocation.longitude
+        latA: this.serviceProvider.location.coords.latitude,
+        lonA: this.serviceProvider.location.coords.longitude,
+        latB: this.serviceRequest.data.clientLocation.latitude,
+        lonB: this.serviceRequest.data.clientLocation.longitude
       });
       this.getClientAddress();
     }
@@ -172,18 +144,9 @@ export class RequestAlertPage implements OnInit {
         height: 40
       }
     };
-    this._api.getGeoCoding(this.clientDetails.data.clientLocation.latitude, this.clientDetails.data.clientLocation.longitude)
+    this._api.getGeoCoding(this.serviceRequest.data.clientLocation.latitude, this.serviceRequest.data.clientLocation.longitude)
       .subscribe(res => {
         this.clientFullAddress = res.body.data.results[0].formatted_address;
-        // let marker: Marker = this.map.addMarkerSync({
-        //   position: {
-        //     lat: this.clientDetails.data.clientLocation.latitude,
-        //     lng: this.clientDetails.data.clientLocation.longitude
-        //   }
-        // });
-        // marker.showInfoWindow();
-        // Add circle
-
 
       }, err => { console.log(err) });
   }
@@ -208,8 +171,6 @@ export class RequestAlertPage implements OnInit {
 
   async acceptRequest() {
     this.gotToTns = true;
-    // if (this.map2)
-    //   this.map2.remove();
     this.getCallTerms();
     this.helpers.stopSoundAlert();
   }
@@ -220,18 +181,18 @@ export class RequestAlertPage implements OnInit {
   continue() {
     if (this.termsState == true) {
       this.reqAccepted = true;
-      this._api.acceptJob(this.spDetials.driverId, this.clientDetails.data.serviceRequests.callId, true).subscribe(apiResponse => {
+      this._api.acceptJob(this.serviceProvider.driverId, this.serviceRequest.data.serviceRequests.callId, true, this.serviceRequest.data.serviceRequests.callRef).subscribe(apiResponse => {
         console.log(apiResponse.data.Allocated)
         if (apiResponse.data.Allocated == true) {
           console.log("JOb assigned")
           let response = {
             reqAccepted: apiResponse.data.Allocated,
             clientAddress: this.clientFullAddress,
-            lat: this.clientDetails.data.clientLocation.latitude,
-            lng: this.clientDetails.data.clientLocation.longitude,
+            lat: this.serviceRequest.data.clientLocation.latitude,
+            lng: this.serviceRequest.data.clientLocation.longitude,
             distance: this.distance,
             eta: this.eta,
-            requestDate: this.clientDetails.data.serviceRequests.dateSent
+            requestDate: this.serviceRequest.data.serviceRequests.dateSent
           };
           console.log(response)
           this.storgae.set("clcrequestResponse", response).then(
@@ -267,8 +228,8 @@ export class RequestAlertPage implements OnInit {
 
   getCallTerms() {
     let params = {
-      callRef: this.clientDetails.data.serviceRequests.callId,
-      driverId: this.spDetials.driverId
+      callRef: this.serviceRequest.data.serviceRequests.callId,
+      driverId: this.serviceProvider.driverId
     }
     this._api.getCallTerms(params).subscribe(res => {
       if (res.status)
@@ -281,7 +242,7 @@ export class RequestAlertPage implements OnInit {
     this.reqAccepted = false;
     this.storgae.set("clcrequestResponse", { reqAccepted: this.reqAccepted }).then(
       () => {
-        this._api.acceptJob(this.spDetials.driverId, this.clientDetails.data.serviceRequests.callId, false).subscribe(response => {
+        this._api.acceptJob(this.serviceProvider.driverId, this.serviceRequest.data.serviceRequests.callId, false,  this.serviceRequest.data.serviceRequests.callRef).subscribe(response => {
           console.log("Rejecting job")
           console.log(response)
           this.route.navigate(["app/tabs/tab1"]);

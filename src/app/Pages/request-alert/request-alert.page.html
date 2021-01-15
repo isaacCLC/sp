@@ -16,22 +16,22 @@
 <ion-content class="ion-padding">
   <div *ngIf="!gotToTns" class="my-content center clr">
     <!-- <h4>Service Request from:</h4>
-    <ion-label>{{clientDetails.firstName}} {{clientDetails.LastName}}</ion-label>
+    <ion-label>{{serviceRequest.firstName}} {{serviceRequest.LastName}}</ion-label>
     <hr> -->
     <div *ngIf="!gotToTns" id="location-info">
       <h4>Client Location</h4>
       <!-- <div id="map_canvass"></div> -->
-      <agm-map [latitude]="clientDetails.data.clientLocation.latitude"
-        [longitude]="clientDetails.data.clientLocation.longitude" [zoom]="11" [mapDraggable]="false">
-        <agm-circle [latitude]="clientDetails.data.clientLocation.latitude"
-          [longitude]="clientDetails.data.clientLocation.longitude" [fillColor]="'red'" [radius]="5000"></agm-circle>
+      <agm-map [latitude]="serviceRequest.data.clientLocation.latitude"
+        [longitude]="serviceRequest.data.clientLocation.longitude" [zoom]="11" [mapDraggable]="false">
+        <agm-circle [latitude]="serviceRequest.data.clientLocation.latitude"
+          [longitude]="serviceRequest.data.clientLocation.longitude" [fillColor]="'red'" [radius]="5000"></agm-circle>
       </agm-map>
     </div>
     <hr>
     <div id="location-info">
       <h4>Vehicle Details</h4>
-      <p><span><strong>Make and Model: </strong></span>{{vehicleDescription}}</p>
-      <p><span><strong>Registration: </strong></span>{{vehicleRegistration}}</p>
+      <p><span><strong>Make and Model: </strong></span>{{ this.serviceRequest.data.driverVehicle.vehicleDescription}}</p>
+      <p><span><strong>Registration: </strong></span>{{ this.serviceRequest.data.driverVehicle.vehicleRegistration}}</p>
     </div>
 
     <div *ngIf="finalDest != '0'" id="location-info">
