@@ -98,6 +98,7 @@ export class RequestAlertPage implements OnInit {
         console.log(this.map2)
         this.initMap(params)
         loader.dismiss()
+        this.serviceRequest.data.driverVehicle.
         // this.platform.ready().then(() => {
         //   console.log("Platform rady")
         //   this.map2 = GoogleMaps.create("map_canvass",{gestures: {
