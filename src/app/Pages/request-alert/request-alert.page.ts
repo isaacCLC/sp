@@ -41,10 +41,15 @@ export class RequestAlertPage implements OnInit {
       },
       finalDestination: {
         latitude: 0,
-        longitude: 0
+        longitude: 0,
+        address: "Not yet available"
       },
       driverStatus: 0,
-      client: {}
+      client: {
+        name : "",
+        surname: "",
+        number: ""
+      }
     }
 
   };
@@ -76,15 +81,6 @@ export class RequestAlertPage implements OnInit {
     this.gotToTns = false;
   }
 
-  // ngOnInit(){
-
-  // }
-
-  // ngAfterViewInit(){
-
-
-  // }
-
 
   ngOnInit() {
     this.activatedRoute.queryParams.subscribe(params => {
@@ -98,20 +94,7 @@ export class RequestAlertPage implements OnInit {
         console.log(this.map2)
         this.initMap(params)
         loader.dismiss()
-        this.serviceRequest.data.driverVehicle.
-        // this.platform.ready().then(() => {
-        //   console.log("Platform rady")
-        //   this.map2 = GoogleMaps.create("map_canvass",{gestures: {
-        //     rotate: false,
-        //     tilt: false,
-        //     scroll: false,
-        //     zoom: false,
-        //   }});
-        //   this.map2.one(GoogleMapsEvent.MAP_READY).then(()=>{
-
-
-        //   });        
-        // });
+        this.serviceRequest.data.driverVehicle
       })
     })
   }
@@ -132,11 +115,6 @@ export class RequestAlertPage implements OnInit {
     }
   }
 
-  // loadMap() {
-
-  //   console.log("Maps loaded")
-  // }
-
   getClientAddress() {
     let icon = {
       url: this.helpers.clientIcon,
@@ -148,24 +126,17 @@ export class RequestAlertPage implements OnInit {
     this._api.getGeoCoding(this.serviceRequest.data.clientLocation.latitude, this.serviceRequest.data.clientLocation.longitude)
       .subscribe(res => {
         this.clientFullAddress = res.body.data.results[0].formatted_address;
-
       }, err => { console.log(err) });
   }
 
   getDistance(locationDetails) {
-    console.log("Getting distance")
     this._api.getDistance(locationDetails)
       .then(res => {
-        console
-          .log("Getting ditance response")
-        console.log(res)
         if (res) {
-          console.log("Setting distance")
           this.distance = res.data.distance
           this.eta = res.data.time
         }
       }, err => {
-        console.log(err)
         alert(JSON.stringify(err))
       });
   }
@@ -181,48 +152,14 @@ export class RequestAlertPage implements OnInit {
 
   continue() {
     if (this.termsState == true) {
-      this.reqAccepted = true;
       this._api.acceptJob(this.serviceProvider.driverId, this.serviceRequest.data.serviceRequests.callId, true, this.serviceRequest.data.serviceRequests.callRef).subscribe(apiResponse => {
-        console.log(apiResponse.data.Allocated)
-        if (apiResponse.data.Allocated == true) {
-          console.log("JOb assigned")
-          let response = {
-            reqAccepted: apiResponse.data.Allocated,
-            clientAddress: this.clientFullAddress,
-            lat: this.serviceRequest.data.clientLocation.latitude,
-            lng: this.serviceRequest.data.clientLocation.longitude,
-            distance: this.distance,
-            eta: this.eta,
-            requestDate: this.serviceRequest.data.serviceRequests.dateSent
-          };
-          console.log(response)
-          this.storgae.set("clcrequestResponse", response).then(
-            () => {
-              this.route.navigate(["app/tabs/tab1"]);
-            },
-            err => {
-              this.alertProvider.presentAlert(
-                "Job Error",
-                "Uhmm, something is not good!"
-              );
-              this.cancelRequest();
-            }
-          );
-        } else {
-          this.alertProvider.presentAlert(
-            "Oops",
-            "This job request has already been allocated."
-          );
-          this.cancelRequest();
-        }
+        this.alertProvider.presentAlert(
+          "Job Accepted",
+          "Thank you for accepting this job. You will be notified if this job is allocated to you shortly"
+        );    
+        this.route.navigate(["app/tabs/tab1"]);
       })
-
     } else {
-
-      this.alertProvider.presentAlert(
-        "Job Declined",
-        "You Have Declined A Job Request, We Will Place You As Available Again"
-      );
       this.cancelRequest();
     }
   }
@@ -241,27 +178,12 @@ export class RequestAlertPage implements OnInit {
   cancelRequest() {
     this.helpers.stopSoundAlert();
     this.reqAccepted = false;
-    this.storgae.set("clcrequestResponse", { reqAccepted: this.reqAccepted }).then(
-      () => {
-        this._api.acceptJob(this.serviceProvider.driverId, this.serviceRequest.data.serviceRequests.callId, false,  this.serviceRequest.data.serviceRequests.callRef).subscribe(response => {
-          console.log("Rejecting job")
-          console.log(response)
-          this.route.navigate(["app/tabs/tab1"]);
-        })
-      },
-      err => {
-        this.alertProvider.presentAlert(
-          "Job Error",
-          "Uhmm, something is not good!"
-        );
-        this.cancelRequest();
-      }
+    this.alertProvider.presentAlert(
+      "Job Declined",
+      "You have declined this job request. Stay online for more service requests."
     );
-
-
-  }
-
-  closemodal() {
-    this.cancelRequest();
+    this._api.acceptJob(this.serviceProvider.driverId, this.serviceRequest.data.serviceRequests.callId, false,  this.serviceRequest.data.serviceRequests.callRef).subscribe(response => {
+      this.route.navigate(["app/tabs/tab1"]);
+    })
   }
 }

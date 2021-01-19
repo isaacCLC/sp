@@ -29,6 +29,8 @@ export class Tab1Page {
   @ViewChild('draggable') private startTowing: ElementRef;
   isToggled: boolean = false;
   isAvailable: boolean;
+  counter: number = 0;
+  statusChanged: boolean;
   serviceReq: iServiceRequest = {
     status: false,
     data: {
@@ -55,13 +57,18 @@ export class Tab1Page {
       },
       finalDestination: {
         latitude: 0,
-        longitude: 0
+        longitude: 0,
+        address: "Not yet Available"
       },
       driverStatus: 0,
-      client: {}
+      client: {
+        name: "",
+        surname: "",
+        number: ""
+      }
     }
   };
-  navigatingToFD: boolean;
+  navigatingToFD: boolean = false;
   checkingRequest: boolean;
   spDetails: ServiceProviderDetails = {};
   firstTime: boolean;
@@ -83,7 +90,6 @@ export class Tab1Page {
     driverId: 0,
     mobileNumber: 0
   };
-  navToFinDist: iFinalDest;
   checkRadius: any
   clientDriverTarget: number
   driveFinDistTarget: number = null;
@@ -186,7 +192,6 @@ export class Tab1Page {
 
   async ionViewWillEnter() {
     this.getSPDetails();
-
     let checkJobInfoNav = false;
     this.isInternetAvailable = this.helpers.isNetworkAvailable;
     this.activateRoute.queryParams.subscribe(params => {
@@ -195,7 +200,6 @@ export class Tab1Page {
       }
     });
 
-    this.requestResponse(); //service request handler
   }
 
 
@@ -214,7 +218,6 @@ export class Tab1Page {
               if (!this.requestCheck) {
                 this.requestCheck = interval(10000).subscribe(val => {
                   this.getRequests().then(() => {
-                    console.log("Done checkking")
                     loader.dismiss()
                   })
                 });
@@ -249,7 +252,6 @@ export class Tab1Page {
         );
       });
     })
-
   }
 
 
@@ -302,15 +304,9 @@ export class Tab1Page {
       this.navigationStarted = false;
       this.spArrived = false;
       this.isJobAllocaed = false;
-      if (this.watchLocation instanceof Subscriber) {
-        this.watchLocation.unsubscribe();
-      }
-      if (this.requestCheck != undefined || this.requestCheck instanceof Subscriber) {
-        this.requestCheck.unsubscribe();
-      }
-      if (this.checkAloc instanceof Subscriber) {
-        this.checkAloc.unsubscribe();
-      }
+      // if (this.requestCheck != undefined || this.requestCheck instanceof Subscriber) {
+      //   this.requestCheck.unsubscribe();
+      // }
       // await this.loadMap();
       this.loader.dismiss();
       await this.insomnia.allowSleepAgain()
@@ -336,13 +332,17 @@ export class Tab1Page {
       })
       .subscribe(location => {
         if ("coords" in location) {
-          if (location.coords.latitude != this.spDetails.location.coords.latitude) {
+          this.counter++
+          console.log(this.counter)
+          if (this.counter > 60 && this.serviceReq.data.driverStatus == 1) {
+            this.counter = 0;
             this.spDetails.location = location;
             this._api.setSpLocation({
               latitude: location.coords.latitude,
               longitude: location.coords.longitude,
               driverId: this.spDetails.driverId,
               mobileNumber: this.spDetails.driverContactNumber,
+              // call_id: 0
               call_id: this.serviceReq.data.serviceRequests.callId
             }).subscribe(
               setLocationResponse => {
@@ -398,10 +398,11 @@ export class Tab1Page {
                   duration: 1000,
                   zoom: 10
                 });
+                break;
               case 13:
                 this.map.animateCamera({
                   target: [
-                    { lat: this.serviceReq.data.clientLocation.latitude, lng: this.serviceReq.data.clientLocation.longitude },
+                    { lat: this.serviceReq.data.finalDestination.latitude, lng: this.serviceReq.data.finalDestination.longitude },
                     { lat: this.spDetails.location.coords.latitude, lng: this.spDetails.location.coords.longitude }
                   ],
                   duration: 1000,
@@ -418,20 +419,32 @@ export class Tab1Page {
   }
   async getRequests() {
     return this._api.checkServiceRequests(this.spDetails.driverId).subscribe(serviceRequestResponse => {
+      console.log()
+      this.statusChanged = this.serviceReq.data.serviceRequests.status != serviceRequestResponse.data.serviceRequests.status
+      console.log(this.statusChanged)
       this.serviceReq = serviceRequestResponse
-      console.log(serviceRequestResponse)
       if (!this.checkingRequest) {
         switch (this.serviceReq.data.serviceRequests.status) {
+          default:
+            this.serviceReq.data.serviceRequests = {
+              callId: 0,
+              dateSent: {
+                date: "",
+                timezone_type: "",
+                timezone: ""
+              },
+              status: 0,
+              sub_sub_product_name: "",
+              callRef: 0,
+            }
+            break;
           case 1:
           case 2:
             this.route.isActive('app/tabs/tab1', false) && this.spDetails.location ? this.checkRequest("reviewing") : "";
           case 3:
             break;
           case 4:
-            this.isJobAllocaed ? this.allocateJob() : "";
-            break;
-          case 4:
-            this.isJobAllocaed ? this.allocateJob() : "";
+            this.isJobAllocaed ? "" : this.allocateJob();
             break;
           case 8:
             this.checkRequest("notAllocated");
@@ -441,17 +454,23 @@ export class Tab1Page {
             break;
           case 11:
             this.clearMap()
-            this.checkRequest("endTow");
+            this.checkRequest("endTowResponse");
             break;
           case 13:
-            this.navigatingToFD ? this.navToFinalDest() : "";
+            console.log(this.navigatingToFD)
+            this.navigatingToFD ? "" : this.clearMap().then(()=>{this.navToFinalDest()});
             break;
           case 14:
+            this.statusChanged ? this.clearMap() : "";
+            this.serviceReq.data.finalDestination.latitude ? this.checkRequest("startTow") : "";
+            break;
+          case 15:
             break;
         }
       }
     })
   }
+
 
   cloneAsObject(obj) {
     if (obj === null || !(obj instanceof Object)) {
@@ -465,8 +484,8 @@ export class Tab1Page {
     return temp;
   }
 
-  clearMap() {
-    this.map.clear()
+  async clearMap() {
+    await this.map.clear()
     this.map.animateCamera({
       target: {
         lat: this.spDetails.location.coords.latitude,
@@ -475,6 +494,7 @@ export class Tab1Page {
       zoom: 18,
       duration: 1000
     });
+    this.drawMarker("Current Location")
   }
 
 
@@ -493,13 +513,6 @@ export class Tab1Page {
             "Unfortunately we could not allocate the job to you!"
           );
         }
-        if (acceptResponse == "endTow") {
-          this.alertprovider.presentAlert(
-            "Job REF" + this.serviceReq.data.serviceRequests.callRef,
-            "Thank you for completing this job!"
-          );
-        }
-
         if (acceptResponse == "reviewing") {
           this.route.navigate(["request-alert"], {
             queryParams: {
@@ -517,55 +530,47 @@ export class Tab1Page {
     })
   }
 
-  requestResponse() {
-    if (this.isToggled) {
-      this.storage.get("clcrequestResponse").then(res => {
-        if (res != undefined || res != null) {
-          if (res.reqAccepted == true) {
-            this.storage.remove("clcrequestResponse")
-            this.alertprovider.presentAlert(
-              "Job Accepted",
-              "Thank you for accepting this job. You will be notified if this job is allocated to you shortly"
-            );
-          } else {
-            this.isReqAccepted = false;
-          }
-          this.stayActive = true;
-        }
-      });
-    }
-    else {
-      this.storage.remove("clcrequestResponse")
-    }
-  }
+
 
 
   async navToFinalDest() {
-    try {
-      this.navigatingToFD = true;
-      await this.map.clear();
-      this.map.animateCamera({
-        target: [
-          { lat: this.serviceReq.data.finalDestination.latitude, lng: this.serviceReq.data.finalDestination.longitude },
-          { lat: this.spDetails.location.coords.latitude, lng: this.spDetails.location.coords.longitude }
-        ],
-        duration: 1000,
-        zoom: 10
-      });
-      let marker: Marker = await this.map.addMarkerSync({
-        position: {
-          lat: this.serviceReq.data.finalDestination.latitude,
-          lng: this.serviceReq.data.finalDestination.longitude
-        },
-        title: "Final Destination"
-      });
-      marker.showInfoWindow();
-      await this.addPolyLines(this.spDetails.location.coords.latitude, this.spDetails.location.coords.longitude, this.serviceReq.data.finalDestination.latitude, this.serviceReq.data.finalDestination.longitude);
-      await this.storage.remove('navToFinDist');
-    } catch (error) { }
+    console.log("Navigating to FD")
+    this.navigatingToFD = true;
+    
+    this.map.animateCamera({
+      target: [
+        { lat: this.serviceReq.data.finalDestination.latitude, lng: this.serviceReq.data.finalDestination.longitude },
+        { lat: this.spDetails.location.coords.latitude, lng: this.spDetails.location.coords.longitude }
+      ],
+      duration: 1000,
+      zoom: 10
+    });
+    
+    this.map.addMarkerSync({
+      position: {
+        lat: this.serviceReq.data.finalDestination.latitude,
+        lng: this.serviceReq.data.finalDestination.longitude
+      },
+      title: "Final Destination"
+    }).showInfoWindow();
+    this.addPolyLines(this.spDetails.location.coords.latitude, this.spDetails.location.coords.longitude, this.serviceReq.data.finalDestination.latitude, this.serviceReq.data.finalDestination.longitude);
   }
 
   async allocateJob() {
+    if (!this.isJobAllocaed) {
+      this.isJobAllocaed = true;
+      if (this.appPaused) {
+        this.helpers.allocationPush(
+          "Congragulations!! The job has been allocated to you."
+        );
+      } else {
+        this.alertprovider.presentAlert(
+          "Job Allocation",
+          "Congragulations!! The job has been allocated to you."
+        );
+      }
+    }
+
     this.map.animateCamera({
       target: [
         { lat: this.serviceReq.data.clientLocation.latitude, lng: this.serviceReq.data.clientLocation.longitude },
@@ -583,19 +588,25 @@ export class Tab1Page {
       }
     };
 
-    if (!this.isJobAllocaed) {
-      this.isJobAllocaed = true;
-      if (this.appPaused) {
-        this.helpers.allocationPush(
-          "Congragulations!! The job has been allocated to you"
-        );
-      } else {
-        this.alertprovider.presentAlert(
-          "Job Allocation",
-          "We are now good to go! The job has been allocated to you!"
-        );
-      }
-    }
+    // let markerIcon = {
+    //   url: this.helpers.clientIcon,
+    //   size: {
+    //     width: 30,
+    //     height: 30
+    //   }
+    // };
+
+    // this.marker = this.map.addMarkerSync({
+    //   title: "Scene location",
+    //   position: {
+    //     lat: this.jobDetails.data.clientLocation.latitude,
+    //     lng: this.jobDetails.data.clientLocation.longitude
+    //   },
+    //   icon: markerIcon
+    // });
+    // this.marker.showInfoWindow();
+
+
 
     this.map.addMarkerSync({
       position: {
@@ -687,12 +698,7 @@ export class Tab1Page {
           handler: blah => {
             this._api.acceptJob(this.spDetails.driverId, this.serviceReq.data.serviceRequests.callId, "cancel", this.serviceReq.data.serviceRequests.callRef).subscribe(response => {
               this.map.clear();
-              this.isAvailable = true;
-              this.isReqAccepted = false;
-              this.isJobAllocaed = false;
-              this.tripDetails.Eta = null;
-              this.navigationStarted = false;
-              this.startTow = false;
+              this.drawMarker("Current Location");
             })
           }
         },
@@ -718,9 +724,15 @@ export class Tab1Page {
     } else {
       if (this.serviceReq.data.serviceRequests.status == 4 || this.serviceReq.data.serviceRequests.status == 13 || this.serviceReq.data.serviceRequests.status == 14) {
         console.log("navigating")
+        this.serviceReq.data.finalDestination = {
+          latitude: 0,
+          longitude: 0,
+          address: "Hello"
+        }
         this.route.navigate(["job-info"], {
           queryParams: {
-            jobInfo: JSON.stringify(this.serviceReq)
+            jobInfo: JSON.stringify(this.cloneAsObject(this.serviceReq)),
+            spDetails: JSON.stringify(this.cloneAsObject(this.spDetails))
           }
         });
       }
@@ -732,8 +744,7 @@ export class Tab1Page {
   async navigate() {
     let destination = []
     this.navigationStarted = true;
-    // await this.getLatestLocation();
-    if (this.navToFinDist) {
+    if (this.navigatingToFD) {
       // this.startTowing.nativeElement.remove();
       destination.push(this.serviceReq.data.finalDestination.latitude)
       destination.push(this.serviceReq.data.finalDestination.longitude)
@@ -754,14 +765,12 @@ export class Tab1Page {
       this.clientDriverTarget = this.clientDriverTarget - 10;
       if (this.clientDriverTarget == 10) { this.checkRadius.unsubscribe() }
     })
-
   }
 
 
   arrivedFinDist() {
     this.driveFinDistTarget = null
     this.route.navigate(["final-checklist"])
-
   }
 
 
@@ -770,8 +779,6 @@ export class Tab1Page {
     this.navigationStarted = false;
     this.spArrived = true;
     this.isReqAccepted = false;
-    if (this.watchLocation instanceof Subscriber)
-      await this.watchLocation.unsubscribe();
     // this.isToggled = false;
     this.loadingCtrl.create({
       message: "Please wait..."
@@ -785,11 +792,9 @@ export class Tab1Page {
   }
 
   async driverAvaliable() {
-    let spTitle = this.spDetails.fullAddress;
     this.map.clear().then(() => {
+      this.getLatestLocation();
       this.drawMarker("Current Location");
-      this.isAvailable = true;
-      this.btnArridedDisabled = false;
     })
   }
 
@@ -810,7 +815,6 @@ export class Tab1Page {
         },
         icon: icon
       }).then(marker => {
-        this.getLatestLocation();
         this.spMarker = marker;
         marker.showInfoWindow();
       })

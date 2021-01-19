@@ -25,7 +25,7 @@
   </ion-row>
   <ion-item class="pad-items" >
     <ion-label>Are You Available?</ion-label>
-    <ion-toggle [disabled]="!iscarSelected || navigationStarted || isReqAccepted || awaitingFD" [(ngModel)]="serviceReq.data.driverStatus" (ionChange)="availableClick()"></ion-toggle>
+    <ion-toggle [disabled]="serviceReq.data.serviceRequests.callId != 0 || !iscarSelected" [(ngModel)]="serviceReq.data.driverStatus" (ionChange)="availableClick()"></ion-toggle>
   </ion-item>
 </section>
 <!-- <ion-content class="ion-padding" class="center"> -->
@@ -47,7 +47,7 @@
 <ion-button *ngIf="serviceReq.data.driverStatus == 0 && iscarSelected " color="warning" primary block>
   <ion-label> You're Offline</ion-label>
 </ion-button>
-<ion-button *ngIf="serviceReq.data.driverStatus == 1 &&  serviceReq.data.serviceRequests.status == 1 || serviceReq.data.serviceRequests.status == 2" color="success" primary block>
+<ion-button *ngIf="serviceReq.data.driverStatus == 1 &&  (serviceReq.data.serviceRequests.status == 1 || serviceReq.data.serviceRequests.status == 2 || serviceReq.data.serviceRequests.status == 0)" color="success" primary block>
   <ion-label> You're Online</ion-label>
 </ion-button>
 
@@ -81,7 +81,7 @@
 <button (click)="alert('awaitingAllocation');" type="button" class="await-btn" *ngIf="serviceReq.data.serviceRequests.status == 3">
   <ion-label> Awaiting Allocation....</ion-label>
 </button>
-<button (click)="alert('awaitingFD');" type="button" class="await-btn" *ngIf="awaitingFD">
+<button (click)="alert('awaitingFD');" type="button" class="await-btn" *ngIf="serviceReq.data.serviceRequests.status == 14">
   <ion-label> Awaiting Final Destination....</ion-label>
 </button>
 <ion-button *ngIf="!iscarSelected" color="secondary" primary block (click)="selectVeh()">
@@ -92,8 +92,12 @@
   <!-- <ion-label> Arrived An Final Dest</ion-label> -->
   <ion-label>Arrived At Scene</ion-label>
 </ion-button>
-<button class="await-btn" *ngIf="serviceReq.data.serviceRequests.status == 13" color="tertiary" primary block
+<ion-button class="aawait-btn" *ngIf="serviceReq.data.serviceRequests.status == 13" color="tertiary" primary block
   (click)="arrivedFinDist();">
   <ion-label>Arrived At Final Dist</ion-label>
-</button>
+</ion-button>
+<!-- <button class="await-btn" *ngIf="serviceReq.data.serviceRequests.status == 13" color="tertiary" primary block
+  (click)="arrivedFinDist();">
+  <ion-label>Arrived At Final Dist</ion-label>
+</button> -->
 

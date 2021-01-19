@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Camera, CameraOptions } from "@ionic-native/camera/ngx"; 
 import { Storage } from "@ionic/storage";
 import { GeneralService } from 'src/app/Helpers/generals';
+import { AlertsProviderService } from 'src/app/Providers/alerts-provider.service';
 import { ApiGateWayService } from 'src/app/Providers/api-gate-way.service';
 @Component({
   selector: 'app-final-checklist',
@@ -17,7 +18,7 @@ export class FinalChecklistPage implements OnInit {
   saveX: number;
   saveY: number;
   generalHelpers: GeneralService;
-  constructor( private route: Router,
+  constructor( private route: Router,private alertprovider: AlertsProviderService,
     private camera: Camera, private storage: Storage, private _api: ApiGateWayService) { 
     this.vehicleCheckList = [
       { listItem: "Spare Wheel", isAvailable: false },
@@ -33,23 +34,19 @@ export class FinalChecklistPage implements OnInit {
 
   async submitClaim() { 
     this.storage.get("clcDriverID").then(driverID => {
-      let payLoad = {
-        driverId: driverID
-      }
-      this._api.checkServiceRequests(payLoad).subscribe(data => {
-        console.log(data)
+      this._api.checkServiceRequests(driverID).subscribe(data => {
         this._api.acceptJob(driverID, data.data.serviceRequests.callId, "endTow", data.data.serviceRequests.callRef).subscribe(response => {
-          console.log(response)
-          // alert("Thank you for submitting the claim, your ref num is:"+ 345)
+          this.alertprovider.presentAlert(
+            "Job REF" + data.data.serviceRequests.callRef,
+            "Thank you for completing this job!"
+          );
           this.route.navigate(["app/tabs/tab1"])
-          // this.storage.set("callComplete",true)
         })
       })
     })
     
    
    
-  // await this.helpers.navigate(this.finalDestination);
   }
 
   ngAfterViewInit() {

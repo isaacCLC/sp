@@ -142,7 +142,8 @@
       "cordova-plugin-local-notification": {},
       "cordova-plugin-background-mode": {},
       "uk.co.workingedge.phonegap.plugin.launchnavigator": {
-        "GOOGLE_API_KEY_FOR_ANDROID": "AIzaSyBo-0cSqDB1H3mAsfJEdnyhTu0vrBGXsy0"
+        "GOOGLE_API_KEY_FOR_ANDROID": "AIzaSyBo-0cSqDB1H3mAsfJEdnyhTu0vrBGXsy0",
+        "OKHTTP_VERSION": "3.12.0"
       },
       "cordova-plugin-network-information": {},
       "cordova-plugin-media": {},

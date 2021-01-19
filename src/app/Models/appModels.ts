@@ -33,6 +33,12 @@ export interface iFinalDest{
 
 }
 
+export interface client {
+  name: string,
+  surname: string,
+  number: string
+}
+
 export interface iServiceRequest{
   status: boolean,
   data:{
@@ -59,10 +65,11 @@ export interface iServiceRequest{
       },
       finalDestination: {
         latitude: number,
-        longitude: number
+        longitude: number,
+        address: string
       },
       driverStatus: number,
-      client: any
+      client: client
   }
 }
 

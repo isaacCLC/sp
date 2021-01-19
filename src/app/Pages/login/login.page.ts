@@ -50,7 +50,6 @@ export class LoginPage implements OnInit {
     this.storage.remove("_setCarFinalStage");
     this.storage.get("username").then(username=>{
       console.log("Username is"+ username)
-      this.storage.clear()
       this.username = username
     })
   }

@@ -39,12 +39,14 @@ export class DriverDetailsPage implements OnInit {
 
   async startTow() {
     this.storage.get("clcDriverID").then(driverID => {
-      let payLoad = {
-        driverId: driverID
-      }
-      this._api.checkServiceRequests(payLoad).subscribe(data => {
-        this._api.acceptJob(driverID, data.data.serviceRequests.callId, "startTow", data.data.serviceRequests.callRef).subscribe(response => {
-          console.log(response)
+      this._api.checkServiceRequests(driverID).subscribe(data => {
+        let response;
+        if (data.data.finalDestination.latitude){
+          response = "startTow"
+        }else{
+          response = "noFD"
+        }
+        this._api.acceptJob(driverID, data.data.serviceRequests.callId, response, data.data.serviceRequests.callRef).subscribe(response => {
           this.route.navigate(["app/tabs/tab1"]);
         })
       })

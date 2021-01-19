@@ -114,8 +114,12 @@ export class Tab3Page {
         if (res.status) {
           this._api.getDriverlogout(userDetails).then(res => {
             loader.dismiss()
-            if (res.status) {
+              let username;
+              if (res.status) {this.storage.get("username").then(username=>{
+                username = username
+              })
               this.storage.clear()
+              this.storage.set("username", username)
               this.route.navigate(["/login"]);
             }
             else {
