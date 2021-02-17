@@ -1,0 +1,164 @@
+<ion-header>
+  <ion-toolbar color='primary'>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/app/tabs/tab1"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Damage Details</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)='pause()'>Pause </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <app-motoraccident-claim-step [current]="step-1" [thirdParty]="claim.isThirdParty" [completed]="claim.completed">
+  </app-motoraccident-claim-step>
+  <div class='container'>
+    <form id="form-project" role="form" #stepForm="ngForm">
+      <div class='controls'>
+
+        <div class='heading'>Damage to Vehicle</div>
+        <app-validated-form-control [control]="txtDescription">
+          <label>Description of Damage to Vehicle</label>
+          <textarea type="text" placeholder="Enter description of damage" class="form-control" name="txtDescription"
+            [(ngModel)]="claim.call.ownDamageDescription" #txtDescription="ngModel"></textarea>
+        </app-validated-form-control>
+
+        <!--google address-->
+        <!-- <app-validated-form-control [control]="txtVehicleInspectedAddress">
+          <label>Where can the vehicle be inspected?</label>
+          <input ngx-google-places-autocomplete name='txtVehicleInspectedAddress' [(ngModel)]="claim.call.ownDamageInspectionLocation" class="form-control" [options]='addressOptions' #txtVehicleInspectedAddress="ngx-places" (onAddressChange)="handleVehicleInspectedAddressChange($event)" />
+        </app-validated-form-control> -->
+
+        <!-- <div class='heading'>Repairer</div>
+
+        <app-validated-form-control [control]="txtEstimate">
+          <label>Estimate for Repairs (R)</label>
+          <input type="number" placeholder="Enter estimate" class="form-control" name="txtEstimate" [(ngModel)]="claim.call.repEstimate" #txtEstimate="ngModel">
+        </app-validated-form-control>
+        <app-validated-form-control [control]="txtRepairerName">
+          <label>Repairer Name</label>
+          <input type="text" placeholder="Enter name" class="form-control" name="txtRepairerName" [(ngModel)]="claim.call.repName" #txtRepairerName="ngModel">
+        </app-validated-form-control>
+        <app-validated-form-control [control]="txtContact">
+          <label>Repairer Contact Number</label>
+          <input type="tel" placeholder="Enter contact number" class="form-control" name="txtContact" [(ngModel)]="claim.call.repContactNumber" #txtContact="ngModel">
+        </app-validated-form-control> -->
+
+        <!--google address-->
+        <!-- <app-validated-form-control [control]="txtRepairerAddress">
+          <label>Repairer Address</label>
+          <input ngx-google-places-autocomplete name='txtRepairerAddress' [(ngModel)]="claim.call.repAddress" class="form-control" [options]='addressOptions' #txtRepairerAddress="ngx-places" (onAddressChange)="handleRepairerAddressChange($event)" />
+        </app-validated-form-control> -->
+
+        <!-- <div class='heading'>Photos Required</div> -->
+        <!-- <ion-button expand='block' fill='outline' (click)="getQuoteImage()">
+          <ion-icon name="camera" color='primary' slot='start'></ion-icon>Upload Quote
+        </ion-button>
+        <div class="image" [style.background-image]="claim.images.quoteImage | mediaManagerSafeStyle " *ngIf="claim.images.quoteImage && claim.images.quoteImage.exists" tappable>
+          <ion-icon name="close" (click)="deleteQuoteImage($event)" *ngIf="claim.images.quoteImage && claim.images.quoteImage.exists"></ion-icon>
+          <ion-icon name="camera" *ngIf="!claim.images.quoteImage || !claim.images.quoteImage.exists" [class.hasImage]="!claim.images.quoteImage || !claim.images.quoteImage.exists"></ion-icon>
+        </div> -->
+        <div class='heading'>Vehicle Photos/video</div>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="6">
+              <ion-button *ngIf="!claim.images.damagePhotos.front || !claim.images.damagePhotos.front.exists" expand='block' fill='outline' (click)="getDamagePhotos(1)">
+                <ion-icon name="camera" color='primary' slot='start'></ion-icon>
+                Front
+              </ion-button>
+              <div class="image" [style.background-image]="claim.images.damagePhotos.front | mediaManagerSafeStyle " *ngIf="claim.images.damagePhotos.front && claim.images.damagePhotos.front.exists"
+                tappable>
+                <ion-icon name="close" (click)="deleteDamageImage($event, 1)" *ngIf="claim.images.damagePhotos.front && claim.images.damagePhotos.front.exists"></ion-icon>
+                <ion-icon name="camera" *ngIf="!claim.images.damagePhotos.front || !claim.images.damagePhotos.front.exists" [class.hasImage]="!claim.images.damagePhotos.front || !claim.images.damagePhotos.front.exists">
+                </ion-icon>
+              </div>
+            </ion-col>
+            <ion-col size="6">
+              <ion-button *ngIf="!claim.images.damagePhotos.back || !claim.images.damagePhotos.back.exists" expand='block' fill='outline' (click)="getDamagePhotos(2)">
+                <ion-icon name="camera" color='primary' slot='start'></ion-icon>
+                Back
+              </ion-button>
+              <div class="image" [style.background-image]="claim.images.damagePhotos.back | mediaManagerSafeStyle " *ngIf="claim.images.damagePhotos.back && claim.images.damagePhotos.back.exists"
+                tappable>
+                <ion-icon name="close" (click)="deleteDamageImage($event, 2)" *ngIf="claim.images.damagePhotos.back && claim.images.damagePhotos.back.exists"></ion-icon>
+                <ion-icon name="camera" *ngIf="!claim.images.damagePhotos.back || !claim.images.damagePhotos.back.exists" [class.hasImage]="!claim.images.damagePhotos.back || !claim.images.damagePhotos.back.exists">
+                </ion-icon>
+              </div>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <ion-button *ngIf="!claim.images.damagePhotos.left || !claim.images.damagePhotos.left.exists" expand='block' fill='outline' (click)="getDamagePhotos(3)">
+                <ion-icon name="camera" color='primary' slot='start'></ion-icon>
+                Left
+              </ion-button>
+              <div class="image" [style.background-image]="claim.images.damagePhotos.left | mediaManagerSafeStyle " *ngIf="claim.images.damagePhotos.left && claim.images.damagePhotos.left.exists"
+                tappable>
+                <ion-icon name="close" (click)="deleteDamageImage($event, 3)" *ngIf="claim.images.damagePhotos.left && claim.images.damagePhotos.left.exists"></ion-icon>
+                <ion-icon name="camera" *ngIf="!claim.images.damagePhotos.left || !claim.images.damagePhotos.left.exists" [class.hasImage]="!claim.images.damagePhotos.left || !claim.images.damagePhotos.left.exists">
+                </ion-icon>
+              </div>
+            </ion-col>
+            <ion-col size="6">
+              <ion-button *ngIf="!claim.images.damagePhotos.right || !claim.images.damagePhotos.right.exists" expand='block' fill='outline' (click)="getDamagePhotos(4)">
+                <ion-icon name="camera" color='primary' slot='start'></ion-icon>
+                Right
+              </ion-button>
+              <div class="image" [style.background-image]="claim.images.damagePhotos.right | mediaManagerSafeStyle " *ngIf="claim.images.damagePhotos.right && claim.images.damagePhotos.right.exists"
+                tappable>
+                <ion-icon name="close" (click)="deleteDamageImage($event, 4)" *ngIf="claim.images.damagePhotos.right && claim.images.damagePhotos.right.exists"></ion-icon>
+                <ion-icon name="camera" *ngIf="!claim.images.damagePhotos.right || !claim.images.damagePhotos.right.exists" [class.hasImage]="!claim.images.damagePhotos.right || !claim.images.damagePhotos.right.exists">
+                </ion-icon>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+        <!-- <ion-grid>
+          <ion-row>
+            <ion-col size="6" *ngFor="let image of claim.images.damagePhotos; let i = index">
+              <div class="image" [style.background-image]="image | mediaManagerSafeStyle " *ngIf="image && image.exists"
+                tappable>
+                <ion-icon name="close" (click)="deleteDamageImage($event, i)" *ngIf="image && image.exists"></ion-icon>
+                <ion-icon name="camera" *ngIf="!image || !image.exists" [class.hasImage]="!image || !image.exists">
+                </ion-icon>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid> -->
+        <ion-button *ngIf="!claim.videos.damageVideo || !claim.videos.damageVideo.exists" expand='block' fill='outline' (click)="getDamageVideo()">
+          <ion-icon name="videocam" color='primary' slot='start'></ion-icon>
+          Upload Video of Damage
+        </ion-button>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="12">
+              <div class="video" *ngIf="claim.videos.damageVideo && claim.videos.damageVideo.exists"
+                tappable>
+                <video controls [src]="claim.videos.damageVideo | mediaManagerSafeSrc" type="video/mp4"></video>
+                <ion-icon name="close" (click)="deleteDamageImage($event, 5)" *ngIf="claim.videos.damageVideo && claim.videos.damageVideo.exists"></ion-icon>
+                <ion-icon name="videocam" *ngIf="!claim.videos.damageVideo || !claim.videos.damageVideo.exists"
+                  [class.hasImage]="!claim.videos.damageVideo || !claim.videos.damageVideo.exists"></ion-icon>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+    </form>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)='previousStep()'>Previous
+        <ion-icon name="arrow-back" slot='start'></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button (click)='nextStep()'>Next
+        <ion-icon name="arrow-forward" slot='end'></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

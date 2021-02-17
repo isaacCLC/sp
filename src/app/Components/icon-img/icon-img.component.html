@@ -1,0 +1,5 @@
+<div class='icon-img' [class.circle]='circle' [class.red-fill]='red' [class.bright-red-fill]='brightRed' [class.green-fill]="green" [class.yellow-fill]="yellow" [class.white-border]='white' [ngStyle]="{'width': circle ? circleWidth + 'px' : 'inherit', 'height':circle ? circleHeight + 'px' : 'inherit' }">
+  <div *ngIf='img'>
+    <img [src]="img" onload="SVGInject(this)" [style.width]='iconWidth + "px"' [style.height]='iconHeight + "px"' [class.white-fill]='white' [class.red-fill]='red' [class.green-fill]="green" [class.yellow-fill]="yellow" [class.bright-red-fill]='brightRed' />
+  </div>
+</div>

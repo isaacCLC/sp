@@ -117,6 +117,7 @@ export class RequestModalPage implements OnInit {
       });
     } else {
       this.alertProvider.presentAlert(
+        "Oops",
         "Job Declined",
         "You Have Declined A Job Request, We Will Place You As Available Again"
       );

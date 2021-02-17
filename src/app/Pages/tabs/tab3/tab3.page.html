@@ -7,12 +7,12 @@
 </ion-header> -->
 
 <ion-content class="ion-padding">
-<div *ngIf="!mySelectedCar" class="main-block center">
+<div *ngIf="!mySelectedCar || !mySelectedCar.registration_number" class="main-block center">
 <h4>No vehicle selected</h4>
 <ion-button size="small" (click)="changeVehicle()">Select Vehicle</ion-button>
 </div>
 
-  <div *ngIf="mySelectedCar" class="main-block">
+  <div *ngIf="mySelectedCar && mySelectedCar.registration_number" class="main-block">
     <h4 class="ion-text-center">Current vehicle</h4>
     <ion-row class="block-one">
       <ion-col size="6">

@@ -18,7 +18,7 @@
 
   <!-- <div id="map_canvas2">
   </div> -->
-  <div *ngIf="jobDetails.data.serviceRequests.status != 13" class="client-details">
+  <div *ngIf="jobDetails.data.serviceRequests.status != 13 && jobDetails.data.serviceRequests.status != 14" class="client-details">
     <h5 class="center">Client Details</h5>
     <ion-grid>
       <ion-row>
@@ -34,7 +34,7 @@
           <strong>Location:</strong>
         </ion-col>
         <ion-col size="6">
-          <i> {{jobDetails.data.client.address}}</i>
+          <i> {{jobDetails.data.clientLocation.address}}</i>
         </ion-col>
       </ion-row>
       <ion-row>
@@ -50,12 +50,12 @@
           <strong>ETA:</strong>
         </ion-col>
         <ion-col size="6">
-          <i> {{jobDetails.data.clientLocation.Eta}}</i>
+          <i> {{jobDetails.data.clientLocation.time}}</i>
         </ion-col>
       </ion-row>
     </ion-grid>
   </div>
-  <div *ngIf="jobDetails.data.serviceRequests.status == 13" class="client-details">
+  <div *ngIf="jobDetails.data.serviceRequests.status == 13 || jobDetails.data.serviceRequests.status == 14" class="client-details">
     <h5 class="center">Final Destination Details</h5>
     <ion-grid>
       <!-- <ion-row>
@@ -87,7 +87,7 @@
           <strong>ETA:</strong>
         </ion-col>
         <ion-col size="6">
-          <i> {{jobDetails.data.finalDestination.Eta}}</i>
+          <i> {{jobDetails.data.finalDestination.time}}</i>
         </ion-col>
       </ion-row>
     </ion-grid>

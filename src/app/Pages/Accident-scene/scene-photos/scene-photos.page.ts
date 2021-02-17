@@ -44,7 +44,7 @@ export class ScenePhotosPage implements OnInit {
         this.scenePhotos[index] = "data:image/jpeg;base64," + imageData;
       },
       err => {
-        this.customeAlert.presentAlert("Image Error", "Couldn't load image, please try again")
+        this.customeAlert.presentAlert("Oops", "Image Error", "Couldn't load image, please try again")
         // Handle error
       }
     );

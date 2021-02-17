@@ -1,13 +1,15 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Observable, of } from "rxjs";
-import { Helpers } from "../Helpers/helpers";
 import { HttpHeaders } from "@angular/common/http";
 import { AlertsProviderService } from './alerts-provider.service';
 import { GeneralService } from '../Helpers/generals';
-import { getJobHistory, iServiceRequest } from '../models/appModels';
-import { ClaimManager } from "../Helpers/claim-manager";
+import { BaseMessage, DriverDetails, getJobHistory, iServiceRequest } from '../models/appModels';
+import { ClaimManager, CurrentClaim } from "../Helpers/claim-manager";
 import { AddClaimRequest } from "../Helpers/requests";
+import { Storage } from "@ionic/storage";
+import { FormParameter } from "./base";
+import { addToDocumentWarehouseResponse } from "../Helpers/responses";
 const httpOptions = {
   headers: new HttpHeaders({
     "Content-Type": "application/json",
@@ -25,7 +27,8 @@ export class ApiGateWayService {
   private localhost: string;
   private _generals: GeneralService = new GeneralService();
   private api_key: string;
-  constructor(private claimManager: ClaimManager, private _http: HttpClient, private helpers: Helpers, private alertProvider: AlertsProviderService) {
+
+  constructor(private claimManager: ClaimManager, private storage: Storage, private _http: HttpClient, private alertProvider: AlertsProviderService) {
 
     this.prodHost = "https://api.lmsystem.co.za";
     this.devHost = "https://apidev.lmsystem.co.za";
@@ -35,118 +38,150 @@ export class ApiGateWayService {
   }
 
 
+  createFormData(...params: FormParameter[]) {
+    const formData = new FormData();
+
+    for (let item of params)
+      formData.append(item.key, item.value);
+    return formData;
+  }
+
+  parseResponse<T extends BaseMessage>(message: T): T {
+    // if this message has an error, move it's properties from data to error objects
+    if (!message.status) {
+      message.error = {
+        errorCode: message.data.errorCode,
+        errorMessage: message.data.errorMessage,
+        errorTechMessage: message.data.errorTechMessage
+      };
+      message.data = {};
+    }
+
+    return message;
+  }
+
+
+  async addToDocumentWarehouse(callId: number, docType: number, imgData: string) {
+    let data = this.createFormData(
+      { key: "callId", value: callId.toString() },
+      { key: "docType", value: docType.toString() },
+      { key: "mobile_sp_upload", value: '1' },
+      { key: "imgData", value: imgData.split(',')[1] },
+    );
+
+    return this._http.post(this.serverHost + "/rest/cca/v1/calls/addToDocumentWarehouse.php?key=" + this.api_key, data).toPromise();
+
+  }
+
+
   validateLogIn(credentialObj: any): Observable<any> {
-    try {
-      return this._http.get(this.serverHost + "/rest/cca/v1/sp/getDriverLogin.php", {
-        params: {
-          key: this.api_key,
-          appUsername: credentialObj.userName,
-          appPassword: credentialObj.passWord,
-          pushPlayerId: credentialObj.pushPlayerId
-        }
-      });
-    } catch (error) {
-      throw error;
-    }
+    return this._http.get(this.serverHost + "/rest/cca/v1/sp/getDriverLogin.php", {
+      params: {
+        key: this.api_key,
+        appUsername: credentialObj.userName,
+        appPassword: credentialObj.passWord,
+        pushPlayerId: credentialObj.pushPlayerId
+      }
+    });
+
   }
 
-  changePassword(payLoad: any): Observable<any> {
-    try {
-      return this._http.get(this.serverHost + "/rest/cca/v1/calls/addDriver.php", {
-        params: {
-          key: this.api_key,
-          driverId: payLoad.driverId,
-          driverPassword: payLoad.driverPassword
-        }
-      });
+  async changePassword(payLoad: any): Promise<any> {
+    let id = await this.storage.get("driverID")
 
-    } catch (error) {
-      throw error
-    }
+    return this._http.get(this.serverHost + "/rest/cca/v1/calls/addDriver.php", {
+      params: {
+        key: this.api_key,
+        driverId: id,
+        driverPassword: payLoad.driverPassword
+      }
+    }).toPromise()
+
   }
 
-  acceptJob(driverId: any, callId, acceptJob, callRef): Observable<any> {
-    try {
-      return this._http.get(this.serverHost + "/rest/cca/v1/sp/acceptServiceRequest.php", {
-        params: {
-          key: this.api_key,
-          driverId: driverId,
-          callRef: callRef,
-          acceptJob: acceptJob,
-          callId: callId
-        }
+  async acceptJob(callId, acceptJob, callRef, claim?): Promise<any> {
+    // Make sure datetime fields are correct format
+    let params = {};
+    let id = await this.storage.get("driverID")
+    if (claim) {
+      claim = await this.claimManager.formatClaim(claim);
+
+      let tp = [];
+      let prop = [];
+
+      claim.thirdparty.forEach(x => {
+        tp.push({ ...x, licenseImage: undefined, vehicleImage: undefined });
+      });
+      claim.property.forEach(x => {
+        prop.push({ ...x, tyreImage: undefined, tyreThreadImage: undefined, rimImage: undefined });
       });
 
-    } catch (error) {
-      throw error
+      let data = <AddClaimRequest>{
+        address: claim.address,
+        call: claim.call,
+        drivers: claim.drivers,
+        vehicle: claim.vehicle,
+        checklist: claim.checklist
+      };
+
+      params = {
+        key: this.api_key,
+        driverId: id,
+        callRef: callRef,
+        acceptJob: acceptJob,
+        callId: callId,
+        claim: JSON.stringify(data)
+      }
+    } else {
+      params = {
+        key: this.api_key,
+        driverId: id,
+        callRef: callRef,
+        acceptJob: acceptJob,
+        callId: callId,
+      }
     }
+
+
+    return this._http.get(this.serverHost + "/rest/cca/v1/sp/acceptServiceRequest.php", {
+      params: params
+    }).toPromise()
   }
 
-  getSPDetails(driverID: any): Observable<any> {
-    try {
-      return this._http.get(this.serverHost + "/rest/cca/v1/calls/getDriver.php", {
-        params: {
-          key: this.api_key,
-          driverId: driverID,
-        }
-      });
-    } catch (error) {
-      throw error;
-    }
+
+
+  async getDriver(): Promise<any> {
+    let id = await this.storage.get("driverID")
+    return this._http.get(this.serverHost + "/rest/cca/v1/calls/getDriver.php", {
+      params: {
+        key: this.api_key,
+        driverId: id,
+      }
+    }).toPromise()
+
   }
 
-  // async addClaim(claim: any): Promise<any> {
-  //   // Make sure datetime fields are correct format
-  //   claim = await this.claimManager.formatClaim(claim);
+  async checkServiceRequests(): Promise<any> {
+    let id = await this.storage.get("driverID")
+    return this._http.get(this.serverHost + "/rest/cca/v1/sp/checkServiceRequests.php", {
+      params: {
+        driverId: id,
+        key: this.api_key
+      }
+    }).toPromise()
+  }
 
-  //   let tp = [];
-  //   let prop = [];
-
-  //   claim.thirdparty.forEach(x => {
-  //     tp.push({ ...x, licenseImage: undefined, vehicleImage: undefined });
-  //   });
-  //   claim.property.forEach(x => {
-  //     prop.push({ ...x, tyreImage: undefined, tyreThreadImage: undefined, rimImage: undefined });
-  //   });
-
-  //   let data = <AddClaimRequest>{
-  //     address: claim.address,
-  //     call: claim.call,
-  //     claimant: claim.claimant,
-  //     drivers: claim.drivers,
-  //     passenger: claim.passenger,
-  //     patient: claim.patient,
-  //     property: prop,
-  //     thirdparty: tp,
-  //     vehicle: claim.vehicle,
-  //     witness: claim.witness
-  //   };
-
-  //   try {
-  //     let response = await this._http.get<any>(this.serverHost + "/rest/cca/v1/calls/addClaim.php?key="+this.api_key, {params: {
-  //       address: claim.address,
-  //       call: claim.call,
-  //       claimant: claim.claimant,
-  //       drivers: claim.drivers,
-  //       passenger: claim.passenger,
-  //       patient: claim.patient,
-  //       property: prop,
-  //       thirdparty: tp,
-  //       vehicle: claim.vehicle,
-  //       witness: claim.witness
-  //     }}).toPromise();
-  //     console.log("claim response")
-  //     console.log(response)
-  //     return response;
-  //   }
-  //   catch (e) {
-  //     throw e;
-  //   }
-  // }
+  async getJobHistory(): Promise<any> {
+    let id = await this.storage.get("driverID")
+    return this._http.get(this.serverHost + "/rest/cca/v1/sp/spGetJobHistory.php", {
+      params: {
+        key: this.api_key,
+        driverId: id,
+      }
+    }).toPromise()
+  }
 
   getSpVehicleList(spID: any): Observable<any> {
-    console.log(spID)
-
     return this._http.get(
       this.serverHost + "/rest/cca/v1/client/vehicle/getUserVehicleList.php",
       {
@@ -158,17 +193,19 @@ export class ApiGateWayService {
       }
     );
   }
-  completeJOB(spID): Observable<any> {
+
+  async completeJOB(): Promise<any> {
+    let id = await this.storage.get("driverID")
     return this._http.get(
       this.serverHost + "/rest/cca/v1/sp/addDriverJobComplete.php",
       {
         params: {
-          driverId: spID,
+          driverId: id,
           key: this.api_key
         },
         observe: "response"
       }
-    );
+    ).toPromise()
   }
 
   getGeoCoding(lat: any, lng: any): Observable<any> {
@@ -198,77 +235,35 @@ export class ApiGateWayService {
     );
   }
 
-  // checkServiceRequests(payLoad): Promise<any> { 
-  //   try {
-  //     let res = fetch(this.serverHost + "/rest/cca/v1/sp/checkServiceRequests.php?key=" +this.api_key, {
-  //       method: 'post',
-  //       body: JSON.stringify(payLoad)
-  //     }) .then(response => response.json()).catch(err=>{
-  //       this.alertProvider.presentAlert(this._generals.getGeneralError()["heading"],this._generals.getGeneralError()["mainMessage"]  );}) 
-  //     return res; 
-  //   } catch (error) {
-  //     this.alertProvider.presentAlert(this._generals.getGeneralError()["heading"],this._generals.getGeneralError()["mainMessage"]  );
-  //   } 
-  // }
- checkServiceRequests(driverID): Observable<any> {
-    try {
-      //  https://apidev.lmsystem.co.za/rest/cca/v1/sp/checkServiceRequests.php?key=15fc9b573b4eadda81d386689dfaff3a&driverId=16
-      return this._http.get(this.serverHost + "/rest/cca/v1/sp/checkServiceRequests.php", {
-        params: {
-          driverId: driverID,
-          key: this.api_key
-        }
-      });
-    } catch (error) {
 
-    }
+  async ServiceRequestsResponse(): Promise<any> {
+    let id = await this.storage.get("driverID")
 
-  } 
-
-  ServiceRequestsResponse(payLoad): Observable<any> {
-    try {
-      //  https://apidev.lmsystem.co.za/rest/cca/v1/sp/checkServiceRequests.php?key=15fc9b573b4eadda81d386689dfaff3a&driverId=16
-      return this._http.get(this.serverHost + "/rest/cca/v1/sp/checkServiceRequests.php", {
-        params: {
-          driverId: payLoad.driverId,
-          key: this.api_key
-        }
-      });
-    } catch (error) {
-
-    }
+    return this._http.get(this.serverHost + "/rest/cca/v1/sp/checkServiceRequests.php", {
+      params: {
+        driverId: id,
+        key: this.api_key
+      }
+    }).toPromise()
 
   }
 
   addDiverNumber(payLoad): Promise<any> {
-    console.log(payLoad)
-    try {
-      console.log(payLoad)
-      let res = fetch(this.serverHost + "/rest/cca/v1/sp/addDriverMobile.php?key=" + this.api_key, {
-        method: 'post',
-        body: JSON.stringify(payLoad)
-      }).then(response => response.json()).catch(err => {
-        this.alertProvider.presentAlert(this._generals.getGeneralError()["heading"], this._generals.getGeneralError()["mainMessage"]);
-      })
-      return res;
-    } catch (error) {
-      this.alertProvider.presentAlert(this._generals.getGeneralError()["heading"], this._generals.getGeneralError()["mainMessage"]);
-    }
+    let res = fetch(this.serverHost + "/rest/cca/v1/sp/addDriverMobile.php?key=" + this.api_key, {
+      method: 'post',
+      body: JSON.stringify(payLoad)
+    }).then(response => response.json())
+    return res;
+
   }
 
   getDriverlogout(payLoad): Promise<any> {
-    try {
-      console.log(payLoad)
-      let res = fetch(this.serverHost + "/rest/cca/v1/sp/getDriverlogout.php?key=" + this.api_key, {
-        method: 'post',
-        body: JSON.stringify(payLoad)
-      }).then(response => response.json()).catch(err => {
-        this.alertProvider.presentAlert(this._generals.getGeneralError()["heading"], this._generals.getGeneralError()["mainMessage"]);
-      })
-      return res;
-    } catch (error) {
-      this.alertProvider.presentAlert(this._generals.getGeneralError()["heading"], this._generals.getGeneralError()["mainMessage"]);
-    }
+    console.log(payLoad)
+    let res = fetch(this.serverHost + "/rest/cca/v1/sp/getDriverlogout.php?key=" + this.api_key, {
+      method: 'post',
+      body: JSON.stringify(payLoad)
+    }).then(response => response.json())
+    return res;
   }
 
   getContactInfo(): Observable<any> {
@@ -291,89 +286,55 @@ export class ApiGateWayService {
   }
 
   getTerms(payLoad): Promise<any> {
-    try {
-      let res = fetch(this.serverHost + "/rest/cca/v1/sp/getSPTerms.php?key=" + this.api_key, {
-        method: 'post',
-        body: JSON.stringify(payLoad)
-      }).then(response => response.json()).catch(err => {
-        this.alertProvider.presentAlert(this._generals.getGeneralError()["heading"], this._generals.getGeneralError()["mainMessage"]);
-      })
-      return res;
-    } catch (error) {
-      this.alertProvider.presentAlert(this._generals.getGeneralError()["heading"], this._generals.getGeneralError()["mainMessage"]);
-    }
-
+    let res = fetch(this.serverHost + "/rest/cca/v1/sp/getSPTerms.php?key=" + this.api_key, {
+      method: 'post',
+      body: JSON.stringify(payLoad)
+    }).then(response => response.json())
+    return res;
   }
 
   getCallTerms(payLoad): Observable<any> {
-    try {
-      return this._http.get(this.serverHost + "/rest/cca/v1/calls/getCallTerms.php", {
-        params: {
-          appUserId: payLoad.driverId,
-          callRef: payLoad.callRef,
-          key: this.api_key,
-        }
-      });
-    } catch (error) {
-      this.alertProvider.presentAlert(this._generals.getGeneralError()["heading"], this._generals.getGeneralError()["mainMessage"]);
-    }
-
+    return this._http.get(this.serverHost + "/rest/cca/v1/calls/getCallTerms.php", {
+      params: {
+        appUserId: payLoad.driverId,
+        callRef: payLoad.callRef,
+        key: this.api_key,
+      }
+    });
   }
-
-
-  getJobHistory(payLoad): Promise<getJobHistory> {
-    try {
-      let res = fetch(this.serverHost + "/rest/cca/v1/sp/spGetJobHistory.php?key=" + this.api_key, {
-        method: 'post',
-        body: JSON.stringify(payLoad)
-      }).then(response => response.json()).catch(err => {
-        this.alertProvider.presentAlert(this._generals.getGeneralError()["heading"], this._generals.getGeneralError()["mainMessage"]);
-      })
-      return res;
-    } catch (error) {
-      this.alertProvider.presentAlert(this._generals.getGeneralError()["heading"], this._generals.getGeneralError()["mainMessage"]);
-    }
-  }
-
-
 
   getDistance(payLoad): Promise<any> {
+    let res = fetch(this.serverHost + "/rest/cca/v1/helper/getLocationDistTime.php?key=" + this.api_key, {
+      method: 'post',
+      body: JSON.stringify(payLoad)
+    }).then(response => response.json())
+    return res;
 
-    try {
-      let res = fetch(this.serverHost + "/rest/cca/v1/helper/getLocationDistTime.php?key=" + this.api_key, {
-        method: 'post',
-        body: JSON.stringify(payLoad)
-      }).then(response => response.json()).catch(err => {
-        this.alertProvider.presentAlert(this._generals.getGeneralError()["heading"], this._generals.getGeneralError()["mainMessage"]);
-      })
-      return res;
-    } catch (error) {
-      this.alertProvider.presentAlert(this._generals.getGeneralError()["heading"], this._generals.getGeneralError()["mainMessage"]);
-    }
   }
 
-  setSpLocation(coordinates: any): Observable<any> {
-
+  async setSpLocation(coordinates: any): Promise<any> {
+    let id = await this.storage.get("driverID")
     return this._http.get(this.serverHost + "/rest/cca/v1/sp/setDriverLocation.php", {
       params: {
-        driverId: coordinates.driverId,
+        driverId: id,
         key: this.api_key,
         latitude: coordinates.latitude,
         longitude: coordinates.longitude,
         mobileNumber: coordinates.mobileNumber,
         call_id: coordinates.call_id
       }
-    });
+    }).toPromise()
   }
 
-  setDriveStatus(driverID: any, diverStatus: any): Observable<any> {
+  async setDriveStatus(diverStatus: any): Promise<any> {
+    let id = await this.storage.get("driverID")
     return this._http.get(this.serverHost + "/rest/cca/v1/calls/addDriver.php", {
       params: {
-        driverId: driverID,
+        driverId: id,
         key: this.api_key,
         driverStatus: diverStatus
       }
-    });
+    }).toPromise();
   }
 
 
@@ -395,50 +356,54 @@ export class ApiGateWayService {
   }
 
 
-  getOTP(spId: any, cellNumber: any): Observable<any> {
+  async getOTP(cellNumber: any): Promise<any> {
+    let id = await this.storage.get("driverID")
     return this._http.get(this.serverHost + "/rest/cca/v1/sp/getVerifyMobile.php", {
       params: {
         key: this.api_key,
-        driverId: spId,
+        driverId: id,
         mobileNumber: cellNumber
       },
       observe: "response"
-    });
+    }).toPromise()
   }
 
-  verifyOtp(spId: any, otpNum: any): Observable<any> {
+  async verifyOtp(otpNum: any): Promise<any> {
+    let id = await this.storage.get("driverID")
     return this._http.get(this.serverHost + "/rest/cca/v1/sp/getVerifyOTP.php", {
       params: {
         key: this.api_key,
-        driverId: spId,
+        driverId: id,
         OTP: otpNum
       },
       observe: "response"
-    });
+    }).toPromise()
   }
 
-  verifyVehicle(driverId: any, carReg: any): Observable<any> {
+  async verifyVehicle(carReg: any): Promise<any> {
+    let id = await this.storage.get("driverID")
     return this._http.get(this.serverHost + "/rest/cca/v1/sp/validateSpVehicle.php", {
       params: {
         key: this.api_key,
-        driverId: driverId,
+        driverId: id,
         registration: carReg
       },
       observe: "response"
-    });
+    }).toPromise()
   }
 
-  viewNotifications(driverId: any): Observable<any> {
+  async viewNotifications(): Promise<any> {
+    let id = await this.storage.get("driverID")
     return this._http.get(
       this.serverHost + "/rest/cca/v1/sp/notifications/getNotifications.php",
       {
         params: {
           key: this.api_key,
-          driverId: driverId
+          driverId: id
         },
         observe: "response"
       }
-    );
+    ).toPromise()
   }
 
   readNotification(notificationId: any): Observable<any> {
@@ -466,39 +431,60 @@ export class ApiGateWayService {
       }
     );
   }
+
+
+
+  async addDriver(claim): Promise<any> {
+    claim = await this.claimManager.formatClaim(claim);
+
+    let data = {
+      // address: claim.address,
+      call: claim.call,
+      drivers: claim.drivers,
+      callID: claim.callID
+    };
+    console.log(data)
+
+    return this._http.post(this.serverHost + "/rest/cca/v1/calls/addDriver.php?key=" + this.api_key, JSON.stringify(data)).toPromise()
+  }
+
+
+  async addVehicle(claim): Promise<any> {
+    claim = await this.claimManager.formatClaim(claim);
+
+    let data = {
+      // address: claim.address,
+      call: claim.call,
+      vehicle: claim.vehicle,
+      callID: claim.callID
+    };
+    console.log(data)
+
+    return this._http.post(this.serverHost + "/rest/cca/v1/client/vehicle/addUserVehicle.php?key=" + this.api_key, JSON.stringify(data)).toPromise()
+  }
+
+  /**
+   * sends a Base64 string to decrypt and return information about the driveing license  
+   * @param base64Lic 
+   */
+  async getSALicenseInfo(base64Lic: string): Promise<any> {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        "Content-Type": "application/json"
+        //'Authorization': 'Basic '+ btoa('admin:supersecret')
+      })
+    };
+    try {
+      // let jsonReq={
+      //   "key":AppConfig.ApiKey,
+      //   "license":base64Lic
+      // }
+      //let r = this.parseResponse( await this.http.post<any>( this.apiUrl+ "/rest/client/verifyid/sadl/index.php",jsonReq).toPromise());
+      // return r
+      //  return this.http.get<any>(this.apiUrl+ "/rest/client/verifyid/sadl/index.php?licence="+base64Lic+"&key="+AppConfig.ApiKey).toPromise();
+    } catch (e) {
+      // return this.createStandardErrorMessage(e); 
+    }
+  }
+
 }
-
-// export class CurrentClaim implements AddClaimRequest {
-
-//   constructor() {
-//     this.call = new ClaimCall();
-//     this.passenger = [];
-//     this.witness = [];
-//     this.property = [];
-//     this.thirdparty = [];
-//     this.vehicle = [];
-//     this.address = [];
-//     this.isThirdParty = false;
-//     this.completed = [];
-//     this.claimant = [];
-//     this.patient = [];
-//     this.drivers = [];
-//     this.images = new ClaimImages();
-//   }
-//   claimName: string = '';
-//   lastUpdated: string = '';
-//   call: ClaimCall;
-//   passenger: ClaimPassenger[] = [];
-//   witness: ClaimWitness[] = [];
-//   property: ClaimProperty[] = [];
-//   thirdparty: ClaimThirdparty[] = [];
-//   vehicle: ClaimVehicle[];
-//   address: ClaimAddress[] = [];
-//   isThirdParty: boolean;
-//   completed: number[] = [];
-//   claimant: ClaimClaimant[];
-//   patient: ClaimPatient[];
-//   drivers: ClaimDriver[];
-//   images: ClaimImages;
-// }
-

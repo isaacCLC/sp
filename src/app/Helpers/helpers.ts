@@ -1,6 +1,6 @@
-import { Geolocation } from "@ionic-native/geolocation/ngx";
+import { Geolocation, Geoposition } from "@ionic-native/geolocation/ngx";
 import { Injectable } from "@angular/core";
-import { myLoc } from "../models/appModels";
+import { DriverDetails, LoggedInStatus, myLoc } from "../models/appModels";
 import { ToastController, Platform } from "@ionic/angular";
 import { Media, MediaObject } from "@ionic-native/media/ngx";
 import { Network } from "@ionic-native/network/ngx";
@@ -15,6 +15,11 @@ import { Market } from "@ionic-native/market/ngx";
 import { Storage } from "@ionic/storage";
 import { BackgroundMode } from "@ionic-native/background-mode/ngx";
 import { LocalNotifications } from "@ionic-native/local-notifications/ngx";
+import { Observable, Subscription } from "rxjs";
+import { ApiGateWayService } from "../Providers/api-gate-way.service";
+import { ClaimManager } from "./claim-manager";
+import { ClaimOperation } from "../Providers/claim-operation";
+import { PopupHelper } from "./popup-helper";
 @Injectable()
 export class Helpers {
   myloc: myLoc = {};
@@ -31,11 +36,15 @@ export class Helpers {
   connectSubscription: any;
   clcLogo: string;
   loggedIn: boolean;
+  userID: number;
+  serviceRequestCheck: Subscription;
   public isNetworkAvailable: boolean = true;
   public storage: Storage;
   public SPIcon: any;
   public clientIcon: any;
   vehIcon: string;
+  driver: DriverDetails = {};
+  watchLocation: Subscription;
   constructor(
     private geolocation: Geolocation,
     private toastCtrl: ToastController,
@@ -47,7 +56,11 @@ export class Helpers {
     private alerts: AlertsProviderService,
     private market: Market,
     private localNotifications: LocalNotifications,
-    private backgroundMode: BackgroundMode
+    private backgroundMode: BackgroundMode,
+    private _api: ApiGateWayService,
+    private claimManager: ClaimManager,
+    private claimOperation: ClaimOperation,
+    private popup: PopupHelper
   ) {
     this.platform.ready();
     this.connectedToNetwork();
@@ -64,17 +77,76 @@ export class Helpers {
   private connectedToNetwork() {
     this.connectSubscription = this.network.onConnect().subscribe(() => {
       console.log("network connected!");
+      console.log(this.network.type)
       this.isNetworkAvailable = true;
+      setTimeout(() => {
+            if (this.network.type === 'wifi') {
+              console.log('we got a wifi connection, woohoo!');
+              this.claimManager.getClaims().then(claims=>{
+                claims.forEach(claim=>{
+                console.log(claim)
+                  if(claim.uploadOnWifi){
+                    this.claimOperation.submitImages(claim.callID, claim).then(result =>{
+                      this.popup.showToast("Images Uploaded... CallREF:#"+claim.call.callRef)
+                      result?this.claimManager.deleteClaim(claim.callID):"";
+                    })
+                  }
+                })
+              })
+            }
+          }, 3000);
     });
+
+    // this.network.onChange().subscribe(() => {
+    //   console.log("Network changed")
+    //   console.log(this.network.type)
+    //   setTimeout(() => {
+    //     this.claimManager.getClaims().then(claims=>{
+    //       claims.forEach(claim=>{
+    //         console.log(claim)
+    //       })
+    //     })
+    //     if (this.network.type === 'wifi') {
+    //       console.log('we got a wifi connection, woohoo!');
+    //     }
+    //   }, 3000);
+    // })
   }
 
-  setLogInStatus(logInFlag: boolean): void {
+  setLogInStatus(logInFlag: boolean, driver): void {
     this.loggedIn = logInFlag;
+    this.driver = driver;
   }
 
-  isLoggedIn(): boolean {
-    return this.loggedIn;
+  getLogInStatus(): LoggedInStatus {
+    return {status: this.loggedIn, driver: this.driver}
   }
+
+  setRequestCheck(requestCheck){
+    this.serviceRequestCheck?this.serviceRequestCheck.unsubscribe():"";
+    this.serviceRequestCheck = requestCheck
+  }
+
+  requestCheckClosed(){
+    return this.serviceRequestCheck?this.serviceRequestCheck.closed:true;
+  }
+
+  stopRequestCheck(){
+    this.serviceRequestCheck?this.serviceRequestCheck.unsubscribe():"";
+  }
+
+  setWatchLocation(watchLocation){
+    this.watchLocation = watchLocation
+  }
+
+  watchLocationClosed(){
+    return this.watchLocation?this.watchLocation.closed:true;
+  }
+
+  stopWatchLocation(){
+    this.watchLocation?this.watchLocation.unsubscribe():"";
+  }
+
 
   private disconnectedFromNetwork() {
     this.disconnectSubscription = this.network.onDisconnect().subscribe(() => {
@@ -83,57 +155,29 @@ export class Helpers {
     });
   }
 
-  // loadMap(lat: number, lng: number, zoomLevel: number) {
-  //   this.map = GoogleMaps.create("map_canvas", {
-  //     camera: {
-  //       target: {
-  //         lat: lat,
-  //         lng: lng
-  //       },
-  //       zoom: zoomLevel
-  //     }
-  //   });
-  // }
 
-  // showMarker(markerTitle: any, lat: number, lng: number, icon?: any) {
-  //   let marker: Marker = this.map.addMarkerSync({
-  //     title: markerTitle,
-  //     position: {
-  //       lat: lat,
-  //       lng: lng
-  //     },
-  //     icon: icon
-  //   });
-  //   marker.showInfoWindow();
-  // }
   openMarketPlace(appName) {
     this.market.open(appName);
   }
-  async getCurrentLocation() {  
-    let latlng = {
-      lat: null,
-      lng: null
-    };
-    let currentPostion = await this.geolocation.getCurrentPosition({
+  async getCurrentLocation() {
+    return this.geolocation.getCurrentPosition({
       maximumAge: 3000,
       timeout: 10000,
       enableHighAccuracy: true
-    }).catch(err=>{
-      console.log(err);
-      // currentPostion = false
-      return err
     })
-    console.log(currentPostion)
-    // .then(resp => {
-    //   latlng.lat = resp.coords.latitude;
-    //   latlng.lng = resp.coords.longitude;
-    // })
-    // .catch(error => {
-    //   latlng.lat = 0;
-    //   latlng.lng = 0;
-    //   console.log("Error getting location", error);
-    // });
-    return currentPostion;
+
+  }
+
+  async getCurrentLocationAddress() {  
+    return new Promise(resolve=>{
+      this.getCurrentLocation().then((location: Geoposition)=>{
+        if("coords" in location){
+          this._api.getGeoCoding(location.coords.latitude, location.coords.longitude).subscribe(response=>{
+            resolve(response.body.data.results[0])
+          })
+        }
+      })
+    })
   }
 
   async showToast(message: string, timeDuration: number) {
@@ -197,6 +241,7 @@ export class Helpers {
       err => {
         // Handle error
         this.alerts.presentAlert(
+          "Oops",
           "Picture Error",
           "Could Not Get Your Image, Try Again"
         );
@@ -259,9 +304,5 @@ export class Helpers {
     this.SPIcon = "https://www.rctcbc.gov.uk/SiteElements/Images/Icons/LidoMapMarkers/CarMarker.png"
     this.clientIcon =
       "https://cdn0.iconfinder.com/data/icons/map-markers-2-1/512/xxx002-512.png";
-  }
-
-  ionViewDidLeave() {
-    alert("im out");
   }
 }

@@ -5,7 +5,7 @@ import { Helpers } from "../../Helpers/helpers";
 import { GoogleMaps, GoogleMap, Marker } from "@ionic-native/google-maps";
 import { CallNumber } from '@ionic-native/call-number/ngx';
 import { AlertsProviderService } from '../../Providers/alerts-provider.service';
-import { iServiceRequest, ServiceProviderDetails } from "src/app/models/appModels";
+import { iServiceRequest, DriverDetails } from "src/app/models/appModels";
 @Component({
   selector: "app-job-info",
   templateUrl: "./job-info.page.html",
@@ -14,7 +14,7 @@ import { iServiceRequest, ServiceProviderDetails } from "src/app/models/appModel
 export class JobInfoPage implements OnInit {
   map: GoogleMap;
   jobDetails: iServiceRequest;
-  spDetails: ServiceProviderDetails;
+  spDetails: DriverDetails;
   marker: Marker;
   constructor(
     private helpers: Helpers,
@@ -31,6 +31,7 @@ export class JobInfoPage implements OnInit {
       this.jobDetails = JSON.parse(params.jobInfo);
       this._api.getGeoCoding(this.jobDetails.data.clientLocation.latitude, this.jobDetails.data.clientLocation.longitude)
       .subscribe(res => {
+        console.log(res.body.data.results[0].formatted_address)
         this.jobDetails.data.clientLocation['address'] = res.body.data.results[0].formatted_address;
       }, err => { console.log(err) });
       this._api.getDistance({latA: this.spDetails.location.coords.latitude,
@@ -39,8 +40,9 @@ export class JobInfoPage implements OnInit {
         lonB: this.jobDetails.data.clientLocation.longitude})
       .then(res => {
         if (res) {
+          console.log(res)
           this.jobDetails.data.clientLocation['distance'] = res.data.distance
-          this.jobDetails.data.clientLocation['eta'] = res.data.time
+          this.jobDetails.data.clientLocation['time'] = res.data.time
         }
       }, err => {
         alert(JSON.stringify(err))
@@ -53,7 +55,7 @@ export class JobInfoPage implements OnInit {
         .then(res => {
           if (res) {
             this.jobDetails.data.finalDestination['distance'] = res.data.distance
-            this.jobDetails.data.finalDestination['eta'] = res.data.time
+            this.jobDetails.data.finalDestination['time'] = res.data.time
           }
         }, err => {
           alert(JSON.stringify(err))

@@ -34,9 +34,10 @@ export class FinalChecklistPage implements OnInit {
 
   async submitClaim() { 
     this.storage.get("clcDriverID").then(driverID => {
-      this._api.checkServiceRequests(driverID).subscribe(data => {
-        this._api.acceptJob(driverID, data.data.serviceRequests.callId, "endTow", data.data.serviceRequests.callRef).subscribe(response => {
+      this._api.checkServiceRequests().then(data => {
+        this._api.acceptJob(data.data.serviceRequests.callId, "endTow", data.data.serviceRequests.callRef).then(response => {
           this.alertprovider.presentAlert(
+            "Completed",
             "Job REF" + data.data.serviceRequests.callRef,
             "Thank you for completing this job!"
           );

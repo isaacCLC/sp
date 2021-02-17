@@ -9,6 +9,7 @@ import { Storage } from "@ionic/storage";
 import { ApiGateWayService } from "../../../Providers/api-gate-way.service";
 import { LoadingController } from "@ionic/angular";
 import { iClaimDetails } from '../../../models/appModels';
+import { ClaimManager, CurrentClaim } from "src/app/Helpers/claim-manager";
 @Component({
   selector: "app-accident-scene1",
   templateUrl: "./accident-scene1.page.html",
@@ -24,46 +25,27 @@ export class AccidentScene1Page implements OnInit {
   accidentDesc: string;
   loader: any;
   accidentLaccidentDesccation: String;
-  claimDetails:iClaimDetails =  new iClaimDetails();
+  // claimDetails:iClaimDetails =  new iClaimDetails();
+  claim: CurrentClaim = new CurrentClaim();
   constructor(
     private helpers: Helpers,
     private barcodeScanner: BarcodeScanner,
     private route: Router,
     private storage: Storage,
     private _api: ApiGateWayService,
-    private loadingCtrl: LoadingController
+    private loadingCtrl: LoadingController,
+    private claimManager: ClaimManager
   ) {}
 
   async ngOnInit() {
-    this.loader = await this.loadingCtrl.create({
-      message: "Please wait..."
-    });
-    await this.loader.present();
-    await this.helpers.getCurrentLocation().then(data => {
-      // TODO update location response
-      // if (data.lat != 0) {
-      //   this._api.getGeoCoding(data.lat, data.lng).subscribe(fullAddress => {
-      //     this.claimDetails.incidentLocation = fullAddress.body.data.results[0].formatted_address;
-      //   });
-      // } else {
-      //   this.claimDetails.incidentLocation  = "Location To Be Confirmed";
-      // }
-    });
-    this.loader.dismiss();
-    this.claimDetails.incidentDescription =""
-  }
-
-  register(data) {
-    console.log(this.myDate);
+    
   }
 
   async manualCarDetails() {  
-    await this.storage.set("claimDetails",JSON.stringify(this.claimDetails)).then(()=>{
-      this.route.navigate(["accident-scene2"]);
-    })
- 
+    this.route.navigate(["accident-scene2"]);
   }
 
+ 
   scanBarcode() {
     this.barcodeScannerOptions = {
       showTorchButton: true,
@@ -73,15 +55,13 @@ export class AccidentScene1Page implements OnInit {
     this.barcodeScanner
       .scan(this.barcodeScannerOptions)
       .then(barcodeData => {
-        this.storage.set("clcBarcodeData", barcodeData).then(data => { 
-        this.storage.set("claimDetails",JSON.stringify(this.claimDetails))
-          this.route.navigateByUrl("accident-scene2");
-        });
+        console.log(barcodeData)
       })
       .catch(err => {
         console.log("Error", err);
       });
   }
+  
   goBack() {
     this.route.navigateByUrl("/app/tabs/tab1");
   }

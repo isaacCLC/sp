@@ -1,31 +1,23 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-row>
-      <!-- <ion-col size="10"> -->
       <ion-title>Incoming Assist Request</ion-title>
-      <!-- </ion-col> -->
-      <!-- <ion-col size="2">
-        <button ion-button icon-only (click)="closemodal()">
-          <ion-icon name="close"></ion-icon>
-        </button>
-      </ion-col> -->
     </ion-row>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
   <div *ngIf="!gotToTns" class="my-content center clr">
-    <!-- <h4>Service Request from:</h4>
-    <ion-label>{{serviceRequest.firstName}} {{serviceRequest.LastName}}</ion-label>
-    <hr> -->
     <div *ngIf="!gotToTns" id="location-info">
       <h4>Client Location</h4>
-      <!-- <div id="map_canvass"></div> -->
-      <agm-map [latitude]="serviceRequest.data.clientLocation.latitude"
+      <!-- <agm-map id="map-parent" [latitude]="serviceRequest.data.clientLocation.latitude"
         [longitude]="serviceRequest.data.clientLocation.longitude" [zoom]="11" [mapDraggable]="false">
         <agm-circle [latitude]="serviceRequest.data.clientLocation.latitude"
           [longitude]="serviceRequest.data.clientLocation.longitude" [fillColor]="'red'" [radius]="5000"></agm-circle>
-      </agm-map>
+      </agm-map> -->
+      <div class="loc-map">
+        <img [src]="staticMapsURL">
+        </div>
     </div>
     <hr>
     <div id="location-info">
@@ -52,15 +44,7 @@
 
 
   <div *ngIf="gotToTns">
-    <!-- <h3 class="center"><strong>Disclaimer</strong></h3> -->
     <div [innerHTML]="tNc"></div>
-    <!-- <ul>
-      <li>limit or exclude our or your liability for death or personal injury;</li>
-      <li>limit or exclude our or your liability for fraud or fraudulent misrepresentation;</li>
-      <li>limit any of our or your liabilities in any way that is not permitted under applicable law; or</li>
-      <li>exclude any of our or your liabilities that may not be excluded under applicable law.</li>
-    </ul> -->
-
     <ion-radio-group>
       <ion-item>
         <ion-label>I Agree To The Terms Of Service</ion-label>

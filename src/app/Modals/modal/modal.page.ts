@@ -8,6 +8,7 @@ import { FaqItem } from 'src/app/Components/accordion/app-accordion.component';
 import { load } from "google-maps";
 import { Router } from "@angular/router";
 import { not } from "@angular/compiler/src/output/output_ast";
+import { DriverDetails } from "src/app/models/appModels";
 @Component({
   selector: "app-modal",
   templateUrl: "./modal.page.html",
@@ -18,7 +19,7 @@ export class ModalPage implements OnInit {
   questions: any;
   notifications: NotificationData[] = [];
   loader: any;
-  spDetails: any;
+  driverDetails: DriverDetails;
   age: any[] = [];
   _genServices = new GeneralService();
   items: FaqItem[] = [];
@@ -41,9 +42,9 @@ export class ModalPage implements OnInit {
       message: "Loading..."
     }).then(loader => {
       loader.present();
-      this.storage.get("clcSPDetails").then(res => {
-        this.spDetails = res;
-
+      this._api.getDriver().then(res => {
+        this.driverDetails = res.data[0];
+        
         if (this.data.heading == "Frequently Asked Question") {
           this._api.getFAQs().subscribe((response) => {
             response.body.data.forEach(element => {
@@ -65,7 +66,7 @@ export class ModalPage implements OnInit {
         }
 
         if (this.data.heading == "Terms and Conditions") {
-          this._api.getTerms({ driverId: this.spDetails.driverId }).then((response) => {
+          this._api.getTerms({ driverId: this.driverDetails.driverId }).then((response) => {
             console.log(response)
             this.termsAndConditions = response.data.termsAndConditions
             loader.dismiss();
@@ -87,7 +88,7 @@ export class ModalPage implements OnInit {
   }
 
   async getNotifications() {
-    let notifications = await this._api.viewNotifications(this.spDetails.driverId).toPromise()
+    let notifications = await this._api.viewNotifications()
     this.notifications = notifications.body.data
     for (let i = 0; i < this.notifications.length; i++) {
       this.age.push(this._genServices.timeBetweenTwoDates(new Date(this.notifications[i]["dateSent"])))
@@ -119,7 +120,7 @@ export class ModalPage implements OnInit {
       this.notifications.forEach(notification => {
         this._api.clearNotification(notification.notificationId).subscribe()
       });
-      let response = await this._api.viewNotifications(this.spDetails.driverId).toPromise()
+      let response = await this._api.viewNotifications()
       if (response.status) {
         this.notifications = response.body.data;
       }

@@ -1,0 +1,52 @@
+@import '../../../styles/custom';
+
+img {
+  object-fit: cover;
+  width: 100%;  
+  @media only screen and(max-height:700px) {
+    height: 19vh !important;
+  }
+  @media only screen and(min-height:700px) {
+    height: 25vh !important;
+  }
+  @include media-breakpoint-up(sm) {
+    height: 30vh;
+  }
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  height: 25vh;
+  @include media-breakpoint-up(sm) {
+    height: 30vh;
+  }
+}
+
+li {
+  position: absolute;
+}
+
+$imageCount: 5;
+@for $i from 1 through $imageCount {
+  $delay: (($i - 1) * 5) + 's';
+  $total: ($imageCount * 5) + 's';
+
+  li:nth-child(#{ $imageCount + 1 - $i}) {
+    animation: xfade unquote($total) unquote($delay) infinite;
+  }
+}
+@keyframes xfade {
+  17% {
+    opacity: 1;
+  }
+
+  25% {
+    opacity: 0;
+  }
+
+  92% {
+    opacity: 0;
+  }
+}

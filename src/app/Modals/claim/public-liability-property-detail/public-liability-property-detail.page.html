@@ -1,0 +1,86 @@
+<ion-header>
+  <ion-toolbar color='primary'>
+    <ion-buttons slot="start" mode='md'>
+      <ion-button (click)="close()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Goods</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class='container'>
+    <div class='heading'>Enter Goods Info Below</div>
+    <form id="form-project" role="form" #stepForm="ngForm">
+      <div class='controls'>
+        <!-- Damage -->
+        <div class='heading'>Damage</div>
+
+        <app-validated-form-control [control]="txtDamageFirstName">
+          <label>Name Of Owner</label>
+          <input type="text" placeholder="Enter Name" class="form-control" name="txtDamageFirstName" [(ngModel)]="property.propFirstName" #txtDamageFirstName="ngModel" required>
+        </app-validated-form-control>
+
+        <app-validated-form-control [control]="txtDamageLastName">
+          <label>Surname Of Owner</label>
+          <input type="text" placeholder="Enter Surname" class="form-control" name="txtDamageLastName" [(ngModel)]="property.propLastName" #txtDamageLastName="ngModel" required>
+        </app-validated-form-control>
+
+        <app-validated-form-control [control]="txtDamageIdNumber">
+          <label>Id Number</label>
+          <input type="number" placeholder="Enter Id Number" class="form-control" name="txtDamageIdNumber" [(ngModel)]="property.propIdNumber" #txtDamageIdNumber="ngModel" required>
+        </app-validated-form-control>
+
+        <app-validated-form-control [control]="txtDamageContactNumber">
+          <label>Contact Number</label>
+          <input type="tel" placeholder="Enter Contact Number" class="form-control" name="txtDamageContactNumber" [(ngModel)]="property.propContactNumber" #txtDamageContactNumber="ngModel" required>
+        </app-validated-form-control>
+
+        <!-- google address -->
+        <app-validated-form-control [control]="txtDamageAddress">
+          <label>Address</label>
+          <input ngx-google-places-autocomplete name='txtDamageAddress' [(ngModel)]="property.propAddress" class="form-control" [options]='addressOptions' #txtDamageAddress="ngModel" (onAddressChange)="handleAddressChange($event)" required />
+        </app-validated-form-control>
+
+        <app-validated-form-control [control]="txtDamageDescriptionOfInuries">
+          <label>Description Of Damaged Property</label>
+          <textarea type="text" placeholder="Enter Description" class="form-control" name="txtDamageDescriptionOfInuries" [(ngModel)]="property.propDescriptionOfDamage" #txtDamageDescriptionOfInuries="ngModel" required></textarea>
+        </app-validated-form-control>
+
+        <ion-item lines='none'>
+          <ion-label class="ion-text-wrap">
+            <ion-text>Has A Claim Been Lodged Against You?</ion-text>
+          </ion-label>
+          <ion-checkbox slot="end" name='injuredClaimLoggedFlag' [(ngModel)]="property.propClaimLoggedFlag"></ion-checkbox>
+        </ion-item>
+
+        <ng-container *ngIf="property.propClaimLoggedFlag">
+
+          <app-validated-form-control [control]="txtDamageClaimAmount">
+            <label>If Yes: For What Amount (R)</label>
+            <input type="number" placeholder="Enter Amount" class="form-control" name="txtDamageClaimAmount" [(ngModel)]="property.propClaimLoggedAmount" #txtDamageClaimAmount="ngModel" required>
+          </app-validated-form-control>
+
+          <ion-item lines='none'>
+            <ion-label class="ion-text-wrap">
+              <ion-text>Has A Settlement Offer Been Made?</ion-text>
+            </ion-label>
+            <ion-checkbox slot="end" name='propClaimSettlementOfferFlag' [(ngModel)]="property.propClaimSettlementOfferFlag"></ion-checkbox>
+          </ion-item>
+        </ng-container>
+      </div>
+    </form>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons slot='start'>
+      <ion-button color='danger' (click)='closeAndDelete()'>Delete</ion-button>
+    </ion-buttons>
+    <ion-buttons slot='end'>
+      <ion-button [disabled]="!stepForm.valid" (click)='save(property)'>Save</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

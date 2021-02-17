@@ -467,6 +467,7 @@ export interface GetUserVehicleListResponseData {
   vehicleSpId: number;
   vehicleImageUrl?: any;
   valid: number;
+  dontUpdate: boolean;
 }
 
 export interface GetUserVehicleListResponse extends BaseMessage {

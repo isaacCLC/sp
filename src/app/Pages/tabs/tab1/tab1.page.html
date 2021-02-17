@@ -11,9 +11,9 @@
     <ion-col size="4">
       <ion-avatar>
         <ion-img
-          *ngIf="spDetails.driverImageUrl != null || spDetails.driverImageUrl != undefined || spDetails.driverImageUrl != ''"
-          [src]="spDetails.driverImageUrl"></ion-img>
-        <!-- <ion-img *ngIf="spDetails.driverImageUrl == null || spDetails.driverImageUrl == undefined || spDetails.driverImageUrl == ''"
+          *ngIf="driverDetails.driverImageUrl != null || driverDetails.driverImageUrl != undefined || driverDetails.driverImageUrl != ''"
+          [src]="driverDetails.driverImageUrl"></ion-img>
+        <!-- <ion-img *ngIf="driverDetails.driverImageUrl == null || driverDetails.driverImageUrl == undefined || driverDetails.driverImageUrl == ''"
           src="https://www.pinclipart.com/picdir/middle/60-602450_profile-clipart-profile-icon-round-profile-pic-png.png"> 
         </ion-img>-->
       </ion-avatar>
@@ -39,7 +39,7 @@
 <div id="map_canvas">
 </div>
 
-<div *ngIf="( tripDetails != null && isJobAllocaed == true) || (navigationStarted == true && tripDetails != null )"
+<div *ngIf="( tripDetails != null && isJobAllocaed == true) || (navigatingToFD == true && tripDetails != null )"
   id="over_map">
   <label>ETA: {{tripDetails.Eta}}... <strong><i>{{tripDetails.Distance}}</i></strong></label>
 </div>
@@ -87,12 +87,12 @@
 <ion-button *ngIf="!iscarSelected" color="secondary" primary block (click)="selectVeh()">
   <ion-label>Select A Vehicle</ion-label>
 </ion-button>
-<ion-button class="aawait-btn" *ngIf="serviceReq.data.serviceRequests.status == 4" color="tertiary" primary block
+<ion-button class="aawait-btn" *ngIf="serviceReq.data.serviceRequests.status == 15" color="tertiary" primary block
   (click)="arrived();">
   <!-- <ion-label> Arrived An Final Dest</ion-label> -->
   <ion-label>Arrived At Scene</ion-label>
 </ion-button>
-<ion-button class="aawait-btn" *ngIf="serviceReq.data.serviceRequests.status == 13" color="tertiary" primary block
+<ion-button class="aawait-btn" *ngIf="serviceReq.data.serviceRequests.status == 16" color="tertiary" primary block
   (click)="arrivedFinDist();">
   <ion-label>Arrived At Final Dist</ion-label>
 </ion-button>

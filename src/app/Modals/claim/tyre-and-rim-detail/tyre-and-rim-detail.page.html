@@ -1,0 +1,149 @@
+<ion-header>
+  <ion-toolbar color='primary'>
+    <ion-buttons slot="start" mode='md'>
+      <ion-button (click)="close()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title  *ngIf="type == 'rim'">Rim Damage</ion-title>
+    <ion-title *ngIf="type == 'tyre'" >Rim Damage</ion-title>
+    <ion-title *ngIf="type == 'tyre/rim'" >Tyre and Rim Damage</ion-title>
+
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class='container'>
+    <div class='heading'>Enter {{type | titlecase}} Info Below</div>
+    <form id="form-project" role="form" #stepForm="ngForm">
+      <div class='controls'>
+         <!-- Tyre and rim info -->
+        <ng-container *ngIf="type == 'tyre/rim'">
+          <ion-item lines='none'>
+            <ion-label class="ion-text-wrap">
+              <ion-text>Which Tyre and Rim Is Damaged</ion-text>
+            </ion-label>
+            <ion-select placeholder="Select One" [(ngModel)]="property.propType" name="tyrePropType">
+              <ion-select-option value="Tyre and Rim - Front Right">Front Right</ion-select-option>
+              <ion-select-option value="Tyre and Rim- Front Left">Front Left</ion-select-option>
+              <ion-select-option value="Tyre and Rim - Rear Right">Rear Right</ion-select-option>
+              <ion-select-option value="Tyreim and R - Rear Left">Rear Left</ion-select-option>
+            </ion-select>
+          </ion-item>
+          <app-validated-form-control [control]="txtTyreDescription">
+            <label>Description Of The Damage</label>
+            <textarea type="text" placeholder="Enter description of damage" class="form-control" name="txtTyreDescription" [(ngModel)]="property.propDamageDescription" #txtTyreDescription="ngModel" required></textarea>
+          </app-validated-form-control>
+
+          <app-validated-form-control [control]="txtTread">
+            <label>Remaining Tread On Tyre</label>
+            <textarea type="text" placeholder="Enter description of damage" class="form-control" name="txtTread" [(ngModel)]="property.propTyreRemainingThread" #txtTread="ngModel" required></textarea>
+          </app-validated-form-control>
+
+          <ion-button expand='block' fill='outline' (click)="addTyreImage()">
+            <ion-icon name="camera" color='primary' slot='start'></ion-icon>Photo of Rim
+          </ion-button>
+          <div class="image" [style.background-image]="property.tyreImage | mediaManagerSafeStyle " *ngIf="property.tyreImage && property.tyreImage.exists">
+            <ion-icon name="close" (click)="deleteTyreImage()"></ion-icon>
+          </div>
+
+          <ion-button expand='block' fill='outline' (click)="addTyreImage()">
+            <ion-icon name="camera" color='primary' slot='start'></ion-icon>Photo of Tyre
+          </ion-button>
+          <div class="image" [style.background-image]="property.tyreImage | mediaManagerSafeStyle " *ngIf="property.tyreImage && property.tyreImage.exists">
+            <ion-icon name="close" (click)="deleteTyreImage()"></ion-icon>
+          </div>
+
+          <ion-button expand='block' fill='outline' (click)="addTyreThreadImage()">
+            <ion-icon name="camera" color='primary' slot='start'></ion-icon>Photo of Tyre Thread
+          </ion-button>
+          <div class="image" [style.background-image]="property.tyreThreadImage | mediaManagerSafeStyle " *ngIf="property.tyreThreadImage && property.tyreThreadImage.exists">
+            <ion-icon name="close" (click)="deleteTyreThreadImage()"></ion-icon>
+          </div>
+
+        </ng-container>
+
+
+
+        <!-- Rim info -->
+        <ng-container *ngIf="type == 'rim'">
+          <ion-item lines='none'>
+            <ion-label class="ion-text-wrap">
+              <ion-text>Which Rim Is Damaged</ion-text>
+            </ion-label>
+            <ion-select placeholder="Select One" [(ngModel)]="property.propType" name="rimPropType">
+              <ion-select-option value="Rim - Front Right">Front Right</ion-select-option>
+              <ion-select-option value="Rim - Front Left">Front Left</ion-select-option>
+              <ion-select-option value="Rim - Rear Right">Rear Right</ion-select-option>
+              <ion-select-option value="Rim - Rear Left">Rear Left</ion-select-option>
+            </ion-select>
+          </ion-item>
+          <app-validated-form-control [control]="txtRimDescription">
+            <label>Description Of The Damage</label>
+            <textarea type="text" placeholder="Enter description of damage" class="form-control" name="txtRimDescription" [(ngModel)]="property.propDamageDescription" #txtRimDescription="ngModel" required></textarea>
+          </app-validated-form-control>
+
+          <ion-button expand='block' fill='outline' (click)="addRimImage()">
+            <ion-icon name="camera" color='primary' slot='start'></ion-icon>Photo of Rim
+          </ion-button>
+          <div class="image" [style.background-image]="property.rimImage | mediaManagerSafeStyle " *ngIf="property.rimImage && property.rimImage.exists">
+            <ion-icon name="close" (click)="deleteRimImage()"></ion-icon>
+          </div>
+
+
+        </ng-container>
+
+        <!-- Tyre info -->
+        <ng-container *ngIf="type == 'tyre'">
+          <ion-item lines='none'>
+            <ion-label class="ion-text-wrap">
+              <ion-text>Which Tyre Is Damaged</ion-text>
+            </ion-label>
+            <ion-select placeholder="Select One" [(ngModel)]="property.propType" name="tyrePropType">
+              <ion-select-option value="Tyre - Front Right">Front Right</ion-select-option>
+              <ion-select-option value="Tyre - Front Left">Front Left</ion-select-option>
+              <ion-select-option value="Tyre - Rear Right">Rear Right</ion-select-option>
+              <ion-select-option value="Tyre - Rear Left">Rear Left</ion-select-option>
+            </ion-select>
+          </ion-item>
+          <app-validated-form-control [control]="txtTyreDescription">
+            <label>Description Of The Damage</label>
+            <textarea type="text" placeholder="Enter description of damage" class="form-control" name="txtTyreDescription" [(ngModel)]="property.propDamageDescription" #txtTyreDescription="ngModel" required></textarea>
+          </app-validated-form-control>
+
+          <app-validated-form-control [control]="txtTread">
+            <label>Remaining Tread On Tyre</label>
+            <textarea type="text" placeholder="Enter description of damage" class="form-control" name="txtTread" [(ngModel)]="property.propTyreRemainingThread" #txtTread="ngModel" required></textarea>
+          </app-validated-form-control>
+
+          <ion-button expand='block' fill='outline' (click)="addTyreImage()">
+            <ion-icon name="camera" color='primary' slot='start'></ion-icon>Photo of Tyre
+          </ion-button>
+          <div class="image" [style.background-image]="property.tyreImage | mediaManagerSafeStyle " *ngIf="property.tyreImage && property.tyreImage.exists">
+            <ion-icon name="close" (click)="deleteTyreImage()"></ion-icon>
+          </div>
+
+          <ion-button expand='block' fill='outline' (click)="addTyreThreadImage()">
+            <ion-icon name="camera" color='primary' slot='start'></ion-icon>Photo of Tyre Thread
+          </ion-button>
+          <div class="image" [style.background-image]="property.tyreThreadImage | mediaManagerSafeStyle " *ngIf="property.tyreThreadImage && property.tyreThreadImage.exists">
+            <ion-icon name="close" (click)="deleteTyreThreadImage()"></ion-icon>
+          </div>
+
+        </ng-container>
+
+      </div>
+    </form>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons slot='start'>
+      <ion-button color='danger' (click)='closeAndDelete()'>Delete</ion-button>
+    </ion-buttons>
+    <ion-buttons slot='end'>
+      <ion-button (click)='save(property)' [disabled]="!property.propType || property.propType.length <= 0">Save</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

@@ -1,7 +1,7 @@
 
 export class AppConfig {
 
-    public static ApiKey: string = '';
+    public static ApiKey: string = '15fc9b573b4eadda81d386689dfaff3a';
     public static DeepLinkAuthToken: string = '';
     public static get AppVersion(): string { return '3.1.0' };
     public static manateeWorksKey:string ; //LICENSE KEY used to decode driver 's lic Barcode

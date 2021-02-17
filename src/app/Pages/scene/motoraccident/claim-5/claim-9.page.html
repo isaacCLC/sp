@@ -1,0 +1,99 @@
+<ion-header>
+  <ion-toolbar color='primary'>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/app/tabs/tab1"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Goods in the vehicle</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)='pause()'>Pause </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <app-motoraccident-claim-step [current]="step-1" [thirdParty]="claim.isThirdParty" [completed]="claim.completed">
+  </app-motoraccident-claim-step>
+  <div class='container'>
+    <div class='heading' style='margin-top:2rem'>vehicle checklist</div>
+
+    <ion-item>
+      <ion-label class="ion-text-wrap">
+        <ion-text>Spare Wheel</ion-text>
+      </ion-label>
+      <ion-checkbox slot="end" [(ngModel)]="claim.checklist.vehSpare" name='sameAsInsured'
+        (onChange)="toggleSameAsInsured()">
+      </ion-checkbox>
+    </ion-item>
+    <ion-item>
+      <ion-label class="ion-text-wrap">
+        <ion-text>Wheel Spanner</ion-text>
+      </ion-label>
+      <ion-checkbox slot="end" [(ngModel)]="claim.checklist.vehWheelSpanner" name='sameAsInsured'
+        (onChange)="toggleSameAsInsured()">
+      </ion-checkbox>
+    </ion-item>
+    <ion-item>
+      <ion-label class="ion-text-wrap">
+        <ion-text>Keys</ion-text>
+      </ion-label>
+      <ion-checkbox slot="end" [(ngModel)]="claim.checklist.vehKeys" name='sameAsInsured'
+        (onChange)="toggleSameAsInsured()">
+      </ion-checkbox>
+    </ion-item>
+    <ion-item>
+      <ion-label class="ion-text-wrap">
+        <ion-text>Radio</ion-text>
+      </ion-label>
+      <ion-checkbox slot="end" [(ngModel)]="claim.checklist.vehRadio" name='sameAsInsured'
+        (onChange)="toggleSameAsInsured()">
+      </ion-checkbox>
+    </ion-item>
+    <ion-item>
+      <ion-label class="ion-text-wrap">
+        <ion-text>Jack</ion-text>
+      </ion-label>
+      <ion-checkbox slot="end" [(ngModel)]="claim.checklist.vehJack" name='sameAsInsured'
+        (onChange)="toggleSameAsInsured()">
+      </ion-checkbox>
+    </ion-item>
+    <div class='heading' style='margin-top:2rem'>Are there any goods in the vehicle?</div>
+
+    <div class="empty">
+      <p *ngIf="!claim.property || claim.property.length <= 0">No goods added.</p>
+    </div>
+    <ion-list class='shadow'>
+      <ion-item-sliding *ngFor="let prop of claim.property; let i=index">
+        <ion-item detail='true' (click)='otherPropertyDetail(i)'>
+          <!-- <ion-icon name="person" slot='start'></ion-icon> -->
+          <ion-label class="ion-text-wrap">
+            <ion-text>Good {{i + 1}}</ion-text>
+            <p>{{prop.propType}}</p>
+          </ion-label>
+        </ion-item>
+        <ion-item-options side="end">
+          <ion-item-option color="danger" (click)="delete(i)">Delete</ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    </ion-list>
+
+    <ion-button expand='block' fill='outline' style='margin-top:20px' (click)='addOtherProperty()'>
+      <ion-icon name="add" slot='start'></ion-icon>
+      Add Good
+    </ion-button>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)='previousStep()'>Previous
+        <ion-icon name="arrow-back" slot='start'></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button (click)='nextStep()'>Next
+        <ion-icon name="arrow-forward" slot='end'></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

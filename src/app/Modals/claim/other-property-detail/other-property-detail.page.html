@@ -1,0 +1,56 @@
+<ion-header>
+  <ion-toolbar color='primary'>
+    <ion-buttons slot="start" mode='md'>
+      <ion-button (click)="close()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Goods</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class='container'>
+    <div class='heading'>Enter Good Info Below</div>
+    <form id="form-project" role="form" #stepForm="ngForm">
+      <div class='controls'>
+        <app-validated-form-control [control]="txtType">
+          <label>Type of Good</label>
+          <input type="text" placeholder="Enter type of good" class="form-control" name="txtType" [(ngModel)]="property.propType" #txtType="ngModel" required>
+        </app-validated-form-control>
+        <!-- <app-validated-form-control [control]="txtName">
+          <label>Name</label>
+          <input type="text" placeholder="Enter name" class="form-control" name="txtName" [(ngModel)]="property.propFirstName" #txtName="ngModel" required>
+        </app-validated-form-control>
+        <app-validated-form-control [control]="txtSurname">
+          <label>Surname</label>
+          <input type="text" placeholder="Enter surname" class="form-control" name="txtSurname" [(ngModel)]="property.propLastName" #txtSurname="ngModel" required>
+        </app-validated-form-control>
+        <app-validated-form-control [control]="txtIdNumber">
+          <label>ID Number</label>
+          <input type="number" placeholder="Enter ID number" class="form-control" name="txtIdNumber" [(ngModel)]="property.propIdNumber" #txtIdNumber="ngModel" required>
+        </app-validated-form-control> -->
+        <!-- google address -->
+        <!-- <app-validated-form-control [control]="txtAddress">
+          <label>Address</label>
+          <input ngx-google-places-autocomplete name='txtAddress' [(ngModel)]="property.propAddress" class="form-control" [options]='addressOptions' #txtAddress="ngModel" (onAddressChange)="handleAddressChange($event)" />
+        </app-validated-form-control> -->
+        <app-validated-form-control [control]="txtDescription">
+          <label>Description of the good</label>
+          <textarea type="text" placeholder="Enter description" class="form-control" name="txtDescription" [(ngModel)]="property.propDamageDescription" #txtDescription="ngModel" required></textarea>
+        </app-validated-form-control>
+      </div>
+    </form>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons slot='start'>
+      <ion-button color='danger' (click)='closeAndDelete()'>Delete</ion-button>
+    </ion-buttons>
+    <ion-buttons slot='end'>
+      <ion-button [disabled]="!stepForm.valid" (click)='save(property)'>Save</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

@@ -1,0 +1,36 @@
+<ion-header>
+  <ion-toolbar color='primary'>
+    <ion-buttons slot="start" mode='md'>
+      <ion-button (click)="close()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Signature</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <p class="title">Please draw your signature in the space below.</p>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col class="ion-text-center">
+        <signature-pad (onBeginEvent)="drawStart()"></signature-pad>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons slot='start'>
+      <ion-button color='primary' (click)='clearPreview()'>Clear</ion-button>
+    </ion-buttons>
+    <ion-buttons slot='end'>
+      <ion-button color='primary' (click)='return()' [disabled]='cleared'>Save</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

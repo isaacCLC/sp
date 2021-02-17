@@ -1,0 +1,78 @@
+<ion-header>
+  <ion-toolbar color='primary'>
+    <ion-buttons slot="start" mode='md'>
+      <ion-button (click)="close()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Third Party</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class='container'>
+    <form id="form-project" role="form" #stepForm="ngForm">
+      <div class='controls'>
+        <div class='heading'>Driver Details</div>
+        <app-validated-form-control [control]="txtName">
+          <label>Name</label>
+          <input type="text" placeholder="Enter name" class="form-control" name="txtName" [(ngModel)]="thirdParty.tpFirstName" #txtName="ngModel" required>
+        </app-validated-form-control>
+        <app-validated-form-control [control]="txtSurname">
+          <label>Surname</label>
+          <input type="text" placeholder="Enter surname" class="form-control" name="txtSurname" [(ngModel)]="thirdParty.tpLastName" #txtSurname="ngModel" required>
+        </app-validated-form-control>
+        <app-validated-form-control [control]="txtIdNumber">
+          <label>ID Number</label>
+          <input type="number" placeholder="Enter ID number" class="form-control" name="txtIdNumber" [(ngModel)]="thirdParty.tpIdNumber" #txtIdNumber="ngModel" required>
+        </app-validated-form-control>
+        <app-validated-form-control [control]="txtContactNumber">
+          <label>Contact Number</label>
+          <input type="tel" placeholder="Enter contact number" class="form-control" name="txtContactNumber" [(ngModel)]="thirdParty.tpContactNumber" #txtContactNumber="ngModel" required>
+        </app-validated-form-control>
+        <!-- google address -->
+        <div class="custom-location">
+          <app-validated-form-control [control]="txtAddress">
+            <label>Address</label>
+            <input ngx-google-places-autocomplete [(ngModel)]="thirdParty.tpAddress" name='txtAddress' class="form-control" [options]='addressOptions' #txtAddress="ngx-places" (onAddressChange)="handleAddressChange($event)" />
+          </app-validated-form-control>
+          <div class="location-btn">
+            <ion-button fill='clear' slot="end" (click)='locateUser()'>
+              <ion-icon slot="icon-only" name="locate-outline"></ion-icon>
+            </ion-button>
+          </div>
+        </div>
+
+        <div class='heading'>Third Party's Property</div>
+        <app-validated-form-control [control]="txtPropertyDescription">
+          <label>Description Of Their Property</label>
+          <textarea type="text" placeholder="Enter Description Of Property" class="form-control" name="txtPropertyDescription" [(ngModel)]="thirdParty.tpPropertyDescription" #txtPropertyDescription="ngModel" required></textarea>
+        </app-validated-form-control>
+
+        <app-validated-form-control [control]="txtDamageDescription">
+          <label>Description Of Damage To Other Party's Vessel/ Property</label>
+          <textarea type="text" placeholder="Enter Description Of Damage Property" class="form-control" name="txtDamageDescription" [(ngModel)]="thirdParty.tpDamageDescription" #txtDamageDescription="ngModel" required></textarea>
+        </app-validated-form-control>
+
+        <ion-item lines='none'>
+          <ion-label class="ion-text-wrap">
+            <ion-text>Is the other party insured?</ion-text>
+          </ion-label>
+          <ion-checkbox slot="end" [(ngModel)]="thirdParty.tpIsInsured" name='isInsured'></ion-checkbox>
+        </ion-item>
+
+      </div>
+    </form>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons slot='start'>
+      <ion-button color='danger' (click)='closeAndDelete()'>Delete</ion-button>
+    </ion-buttons>
+    <ion-buttons slot='end'>
+      <ion-button [disabled]="!stepForm.valid" (click)='save(thirdParty)'>Save</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

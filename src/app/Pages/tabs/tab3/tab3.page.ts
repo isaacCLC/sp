@@ -26,7 +26,6 @@ export class Tab3Page {
   _generals: GeneralService = new GeneralService();
   mySelectedCar: any;
   spDetails: any;
-  myNotifications: Array<Object>;
   constructor(
     public modalController: ModalController,
     private route: Router,
@@ -35,7 +34,8 @@ export class Tab3Page {
     private storage: Storage,
     public loadingCtrl: LoadingController,
     private alertProvider: AlertsProviderService,
-    private photoViewer: PhotoViewer
+    private photoViewer: PhotoViewer,
+    private helpers: Helpers,
   ) { }
 
   ngOnInit() {
@@ -46,7 +46,7 @@ export class Tab3Page {
     this.modalController.create({
       component: ModalPage,
       componentProps: { dataProperties: props }
-    }).then(modal=>{
+    }).then(modal => {
       modal.present();
     })
   }
@@ -56,13 +56,13 @@ export class Tab3Page {
       message: "Loading..."
     }).then(loader => {
       loader.present()
-      this._api.getDriverlogout({driverId: this.spDetails.driverId}).then(response => {
+      this._api.getDriverlogout({ driverId: this.spDetails.driverId }).then(response => {
         loader.dismiss()
         if (response.status) {
           this.mySelectedCar = null;
         }
         else {
-          this.alertProvider.presentAlert("Could not remove vehicle Error", response.data.errorMessage)
+          this.alertProvider.presentAlert("Error removing vehicle","Could not remove vehicle Error", response.data.errorMessage)
         }
       })
     })
@@ -75,28 +75,15 @@ export class Tab3Page {
       message: "Loading..."
     }).then(loader => {
       loader.present();
-      this.storage.get("_setCarFinalStage").then(data => {
-        if (data == true) {
-          loader.dismiss();
-          this.route.navigate(["app/tabs/tab1"]);
-          this.storage.remove("_setCarFinalStage");
-        } else {
-          this.myNotifications = new Array();
-          this.storage.get("clcSPDetails").then(res => {
-            this.spDetails = res.driverId;
-            this.driverID = res.driverId
-            this._api.getSPDetails(res.driverId).subscribe(spDetails => {
-              this.spDetails = spDetails.data[0];
-              this.mySelectedCar = spDetails.data[0].driverVehicle
-              if (!("registration_number" in this.mySelectedCar)) {
-                this.mySelectedCar = false;
-              }
-              loader.dismiss();
-            })
-          });
-        }
-      });
-
+      this._api.getDriver().then(spDetails => {
+        this.spDetails = spDetails.data[0];
+        this.mySelectedCar = spDetails.data[0].driverVehicle
+        console.log(this.mySelectedCar)
+        // if (!("registration_number" in this.mySelectedCar)) {
+        //   this.mySelectedCar = false;
+        // }
+        loader.dismiss();
+      })
     })
   }
 
@@ -110,30 +97,32 @@ export class Tab3Page {
       }
       console.log("User details")
       console.log(this.spDetails)
-      this._api.completeJOB(userDetails.driverId).subscribe(res => {
+      this._api.completeJOB().then(res => {
         if (res.status) {
           this._api.getDriverlogout(userDetails).then(res => {
             loader.dismiss()
-              let username;
-              if (res.status) {this.storage.get("username").then(username=>{
-                username = username
+            this.helpers.stopRequestCheck();
+            this.helpers.stopWatchLocation();
+            if (res.status) {
+              this.storage.get("username").then(username => {
+                this.storage.clear().then(() => {
+                  this.storage.set("username", username)
+                })
               })
-              this.storage.clear()
-              this.storage.set("username", username)
               this.route.navigate(["/login"]);
             }
             else {
-              this.alertProvider.presentAlert("Logout Error", res.data.errorMessage)
+              this.alertProvider.presentAlert("Oops..", "Logout Error", res.data.errorMessage)
             }
           })
         }
         else {
           loader.dismiss()
-          this.alertProvider.presentAlert("Logout Error", res.data.errorMessage)
+          this.alertProvider.presentAlert("Oops..","Logout Error", res.data.errorMessage)
         }
       }, err => {
         loader.dismiss();
-        this.alertProvider.presentAlert("Error", "An Error has occured, Please contact your system administrtaor");
+        this.alertProvider.presentAlert("Oops..","Error", "An Error has occured, Please contact your system administrtaor");
         return;
       })
     })

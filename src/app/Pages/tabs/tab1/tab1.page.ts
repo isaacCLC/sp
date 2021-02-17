@@ -1,22 +1,25 @@
 import { Component, ɵConsole, ViewChild, ElementRef } from "@angular/core";
 import { Helpers } from "../../../Helpers/helpers";
 import { ApiGateWayService } from "../../../Providers/api-gate-way.service";
-import { GoogleMaps, GoogleMap, Marker, GoogleMapOptions, Environment, GoogleMapsEvent } from "@ionic-native/google-maps";
-import { Geolocation, Geoposition } from "@ionic-native/geolocation/ngx";
-import { ServiceProviderDetails, TripDetails, ClientDetails, myLoc, iServiceRequest, iFinalDest } from "../../../models/appModels";
+import { GoogleMaps, GoogleMap, Marker, GoogleMapOptions, Environment, GoogleMapsEvent, LatLngBounds } from "@ionic-native/google-maps";
+import { Geolocation, Geoposition, PositionError } from "@ionic-native/geolocation/ngx";
+import { TripDetails, ClientDetails, myLoc, iServiceRequest, iFinalDest, DriverDetails } from "../../../models/appModels";
 import { Insomnia } from '@ionic-native/insomnia/ngx';
 import {
   Platform, LoadingController, ModalController, NavController, AlertController
 } from "@ionic/angular";
 import { CallNumber } from '@ionic-native/call-number/ngx';
-import { interval, Subscriber, Observable } from "rxjs";
+import { interval, Subscriber, Observable, Subscription, throwError } from "rxjs";
 import { Router, NavigationExtras, ActivatedRoute } from "@angular/router";
 import { Storage } from "@ionic/storage";
 import { AlertsProviderService } from "../../../Providers/alerts-provider.service";
 import { GeneralService } from "../../../Helpers/generals";
 import { ActionSheetController } from '@ionic/angular';
 import { LocationAccuracy } from '@ionic-native/location-accuracy/ngx';
-import { CurrentClaim } from "src/app/Helpers/claim-manager";
+import { ClaimCall, ClaimManager, ClaimTypeId, CurrentClaim } from "src/app/Helpers/claim-manager";
+import { UserState } from "src/app/Helpers/user-state";
+import { CommonUtils } from "src/app/Helpers/common-utils";
+import { PopupHelper } from "src/app/Helpers/popup-helper";
 
 declare var google;
 
@@ -27,6 +30,9 @@ declare var google;
 })
 export class Tab1Page {
   @ViewChild('draggable') private startTowing: ElementRef;
+  lastLocationUpdate: number = Date.now();
+  lastMarkerUpdate: number = Date.now();
+  cameraMoving: boolean = false;
   isToggled: boolean = false;
   isAvailable: boolean;
   counter: number = 0;
@@ -70,11 +76,11 @@ export class Tab1Page {
   };
   navigatingToFD: boolean = false;
   checkingRequest: boolean;
-  spDetails: ServiceProviderDetails = {};
+  driverDetails: DriverDetails = {};
   firstTime: boolean;
   map: GoogleMap;
   loader: any;
-  watchLocation: any;
+  watchLocation: Subscription;
   requestCheck: any;
   btnArridedDisabled = true;
   isReqAccepted: boolean;
@@ -84,6 +90,7 @@ export class Tab1Page {
   checkAloc: any;
   isJobAllocaed: boolean = false;
   finalDestination: string;
+  lastUpdate: Date;
   spCoordinatesPack: any = {
     latitude: 0,
     longitude: 0,
@@ -91,19 +98,19 @@ export class Tab1Page {
     mobileNumber: 0
   };
   checkRadius: any
-  clientDriverTarget: number
+  DriverTarget: number
   driveFinDistTarget: number = null;
   startTow: boolean = false;
   _genServices: GeneralService;
   iscarSelected: boolean;
-  isInternetAvailable: boolean;
 
   tripDetails: TripDetails = {
     Distance: null,
     Eta: null,
-    finalDestination: null
+    finalDestination: null,
+    timeMinutesValue: -1
   };
-  // clientDetails: ClientDetails = {};
+
   spMarker: Marker;
   stayActive: boolean;
   appPaused: boolean = false;
@@ -130,11 +137,13 @@ export class Tab1Page {
     private activateRoute: ActivatedRoute,
     private insomnia: Insomnia,
     public actionSheetController: ActionSheetController,
-    private locationAccuracy: LocationAccuracy
+    private locationAccuracy: LocationAccuracy,
+    private userState: UserState,
+    private claimManager: ClaimManager,
+    private popup: PopupHelper
   ) {
     this._genServices = new GeneralService();
     this.stayActive = false;
-    this.watchLocation = new Observable();
 
     platform.ready().then(() => {
       this.platform.pause.subscribe(() => {
@@ -146,13 +155,19 @@ export class Tab1Page {
       });
 
       this.locationAccuracy.canRequest().then((canRequest: boolean) => {
-
+        console.log("Location accuracy")
+        console.log(canRequest)
         if (canRequest) {
           // the accuracy option will be ignored by iOS
-          this.locationAccuracy.request(this.locationAccuracy.REQUEST_PRIORITY_HIGH_ACCURACY).then(
-            () => console.log('Request successful'),
-            error => console.log('Error requesting location permissions', error)
-          );
+          this.locationAccuracy.request(this.locationAccuracy.REQUEST_PRIORITY_HIGH_ACCURACY).then(() => {
+            console.log('Request successful')
+          }
+          ).catch(error => {
+            console.log('Error requesting location permissions', error)
+            this.popup.showToast("You will not receive service requests unless you turn on you location.")
+          })
+        } else {
+          throw "Cannot request users location"
         }
 
       });
@@ -165,155 +180,166 @@ export class Tab1Page {
   ngAfterViewInit() {
     this.platform.ready().then(() => {
       this.map = GoogleMaps.create("map_canvas");
-      this.map.one(GoogleMapsEvent.MAP_READY).then(this.initMap.bind(this));
+      this.map.one(GoogleMapsEvent.MAP_READY).then(this.initLocation.bind(this));
       Environment.setBackgroundColor("white")
     });
   }
 
-  openAlert() {
-
-  }
-
-  initMap() {
-    this.loadingCtrl.create({ "message": "Please wait" }).then(loader => {
-      loader.present();
-      this.spDetails.fullAddress == "Your Location";
-      this.helpers.getCurrentLocation().then(locationData => {
-        if (locationData.coords) {
-          this.spDetails.location = locationData;
-          this.driverAvaliable();
-        } else {
-          this.helpers.showToast("Error in getting your location. Please check your location settings.", 5000);
-        }
-        loader.dismiss()
+  initLocation() {
+    this.helpers.setWatchLocation(this.geolocation
+      .watchPosition({
+        maximumAge: 3000,
+        timeout: 10000,
+        enableHighAccuracy: true,
       })
-    })
+      .subscribe(location => {
+        if ("coords" in location) {
+          this.driverDetails.location = location;
+          if (this.serviceReq.data.driverStatus == 1 && ((Date.now() - this.lastLocationUpdate) > 1000)) {
+            this.lastLocationUpdate = Date.now();
+            this._api.setSpLocation({
+              latitude: location.coords.latitude,
+              longitude: location.coords.longitude,
+              driverId: this.driverDetails.driverId,
+              mobileNumber: this.driverDetails.driverContactNumber,
+              // call_id: 0
+              call_id: this.serviceReq.data.serviceRequests.callId
+            }).then(
+              setLocationResponse => {
+                if (setLocationResponse.status == true && this.serviceReq.data.serviceRequests.status != 14) {
+                  this.failedToSetLocationCounter = 0;
+                  this.tripDetails.Eta = setLocationResponse.data.distance.time;
+                  this.tripDetails.Distance = setLocationResponse.data.distance.distance
+                  this.tripDetails.timeMinutesValue = setLocationResponse.data.distance.timeMinutesValue
+                }
+              },
+              err => {
+                this.failedToSetLocationCounter++;
+                if (this.failedToSetLocationCounter > 10) {
+                  // this.alertprovider.presentAlert(
+                  //   "Oops",
+                  //   "Connection Error",
+                  //   "Could not set your location. Please check your internet connection."
+                  // );
+                  // this.isToggled = false;
+                  // this.isAvailable = false;
+                }
+              }
+            );
+          }
+          if (this.route.isActive('app/tabs/tab1', false) && this.serviceReq.data.driverStatus == 1 && this.map) {
+
+            this.spMarker ? this.spMarker.isVisible() ? this.spMarker.setPosition({
+              lat: location.coords.latitude,
+              lng: location.coords.longitude
+            }) : this.drawDriverMarker() : this.drawDriverMarker();
+
+            if (!this.cameraMoving) {
+              switch (this.serviceReq.data.serviceRequests.status) {
+                case 0:
+                case 1:
+                case 2:
+                case 3:
+                case 5:
+                case 6:
+                case 7:
+                case 8:
+                case 9:
+                  this.cameraMoving = true;
+                  this.map.animateCamera({
+                    target: {
+                      lat: location.coords.latitude,
+                      lng: location.coords.longitude
+                    },
+                    zoom: 15,
+                    duration: 500
+                  }).finally(() => {
+                    this.cameraMoving = false;
+                  });
+                  break;
+                case 4:
+                case 15:
+                  this.cameraMoving = true;
+                  this.map.animateCamera({
+                    target: new LatLngBounds([
+                      { lat: this.serviceReq.data.clientLocation.latitude, lng: this.serviceReq.data.clientLocation.longitude },
+                      { lat: location.coords.latitude, lng: location.coords.longitude }
+                    ]),
+                    duration: 500,
+                    zoom: 1
+                  }).finally(() => {
+                    this.cameraMoving = false;
+                  })
+                  break;
+                case 13:
+                case 16:
+                  this.cameraMoving = true;
+                  this.map.animateCamera({
+                    target: [
+                      { lat: this.serviceReq.data.finalDestination.latitude, lng: this.serviceReq.data.finalDestination.longitude },
+                      { lat: location.coords.latitude, lng: this.driverDetails.location.coords.longitude }
+                    ],
+                    duration: 500,
+                    zoom: 10
+                  }).finally(() => {
+                    this.cameraMoving = false;
+                  })
+                  break;
+              }
+            }
+
+          }
+        }
+      }))
   }
 
   async ionViewWillEnter() {
-    this.getSPDetails();
-    let checkJobInfoNav = false;
-    this.isInternetAvailable = this.helpers.isNetworkAvailable;
-    this.activateRoute.queryParams.subscribe(params => {
-      if (params.jobInfoFlag != undefined) {
-        checkJobInfoNav = params.jobInfoFlag;
-      }
-    });
-
-  }
-
-
-
-  getSPDetails() {
     this.loadingCtrl.create({ "message": "Please wait" }).then(loader => {
       loader.present()
-      this.storage.get("clcDriverID").then(res => {
-        this._api.getSPDetails(res).subscribe(
-          res => {
-            this.iscarSelected = res.data[0].driverVehicleId
-            let loc = this.spDetails.location
-            this.spDetails = res.data[0];
-            this.spDetails.location = loc
-            this.storage.get("firstTime").then(results => {
-              if (!this.requestCheck) {
-                this.requestCheck = interval(10000).subscribe(val => {
-                  this.getRequests().then(() => {
-                    loader.dismiss()
-                  })
-                });
-              } else {
-                loader.dismiss()
-              }
-
-              if (!results) {
-                this.storage.set("firstTime", true)
-                this.alertprovider.presentAlert(
-                  "Hello " +
-                  this.spDetails.driverFirstName +
-                  " " +
-                  this.spDetails.driverLastName +
-                  ", Welcome.",
-                  "Please select a vehicle before going on duty!"
-                );
-              }
-            })
-            this.storage.set("clcSPDetails", this.spDetails);
-            if (this.spDetails.driverImageUrl == "")
-              this.spDetails.driverImageUrl = null;
-            this._genServices.setDriverDetails(this.spDetails);
-          },
-          err => {
-            this.alertprovider.presentAlert(
-              "Error",
-              "Something went wrong, please login and try again!"
-            );
-            this.navCtrl.navigateBack(["/login"]);
-          }
+      this._api.getDriver().then(
+        res => {
+          let loc = this.driverDetails.location
+          this.iscarSelected = res.data[0].driverVehicleId
+          this.driverDetails = res.data[0];
+          this.driverDetails.location = loc
+          console.log(this.driverDetails)
+          this.getRequests().then(() => {
+            loader.dismiss()
+            this.availableClick()
+            if (!this.iscarSelected) {
+              this.alertprovider.presentAlert(
+                "Alert",
+                "Select vehicle",
+                "Please select a vehicle before going on duty!"
+              );
+            }
+          })
+          if (this.driverDetails.driverImageUrl == "")
+            this.driverDetails.driverImageUrl = null;
+        }
+      ).catch(err => {
+        console.log(err)
+        loader.dismiss()
+        this.alertprovider.presentAlert(
+          "Oops..",
+          "Error",
+          "Something went wrong, please login and try again!"
         );
-      });
+        // this.navCtrl.navigateBack(["/login"]);
+      })
     })
   }
 
-
-
-
   async availableClick() {
-    if (this.serviceReq.data.driverStatus) {
-      this.loadingCtrl.create({
-        message: "Please wait..."
-      }).then(loader => {
-        loader.present()
-        this._api.setDriveStatus(this.spDetails.driverId, this._genServices.driveStatus.available).subscribe(
-          res => {
-            if (res.status == true) {
-              this.driverAvaliable();
-            }
-            loader.dismiss();
-          },
-          err => {
-            loader.dismiss();
-            this.isToggled = false;
-            this.alertprovider.presentAlert(
-              "Error",
-              "Could not get you online, please try again!"
-            );
-          }
-        );
-        this.insomnia.keepAwake()
-          .then(
-            () => console.log('success'),
-            () => console.log('error')
-          );
-      })
+    if (this.serviceReq.data.driverStatus && this.iscarSelected) {
+      this._api.setDriveStatus(this._genServices.driveStatus.available)
+      this.insomnia.keepAwake()
+
     } else {
-      this.loader = await this.loadingCtrl.create({
-        message: "Going Off Duty..."
-      });
-      await this.loader.present();
-      await this._api
-        .setDriveStatus(
-          this.spDetails.driverId,
-          this._genServices.driveStatus.notAvailable
-        )
-        .subscribe(res => { });
-      this.isAvailable = false;
+      this._api.setDriveStatus(this._genServices.driveStatus.notAvailable)
       this.map.clear();
-      // await this.map.remove();
-      this.isToggled = false;
-      this.isReqAccepted = false;
-      this.navigationStarted = false;
-      this.spArrived = false;
-      this.isJobAllocaed = false;
-      // if (this.requestCheck != undefined || this.requestCheck instanceof Subscriber) {
-      //   this.requestCheck.unsubscribe();
-      // }
-      // await this.loadMap();
-      this.loader.dismiss();
-      await this.insomnia.allowSleepAgain()
-        .then(
-          () => console.log('success'),
-          () => console.log('error')
-        );
+      this.insomnia.allowSleepAgain()
+
     }
   }
 
@@ -323,109 +349,24 @@ export class Tab1Page {
   }
   count: number = 0;
 
-  async getLatestLocation() {
-    this.watchLocation = this.geolocation
-      .watchPosition({
-        maximumAge: 3000,
-        timeout: 10000,
-        enableHighAccuracy: true,
-      })
-      .subscribe(location => {
-        if ("coords" in location) {
-          this.counter++
-          console.log(this.counter)
-          if (this.counter > 60 && this.serviceReq.data.driverStatus == 1) {
-            this.counter = 0;
-            this.spDetails.location = location;
-            this._api.setSpLocation({
-              latitude: location.coords.latitude,
-              longitude: location.coords.longitude,
-              driverId: this.spDetails.driverId,
-              mobileNumber: this.spDetails.driverContactNumber,
-              // call_id: 0
-              call_id: this.serviceReq.data.serviceRequests.callId
-            }).subscribe(
-              setLocationResponse => {
-                if (setLocationResponse.status == true) {
-                  this.failedToSetLocationCounter = 0;
-                  this.tripDetails.Eta = setLocationResponse.data.distance.time;
-                  this.tripDetails.Distance = setLocationResponse.data.distance.distance
-                }
-              },
-              err => {
-                this.failedToSetLocationCounter++;
-                if (this.failedToSetLocationCounter > 10) {
-                  this.alertprovider.presentAlert(
-                    "Server Error",
-                    "Couldn't connect to our servers and set your location, Please Try Again"
-                  );
-                  this.isToggled = false;
-                  this.isAvailable = false;
-                }
-              }
-            );
-          }
-          if (this.route.isActive('app/tabs/tab1', false)) {
-            this.spMarker.setPosition({
-              lat: location.coords.latitude,
-              lng: location.coords.longitude
-            });
-            switch (this.serviceReq.data.serviceRequests.status) {
-              case 0:
-              case 1:
-              case 2:
-              case 3:
-              case 5:
-              case 6:
-              case 7:
-              case 8:
-              case 9:
-                this.map.animateCamera({
-                  target: {
-                    lat: location.coords.latitude,
-                    lng: location.coords.longitude
-                  },
-                  zoom: 14,
-                  duration: 1000
-                });
-                break;
-              case 4:
-                this.map.animateCamera({
-                  target: [
-                    { lat: this.serviceReq.data.clientLocation.latitude, lng: this.serviceReq.data.clientLocation.longitude },
-                    { lat: this.spDetails.location.coords.latitude, lng: this.spDetails.location.coords.longitude }
-                  ],
-                  duration: 1000,
-                  zoom: 10
-                });
-                break;
-              case 13:
-                this.map.animateCamera({
-                  target: [
-                    { lat: this.serviceReq.data.finalDestination.latitude, lng: this.serviceReq.data.finalDestination.longitude },
-                    { lat: this.spDetails.location.coords.latitude, lng: this.spDetails.location.coords.longitude }
-                  ],
-                  duration: 1000,
-                  zoom: 10
-                });
-                break;
-            }
-          }
 
-
-        }
-      });
-
-  }
   async getRequests() {
-    return this._api.checkServiceRequests(this.spDetails.driverId).subscribe(serviceRequestResponse => {
-      console.log()
+    if (this.helpers.requestCheckClosed()) {
+      console.log("Starting to check for locations")
+      this.helpers.setRequestCheck(interval(5000).subscribe(() => {
+        if (this.serviceReq.data.driverStatus == 1) {
+          this.getRequests()
+        }
+      }))
+    }
+    return this._api.checkServiceRequests().then(serviceRequestResponse => {
       this.statusChanged = this.serviceReq.data.serviceRequests.status != serviceRequestResponse.data.serviceRequests.status
-      console.log(this.statusChanged)
       this.serviceReq = serviceRequestResponse
       if (!this.checkingRequest) {
         switch (this.serviceReq.data.serviceRequests.status) {
           default:
+            this.isJobAllocaed = false;
+            this.navigatingToFD = false;
             this.serviceReq.data.serviceRequests = {
               callId: 0,
               dateSent: {
@@ -437,38 +378,70 @@ export class Tab1Page {
               sub_sub_product_name: "",
               callRef: 0,
             }
+            this.tripDetails = {
+              Distance: null,
+              Eta: null,
+              finalDestination: null,
+              timeMinutesValue: -1
+            };
             break;
           case 1:
           case 2:
-            this.route.isActive('app/tabs/tab1', false) && this.spDetails.location ? this.checkRequest("reviewing") : "";
+            this.resetTripDetails();
+            this.map.clear()
+            this.route.isActive('app/tabs/tab1', false) && this.driverDetails.location ? this.checkRequest("reviewing") : "";
           case 3:
             break;
           case 4:
-            this.isJobAllocaed ? "" : this.allocateJob();
+            this.statusChanged ? this.resetTripDetails() : "";
+            this.statusChanged ? this.map.clear() : "";
+            !this.isJobAllocaed && this.driverDetails.location ? this.allocateJob() : "";
+            console.log(this.tripDetails.timeMinutesValue)
+            this.tripDetails.timeMinutesValue > 0 && this.tripDetails.timeMinutesValue < 6 ? this.checkRequest("nearScene") : "";
             break;
           case 8:
             this.checkRequest("notAllocated");
             break;
           case 10:
             this.route.isActive('app/tabs/tab1', false) ? this.arrived() : "";
+            this.navigatingToFD = false
+            this.resetTripDetails();
             break;
           case 11:
-            this.clearMap()
+            this.map.clear()
+            this.resetTripDetails();
+            this.navigatingToFD = false
+            this.isJobAllocaed = false
             this.checkRequest("endTowResponse");
             break;
           case 13:
-            console.log(this.navigatingToFD)
-            this.navigatingToFD ? "" : this.clearMap().then(()=>{this.navToFinalDest()});
+            this.navigatingToFD ? "" : this.resetTripDetails();
+            !this.navigatingToFD && this.driverDetails.location ? this.map.clear().then(() => { this.navToFinalDest() }) : "";
+            this.tripDetails.timeMinutesValue > 0 && this.tripDetails.timeMinutesValue < 6 ? this.checkRequest("nearFD") : "";
             break;
           case 14:
-            this.statusChanged ? this.clearMap() : "";
+            this.resetTripDetails();
+            this.statusChanged ? this.map.clear() : "";
             this.serviceReq.data.finalDestination.latitude ? this.checkRequest("startTow") : "";
             break;
           case 15:
+            !this.isJobAllocaed && this.driverDetails.location ? this.allocateJob() : "";
+            break;
+          case 16:
+            !this.navigatingToFD && this.driverDetails.location ? this.map.clear().then(() => { this.navToFinalDest() }) : "";
             break;
         }
       }
     })
+  }
+
+  resetTripDetails() {
+    this.tripDetails = {
+      Distance: null,
+      Eta: null,
+      finalDestination: null,
+      timeMinutesValue: -1
+    };
   }
 
 
@@ -484,49 +457,31 @@ export class Tab1Page {
     return temp;
   }
 
-  async clearMap() {
-    await this.map.clear()
-    this.map.animateCamera({
-      target: {
-        lat: this.spDetails.location.coords.latitude,
-        lng: this.spDetails.location.coords.longitude,
-      },
-      zoom: 18,
-      duration: 1000
-    });
-    this.drawMarker("Current Location")
-  }
-
-
   async checkRequest(acceptResponse) {
-    this.checkingRequest = true;
-    this.loadingCtrl.create({
-      message: "Please wait..."
-    }).then(loader => {
-      loader.present()
-      this._api.acceptJob(this.spDetails.driverId, this.serviceReq.data.serviceRequests.callId, acceptResponse, this.serviceReq.data.serviceRequests.callRef).subscribe(response => {
-        this.checkingRequest = false;
-        loader.dismiss();
-        if (acceptResponse == "notAllocated") {
-          this.alertprovider.presentAlert(
-            "Job REF" + this.serviceReq.data.serviceRequests.callRef,
-            "Unfortunately we could not allocate the job to you!"
-          );
+    console.log("Response")
+    this._api.acceptJob(this.serviceReq.data.serviceRequests.callId, acceptResponse, this.serviceReq.data.serviceRequests.callRef).then(response => {
+      this.checkingRequest = false;
+      if (acceptResponse == "notAllocated") {
+        this.alertprovider.presentAlert(
+          "Oops",
+          "Job REF #" + this.serviceReq.data.serviceRequests.callRef,
+          "Unfortunately we could not allocate the job to you!"
+        );
+        if(this.route.isActive('request-alert', false)){
+          this.route.navigate(['app/tabs/tab1']);
         }
-        if (acceptResponse == "reviewing") {
-          this.route.navigate(["request-alert"], {
-            queryParams: {
-              serviceRequest: JSON.stringify(this.serviceReq),
-              serviceProvider: JSON.stringify(this.cloneAsObject(this.spDetails))
-            }
-          });
-        }
-      }, err => {
-        this.checkingRequest = false;
-        console.log(err)
-        loader.dismiss();
-      })
-
+      }
+      if (acceptResponse == "reviewing") {
+        this.route.navigate(["request-alert"], {
+          queryParams: {
+            serviceRequest: JSON.stringify(this.serviceReq),
+            serviceProvider: JSON.stringify(this.cloneAsObject(this.driverDetails))
+          }
+        });
+      }
+    }, err => {
+      this.checkingRequest = false;
+      console.log(err)
     })
   }
 
@@ -534,92 +489,57 @@ export class Tab1Page {
 
 
   async navToFinalDest() {
-    console.log("Navigating to FD")
+    this.alertprovider.presentAlert(
+      "JOB REF:#" + this.serviceReq.data.serviceRequests.callRef,
+      "Final destination",
+      "You may now drop of the vehicle at the final destination shown on the map."
+    );
     this.navigatingToFD = true;
-    
-    this.map.animateCamera({
-      target: [
-        { lat: this.serviceReq.data.finalDestination.latitude, lng: this.serviceReq.data.finalDestination.longitude },
-        { lat: this.spDetails.location.coords.latitude, lng: this.spDetails.location.coords.longitude }
-      ],
-      duration: 1000,
-      zoom: 10
-    });
-    
-    this.map.addMarkerSync({
+    let marker = this.map.addMarkerSync({
       position: {
         lat: this.serviceReq.data.finalDestination.latitude,
         lng: this.serviceReq.data.finalDestination.longitude
       },
       title: "Final Destination"
-    }).showInfoWindow();
-    this.addPolyLines(this.spDetails.location.coords.latitude, this.spDetails.location.coords.longitude, this.serviceReq.data.finalDestination.latitude, this.serviceReq.data.finalDestination.longitude);
+    })
+    marker.showInfoWindow();
+    this.addPolyLines(this.driverDetails.location.coords.latitude, this.driverDetails.location.coords.longitude, this.serviceReq.data.finalDestination.latitude, this.serviceReq.data.finalDestination.longitude);
   }
 
   async allocateJob() {
-    if (!this.isJobAllocaed) {
-      this.isJobAllocaed = true;
-      if (this.appPaused) {
-        this.helpers.allocationPush(
-          "Congragulations!! The job has been allocated to you."
-        );
-      } else {
-        this.alertprovider.presentAlert(
-          "Job Allocation",
-          "Congragulations!! The job has been allocated to you."
-        );
-      }
+    this.checkRequest("allocated") 
+    this.isJobAllocaed = true;
+    if (this.appPaused) {
+      this.helpers.allocationPush(
+        "Congragulations!! The job has been allocated to you."
+      );
+    } else {
+      this.alertprovider.presentAlert(
+        "Congragulations",
+        "Job Allocation",
+        "The job has been allocated to you."
+      );
     }
 
-    this.map.animateCamera({
-      target: [
-        { lat: this.serviceReq.data.clientLocation.latitude, lng: this.serviceReq.data.clientLocation.longitude },
-        { lat: this.spDetails.location.coords.latitude, lng: this.spDetails.location.coords.longitude }
-      ],
-      duration: 1000,
-      zoom: 10
-    });
-
-    let icon = {
-      url: this.helpers.clientIcon,
-      size: {
-        width: 40,
-        height: 40
-      }
-    };
-
-    // let markerIcon = {
-    //   url: this.helpers.clientIcon,
-    //   size: {
-    //     width: 30,
-    //     height: 30
-    //   }
-    // };
-
-    // this.marker = this.map.addMarkerSync({
-    //   title: "Scene location",
-    //   position: {
-    //     lat: this.jobDetails.data.clientLocation.latitude,
-    //     lng: this.jobDetails.data.clientLocation.longitude
-    //   },
-    //   icon: markerIcon
-    // });
-    // this.marker.showInfoWindow();
-
-
-
-    this.map.addMarkerSync({
+    let marker2 = this.map.addMarker({
       position: {
         lat: this.serviceReq.data.clientLocation.latitude,
         lng: this.serviceReq.data.clientLocation.longitude
       },
       title: "Scene Location",
-      icon: icon
-    }).showInfoWindow()
+      icon: {
+        url: this.helpers.clientIcon,
+        size: {
+          width: 40,
+          height: 40
+        }
+      }
+    }).then(marker2 => {
+      marker2.showInfoWindow()
+    })
 
 
-    this.addPolyLines(this.spDetails.location.coords.latitude, this.spDetails.location.coords.longitude, this.serviceReq.data.clientLocation.latitude, this.serviceReq.data.clientLocation.longitude);
-
+    this.addPolyLines(this.driverDetails.location.coords.latitude, this.driverDetails.location.coords.longitude, this.serviceReq.data.clientLocation.latitude, this.serviceReq.data.clientLocation.longitude);
   }
 
   addPolyLines(spLat: number, spLong: number, clientLat: number, clientLng: number) {
@@ -635,8 +555,8 @@ export class Tab1Page {
       if (status === 'OK') {
         nRoutes = response.routes[0].legs[0].steps;
       } else {
-        console.log(response)
         this.alertprovider.presentAlert(
+          "Opps..",
           "Error",
           "Couldn't Process Routes due to " + status
         );
@@ -685,139 +605,104 @@ export class Tab1Page {
   }
 
   async canceljob() {
-    if (this.checkAloc instanceof Subscriber || this.checkAloc != undefined) {
-      this.checkAloc.unsubscribe();
-    }
-    const alert = await this.alertController.create({
+    this.alertController.create({
       header: "Confirm Cancellation",
       message: "Are you sure you want to cancel this job?",
       buttons: [
         {
           text: "Yes",
           cssClass: "secondary",
-          handler: blah => {
-            this._api.acceptJob(this.spDetails.driverId, this.serviceReq.data.serviceRequests.callId, "cancel", this.serviceReq.data.serviceRequests.callRef).subscribe(response => {
+          handler: () => {
+            this._api.acceptJob(this.serviceReq.data.serviceRequests.callId, "cancel", this.serviceReq.data.serviceRequests.callRef).then(() => {
               this.map.clear();
-              this.drawMarker("Current Location");
             })
           }
         },
         {
           text: "No",
-          handler: () => {
-            alert.dismiss();
-            // this.allocateJob(this.spDetails.deviceId);
-          }
         }
       ],
       backdropDismiss: false
-    });
-    await alert.present();
+    }).then(alert => {
+      alert.present()
+    })
   }
 
   async jobInfo() {
     if (this.serviceReq.data.serviceRequests.status == 3) {
       this.alertprovider.presentAlert(
+        "REF #" + this.serviceReq.data.serviceRequests.callRef,
         "Please wait",
         "You will be notified if you are allocated this job"
       )
     } else {
-      if (this.serviceReq.data.serviceRequests.status == 4 || this.serviceReq.data.serviceRequests.status == 13 || this.serviceReq.data.serviceRequests.status == 14) {
-        console.log("navigating")
-        this.serviceReq.data.finalDestination = {
-          latitude: 0,
-          longitude: 0,
-          address: "Hello"
+      this.route.navigate(["job-info"], {
+        queryParams: {
+          jobInfo: JSON.stringify(this.cloneAsObject(this.serviceReq)),
+          spDetails: JSON.stringify(this.cloneAsObject(this.driverDetails))
         }
-        this.route.navigate(["job-info"], {
-          queryParams: {
-            jobInfo: JSON.stringify(this.cloneAsObject(this.serviceReq)),
-            spDetails: JSON.stringify(this.cloneAsObject(this.spDetails))
-          }
-        });
-      }
+      });
     }
-
-
   }
 
   async navigate() {
     let destination = []
     this.navigationStarted = true;
     if (this.navigatingToFD) {
-      // this.startTowing.nativeElement.remove();
       destination.push(this.serviceReq.data.finalDestination.latitude)
       destination.push(this.serviceReq.data.finalDestination.longitude)
-      this.helpers.navigate(destination);
-      //this.startTow =false;
-      this.driveFinDistTarget = 80;
-      this.checkRadius = interval(3000).subscribe(() => {
-        this.driveFinDistTarget = this.driveFinDistTarget - 10;
-        if (this.driveFinDistTarget == 10) { this.checkRadius.unsubscribe() }
-      })
-      return;
+    } else {
+      destination.push(this.serviceReq.data.clientLocation.latitude);
+      destination.push(this.serviceReq.data.clientLocation.longitude);
     }
-    this.clientDriverTarget = 80;
-    destination.push(this.serviceReq.data.clientLocation.latitude);
-    destination.push(this.serviceReq.data.clientLocation.longitude);
+    this.DriverTarget = 80;
     this.helpers.navigate(destination);
     this.checkRadius = interval(1000).subscribe(() => {
-      this.clientDriverTarget = this.clientDriverTarget - 10;
-      if (this.clientDriverTarget == 10) { this.checkRadius.unsubscribe() }
+      this.DriverTarget = this.DriverTarget - 10;
+      if (this.DriverTarget == 10) { this.checkRadius.unsubscribe() }
     })
   }
 
 
   arrivedFinDist() {
-    this.driveFinDistTarget = null
     this.route.navigate(["final-checklist"])
   }
 
 
   async arrived() {
-    this.clientDriverTarget = null;
-    this.navigationStarted = false;
-    this.spArrived = true;
-    this.isReqAccepted = false;
-    // this.isToggled = false;
     this.loadingCtrl.create({
       message: "Please wait..."
     }).then(loader => {
       loader.present()
-      this._api.acceptJob(this.spDetails.driverId, this.serviceReq.data.serviceRequests.callId, "arrived", this.serviceReq.data.serviceRequests.callRef).subscribe(response => {
+      this._api.acceptJob(this.serviceReq.data.serviceRequests.callId, "arrived", this.serviceReq.data.serviceRequests.callRef).then(response => {
         loader.dismiss();
-        this.route.navigateByUrl("accident-scene1");
+        let claim = new CurrentClaim();
+        claim.call = new ClaimCall();
+        let id = this.serviceReq.data.serviceRequests.callId.toString();
+        claim.call.callRef = this.serviceReq.data.serviceRequests.callRef.toString();
+        this.claimManager.updateClaims(id, claim)
+        this.claimManager.setClaimId(id)
+        this.route.navigateByUrl("/motoraccident/step1");
       })
     })
   }
 
-  async driverAvaliable() {
-    this.map.clear().then(() => {
-      this.getLatestLocation();
-      this.drawMarker("Current Location");
-    })
-  }
-
-  async drawMarker(title: string) {
-    let icon = {
-      url: this.helpers.SPIcon,
-      size: {
-        width: 30,
-        height: 50
+  async drawDriverMarker() {
+    this.spMarker = this.map.addMarkerSync({
+      title: "Current Location",
+      position: {
+        lat: this.driverDetails.location.coords.latitude,
+        lng: this.driverDetails.location.coords.longitude,
+      },
+      animation: 'DROP',
+      icon: {
+        url: this.helpers.SPIcon,
+        size: {
+          width: 30,
+          height: 50
+        }
       }
-    };
-    if (this.map) {
-      this.map.addMarker({
-        title: title,
-        position: {
-          lat: this.spDetails.location.coords.latitude,
-          lng: this.spDetails.location.coords.longitude
-        },
-        icon: icon
-      }).then(marker => {
-        this.spMarker = marker;
-        marker.showInfoWindow();
-      })
-    }
+    })
+    this.spMarker.showInfoWindow();
   }
 }

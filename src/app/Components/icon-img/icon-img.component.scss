@@ -1,0 +1,129 @@
+@import '../../../styles/custom';
+
+.icon-img {
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-color: var(--ion-color-primary);
+
+  circle,
+  g,
+  path,
+  polygon,
+  rect,
+  svg {
+    fill: var(--ion-color-primary);
+  }
+}
+
+.circle {
+  border-radius: 50%;
+  border: 2px solid var(--ion-color-primary);
+  //background-color: rgba(var(--ion-color-primary-rgb), 0.05);
+}
+
+.white-border {
+  border-color: white !important;
+}
+
+.white-fill {
+  circle,
+  g,
+  path,
+  polygon,
+  rect,
+  svg {
+    fill: white !important;
+  }
+}
+
+.red-fill {
+  circle,
+  g,
+  path,
+  polygon,
+  rect,
+  svg {
+    fill: white !important;
+    //  background: red !important;
+  }
+
+  border-radius: 50%;
+  background: var(--ion-color-danger) !important;
+  border: none !important;
+}
+
+.green-fill {
+  circle,
+  g,
+  path,
+  polygon,
+  rect,
+  svg {
+    fill: white !important;
+    //  background: red !important;
+    border-radius: 30% !important;
+    box-shadow: none;
+  }
+
+  .st1,
+  .st2 {
+    fill: black !important;
+  }
+
+  margin: 0;
+  border-radius: 50%;
+  background: #0BB400 !important;
+  border: none !important;
+  box-shadow: 0 .125rem .25rem rgba(0, 0, 0, 0.075);
+}
+
+.yellow-fill {
+  circle,
+  g,
+  path,
+  polygon,
+  rect,
+  svg {
+    fill: white !important;
+    //  background: red !important;
+    box-shadow: none;
+  }
+
+  // Make sure svg isn't messed up
+  .st1,
+  .st2 {
+    fill: black !important;
+  }
+
+  path[id*='XMLID_1_--inject-'],
+  path[id*='XMLID_56_--inject-'] {
+    fill: black !important;
+  }
+
+  margin: 0;
+  border-radius: 50%;
+  background: #ECBA0B !important;
+  border: none !important;
+  box-shadow: 0 .125rem .25rem rgba(0, 0, 0, 0.075);
+}
+
+.bright-red-fill {
+  circle,
+  g,
+  path,
+  polygon,
+  rect,
+  svg {
+    fill: white !important;
+    //  background: red !important;
+    box-shadow: none;
+  }
+
+  margin: 0;
+  border-radius: 50%;
+  background: #F81010 !important;
+  border: none !important;
+  box-shadow: 0 .125rem .25rem rgba(0, 0, 0, 0.075);
+}

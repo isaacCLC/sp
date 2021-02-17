@@ -1,0 +1,75 @@
+<ion-header>
+  <ion-toolbar color='primary'>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/app/tabs/tab1"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Vehicle Details</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)='pause()'>Pause </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <app-motoraccident-claim-step [current]="step-1" [thirdParty]="claim.isThirdParty" [completed]="claim.completed"></app-motoraccident-claim-step>
+  <div class='container'>
+    <form id="form-project" role="form" #stepForm="ngForm">
+      <div class='controls'>
+        
+        <ion-button expand='block' fill='outline' (click)="scanLicenseDisc()">
+          <ion-icon name=" camera" color='primary' slot='start'>
+          </ion-icon>Scan Licence Disc
+        </ion-button>
+        <div class="ion-text-center">
+          <p>or</p>
+        </div>
+        <app-validated-form-control [control]="txtMake">
+          <label>Make</label>
+          <input type="text" placeholder="Enter vehicle make" class="form-control" name="txtMake" [(ngModel)]="vehicle.make" #txtMake="ngModel">
+        </app-validated-form-control>
+        <app-validated-form-control [control]="txtModel">
+          <label>Model</label>
+          <input type="text" placeholder="Enter vehicle model" class="form-control" name="txtModel" [(ngModel)]="vehicle.model" #txtModel="ngModel">
+        </app-validated-form-control>
+        <app-validated-form-control [control]="txtColor">
+          <label>Colour</label>
+          <input type="text" placeholder="Enter vehicle color" class="form-control" name="txtColor" [(ngModel)]="vehicle.vehicleColour" #txtColor="ngModel">
+        </app-validated-form-control>
+
+        <ion-item lines='none'>
+          <ion-label class="ion-text-wrap">
+            <ion-text>Year</ion-text>
+          </ion-label>
+          <ion-datetime displayFormat="YYYY" value="2019-12-15T13:47:20.789" [(ngModel)]="vehicle.vehicleYear" name="vehicleYear"></ion-datetime>
+        </ion-item>
+
+        <app-validated-form-control [control]="txtReg">
+          <label>Registration Number</label>
+          <input type="text" placeholder="Enter Registration Number" class="form-control" name="txtReg" [(ngModel)]="vehicle.registrationNumber" #txtReg="ngModel" required>
+        </app-validated-form-control>
+
+        <app-validated-form-control [control]="txtVin">
+          <label>VIN (Vehicle Identification Number)</label>
+          <input type="text" placeholder="Enter VIN number" class="form-control" name="txtVin" [(ngModel)]="vehicle.vehicleVinNumber" #txtVin="ngModel" required>
+        </app-validated-form-control>
+
+
+      </div>
+    </form>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)='previousStep()'>Previous
+        <ion-icon name="arrow-back" slot='start'></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button (click)='nextStep()'>Next
+        <ion-icon name="arrow-forward" slot='end'></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

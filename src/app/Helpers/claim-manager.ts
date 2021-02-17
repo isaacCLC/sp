@@ -1,8 +1,9 @@
 import { Injectable } from "@angular/core";
 import { Storage } from '@ionic/storage';
 import * as moment from 'moment';
+import { iCheckListInformation } from "../models/appModels";
 import { AppStorage } from "./app-storage";
-import { MediaManagerResult } from "./media-manager";
+import { MediaManager, MediaManagerResult } from "./media-manager";
 import { AddClaimCall, AddClaimRequest, Address, Claimant, Driver, Passenger, Patient, Property, Thirdparty, Vehicle, Witness } from "./requests";
 import { getUserInfoResponse } from "./responses";
 import { UserState } from "./user-state";
@@ -144,6 +145,7 @@ export class CurrentClaim implements AddClaimRequest {
 
   constructor() {
     this.call = new ClaimCall();
+    this.uploadOnWifi = false;
     this.passenger = [];
     this.witness = [];
     this.property = [];
@@ -156,6 +158,15 @@ export class CurrentClaim implements AddClaimRequest {
     this.patient = [];
     this.drivers = [];
     this.images = new ClaimImages();
+    this.videos = new ClaimVideos();
+    this.callID = "";
+    this.checklist = {
+      vehJack : false,
+      vehWheelSpanner :  false,
+      vehKeys : false,
+      vehRadio : false,
+      vehSpare: false
+    }
   }
   claimName: string = '';
   lastUpdated: string = '';
@@ -172,6 +183,18 @@ export class CurrentClaim implements AddClaimRequest {
   patient: ClaimPatient[];
   drivers: ClaimDriver[];
   images: ClaimImages;
+  videos: ClaimVideos;
+  callID: string;
+  checklist: CheckList;
+  uploadOnWifi: boolean;
+}
+
+export class CheckList {
+  vehSpare: boolean;
+  vehWheelSpanner: boolean;
+  vehKeys: boolean;
+  vehRadio: boolean;
+  vehJack: boolean;
 }
 
 export class ClaimCall implements AddClaimCall {
@@ -469,6 +492,7 @@ export class ClaimVehicle implements Vehicle {
   vehicleDescription: string;
   vehicleTypeId: number;
   registrationNumber: string;
+  make: string;
   makeId: number;
   model: string;
   vehicleYear: number;
@@ -479,6 +503,7 @@ export class ClaimVehicle implements Vehicle {
   vehicleChassisNumber: string;
   vehicleClientRefId: string;
   vehicleValid: boolean;
+  dontUpdate: boolean = true;
 }
 
 export class ClaimAddress implements Address {
@@ -545,19 +570,38 @@ export class ClaimPatient implements Patient {
   injuredValid: boolean;
 }
 
+export class Sides {
+  right: MediaManagerResult;
+  left: MediaManagerResult;
+  back: MediaManagerResult;
+  front: MediaManagerResult;
+}
+
 export class ClaimImages {
 
   constructor() {
-    this.damagePhotos = [];
+    // this.damagePhotos = []
   }
 
-  driversLicenseImage: MediaManagerResult = new MediaManagerResult();
+  driversLicenseImageFront: MediaManagerResult = new MediaManagerResult();
+  driversLicenseImageBack: MediaManagerResult = new MediaManagerResult();
+
   licenseDiscImage: MediaManagerResult = new MediaManagerResult();
   quoteImage: MediaManagerResult = new MediaManagerResult();
   windscreenImage: MediaManagerResult = new MediaManagerResult();
-  damagePhotos: MediaManagerResult[] = [];
+  damagePhotos: Sides = {
+    right: new MediaManagerResult(),
+    left: new MediaManagerResult(),
+    front: new MediaManagerResult(),
+    back: new MediaManagerResult()
+  };
+
   accidentSketch: string = '';
 
   insuredSignature: string = '';
   driverSignature: string = '';
+}
+
+export class ClaimVideos {
+  damageVideo = new MediaManagerResult();
 }

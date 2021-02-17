@@ -1,0 +1,134 @@
+<ion-header>
+  <ion-toolbar color='primary'>
+    <ion-buttons slot="start" mode='md'>
+      <ion-button (click)="close()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Third Party</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class='container'>
+    <form id="form-project" role="form" #stepForm="ngForm">
+      <div class='controls'>
+        <div class='heading'>Driver Details</div>
+        <ion-button expand='block' fill='outline' (click)="addLicenseImage()" *ngIf="!thirdParty.licenseImage || !thirdParty.licenseImage.exists">
+          <ion-icon name="camera" color='primary' slot='start'></ion-icon>Photo of Driver's Licence
+        </ion-button> 
+        <div class="image" [style.background-image]="thirdParty.licenseImage | mediaManagerSafeStyle " *ngIf="thirdParty.licenseImage && thirdParty.licenseImage.exists">
+          <ion-icon name="close" (click)="deleteLicenseImage()"></ion-icon>
+        </div> 
+        <div *ngIf="!thirdParty.licenseImage && !thirdParty.licenseImage.exists" class="ion-text-center">
+          <p>or</p>
+        </div>
+        <ion-button expand='block' fill='outline' (click)="scanLicenseBarcode()" >
+          <ion-icon name="qr-scanner" color='primary' slot='start'></ion-icon>Scan Driver's Licence
+        </ion-button>
+        <app-validated-form-control [control]="txtName">
+          <label>Name</label>
+          <input type="text" placeholder="Enter name" class="form-control" name="txtName" [(ngModel)]="thirdParty.tpFirstName" #txtName="ngModel" required>
+        </app-validated-form-control>
+        <app-validated-form-control [control]="txtSurname">
+          <label>Surname</label>
+          <input type="text" placeholder="Enter surname" class="form-control" name="txtSurname" [(ngModel)]="thirdParty.tpLastName" #txtSurname="ngModel" required>
+        </app-validated-form-control>
+        <app-validated-form-control [control]="txtIdNumber">
+          <label>ID Number</label>
+          <input type="number" placeholder="Enter ID number" class="form-control" name="txtIdNumber" [(ngModel)]="thirdParty.tpIdNumber" #txtIdNumber="ngModel" required>
+        </app-validated-form-control>
+        <app-validated-form-control [control]="txtContactNumber">
+          <label>Contact Number</label>
+          <input type="tel" placeholder="Enter contact number" class="form-control" name="txtContactNumber" [(ngModel)]="thirdParty.tpContactNumber" #txtContactNumber="ngModel" required>
+        </app-validated-form-control>
+        <!-- google address -->
+        <app-validated-form-control [control]="txtAddress">
+          <label>Address</label>
+          <input ngx-google-places-autocomplete [(ngModel)]="thirdParty.tpAddress" name='txtAddress' class="form-control" [options]='addressOptions' #txtAddress="ngModel" (onAddressChange)="handleAddressChange($event)" />
+        </app-validated-form-control>
+
+
+        <div class='heading'>Vehicle Details</div>
+        <ion-button expand='block' fill='outline' (click)="addVehicleImage()">
+          <ion-icon name="camera" color='primary' slot='start'></ion-icon>Photos of Vehicle
+        </ion-button>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="6" *ngFor="let image of thirdParty.vehicleImages; let i = index">
+              <div class="image" [style.background-image]="image | mediaManagerSafeStyle " *ngIf="image && image.exists" tappable>
+                <ion-icon name="close" (click)="deleteVehicleImage($event, i)" *ngIf="image && image.exists"></ion-icon>
+                <ion-icon name="camera" *ngIf="!image || !image.exists" [class.hasImage]="!image || !image.exists"></ion-icon>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+        <ion-button expand='block' fill='outline' (click)="scanLicenseDisc()">
+          <ion-icon name=" camera" color='primary' slot='start'>
+          </ion-icon>Scan Licence Disc
+        </ion-button>
+        <div class="ion-text-center">
+          <p>or</p>
+        </div>
+        <app-validated-form-control [control]="txtMake">
+          <label>Make</label>
+          <input type="text" placeholder="Enter vehicle make" class="form-control" name="txtMake" [(ngModel)]="thirdParty.tpMakeDescription" #txtMake="ngModel">
+        </app-validated-form-control>
+        <app-validated-form-control [control]="txtModel">
+          <label>Model</label>
+          <input type="text" placeholder="Enter vehicle model" class="form-control" name="txtModel" [(ngModel)]="thirdParty.tpVehicleModel" #txtModel="ngModel">
+        </app-validated-form-control>
+        <app-validated-form-control [control]="txtRegNumber">
+          <label>Registration Number</label>
+          <input type="text" placeholder="Enter registration number " class="form-control" name="txtRegNumber" [(ngModel)]="thirdParty.tpVehicleRegistrationNumber" #txtRegNumber="ngModel" required>
+        </app-validated-form-control>
+        <app-validated-form-control [control]="txtDescription">
+          <label>Description of the Damage</label>
+          <textarea type="text" placeholder="Enter description of the damage" class="form-control" name="txtDescription" [(ngModel)]="thirdParty.tpVehicleDescriptionOfDamage" #txtDescription="ngModel"></textarea>
+        </app-validated-form-control>
+
+        <div class='heading'>Owner Details</div>
+        <ion-item lines='none'>
+          <ion-label class="ion-text-wrap">
+            <ion-text>Same as Driver?</ion-text>
+          </ion-label>
+          <ion-checkbox slot="end" [(ngModel)]="thirdParty.sameAsDriver" name='sameAsDriver' (onChange)="makeSameAsDriver()"></ion-checkbox>
+        </ion-item>
+        <ng-container *ngIf='!thirdParty.sameAsDriver'>
+          <app-validated-form-control [control]="txtOwnerName">
+            <label>Name</label>
+            <input type="text" placeholder="Enter name" class="form-control" name="txtOwnerName" [(ngModel)]="thirdParty.tpVehicleOwnerFirstName" #txtOwnerName="ngModel" required>
+          </app-validated-form-control>
+          <app-validated-form-control [control]="txtOwnerSurname">
+            <label>Surname</label>
+            <input type="text" placeholder="Enter surname" class="form-control" name="txtOwnerSurname" [(ngModel)]="thirdParty.tpVehicleOwnerLastName" #txtOwnerSurname="ngModel" required>
+          </app-validated-form-control>
+          <app-validated-form-control [control]="txtOwnerIdNumber">
+            <label>ID Number</label>
+            <input type="number" placeholder="Enter ID number" class="form-control" name="txtOwnerIdNumber" [(ngModel)]="thirdParty.tpVehicleOwnerIdNumber" #txtOwnerIdNumber="ngModel" required>
+          </app-validated-form-control>
+          <app-validated-form-control [control]="txtOwnerContactNumber">
+            <label>Contact Number</label>
+            <input type="tel" placeholder="Enter contact number" class="form-control" name="txtOwnerContactNumber" [(ngModel)]="thirdParty.tpVehicleOwnerContactDetails" #txtOwnerContactNumber="ngModel" required>
+          </app-validated-form-control>
+          <!-- google address -->
+          <app-validated-form-control [control]="txtOwnerAddress">
+            <label>Address</label>
+            <input ngx-google-places-autocomplete [(ngModel)]="thirdParty.tpVehicleOwnerAddress" name='txtOwnerAddress' class="form-control" [options]='addressOptions' #txtOwnerAddress="ngModel" (onAddressChange)="handleOwnerAddressChange($event)" />
+          </app-validated-form-control>
+        </ng-container>
+      </div>
+    </form>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons slot='start'>
+      <ion-button color='danger' (click)='closeAndDelete()'>Delete</ion-button>
+    </ion-buttons>
+    <ion-buttons slot='end'>
+      <ion-button [disabled]="!stepForm.valid" (click)='save(thirdParty)'>Save</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

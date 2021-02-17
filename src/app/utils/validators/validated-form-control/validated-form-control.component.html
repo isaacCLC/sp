@@ -1,0 +1,7 @@
+<div class='input-validator' [class.dark]='dark' [class.has-error]="control.invalid && (control.dirty || control.touched)">
+  <ion-icon [name]="control.valid && (control.dirty || control.touched) ? '' : 'close'" [class.error]='control.invalid' [hidden]='!(control.dirty || control.touched) || control.valid'></ion-icon>
+  <ng-content></ng-content>
+  <div class='error-box' *ngIf='errorMessages && errorMessages.length > 0 && control.dirty || control.touched'>
+    <!--only show the first error message in the list-->
+    <p *ngIf='errorMessages && errorMessages.length > 0' class="error">{{errorMessages[0]}}</p>
+  </div>

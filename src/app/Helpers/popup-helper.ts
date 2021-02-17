@@ -132,10 +132,11 @@ export class PopupHelper {
         await alert.present();
     }
 
-    async showConfirm(title: string, subTitle: string, buttonConfirm: string, callbackConfirm: () => void, buttonCancel: string, callbackCancel: () => void) {
+    async showConfirm(title: string, subTitle: string, buttonConfirm: string, callbackConfirm: () => void, buttonCancel: string, callbackCancel: () => void, message?) {
         let alert = await this.alertCtrl.create({
             header: title,
             subHeader: subTitle,
+            message: message,
             buttons: [
                 {
                     text: buttonConfirm,

@@ -18,7 +18,7 @@ export class Tab4Page implements OnInit {
     driverDetails={
     driverId:null
   } 
-  constructor(private alertProvider : AlertsProviderService, private storage: Storage,private modalCtrl: ModalController, private _api:ApiGateWayService) {
+  constructor(public loadingCtrl: LoadingController,private alertProvider : AlertsProviderService, private storage: Storage,private modalCtrl: ModalController, private _api:ApiGateWayService) {
      
   }
 
@@ -27,68 +27,44 @@ export class Tab4Page implements OnInit {
   }
   
   async ionViewWillEnter() { 
-    this.storage.get("clcDriverID").then(id=>{ 
-      this.driverDetails.driverId = id; 
-      this.getJobs(this.driverDetails);
-    }) 
-  }
-
-  async getJobs(driverDetails){  
-   let response = await  this._api.getJobHistory(driverDetails) ;
-   if(response && response.status == true) {  
-     if(response.data.jobHistory.length == 0){
-      this.previousJobs = []; 
-     }
-     else{
-       this.previousJobs = response.data.jobHistory;
-     }
-   }else{
-     console.log(response)
-    this.alertProvider.presentAlert(this._generals.getGeneralError()["heading"],this._generals.getGeneralError()["mainMessage"]  );
-        return;
-   } 
+    this.loadingCtrl.create({
+      message: "Loading..."
+    }).then(loader => {
+      loader.present()
+      this._api.getJobHistory().then(history=>{
+        console.log(history)
+        this.previousJobs = history.data.jobHistory;
+        loader.dismiss()
+       })
+    })
   }
 
   optionsFn() {
     switch (this.dateOption) {
       case "2018":
-        this.previousJobs = [
-          { id: 1, desc: "Vehicle Tow  ", service: "", date: "2018-Dec-01" }
-        ];
-        this.previousJobs = [  ];
         break;
       case "2017":
-        this.previousJobs = [
-          { id: 1, desc: "Vehicle Tow  ", service: "", date: "2017-Feb-28" },
-          { id: 1, desc: "Vehicle Tow  ", service: "", date: "2017-Jan-12" },
-          { id: 1, desc: "Vehicle Tow  ", service: "", date: "2017-Nov-23" }
-        ];
-        this.previousJobs = [  ];
         break;
       case "Last 3 Months":
-        this.previousJobs = [
-          { id: 1, desc: "Vehicle Tow", service: "", date: "2019-July-01" },
-          { id: 1, desc: "Plumbing Work", service: "", date: "2019-June-11" },
-          {
-            id: 1,
-            desc: "Locksmith Services",
-            service: "",
-            date: "2019-June-21"
-          },
-          { id: 1, desc: "Vehicle Tow", service: "", date: "2019-May-31" }
-        ];
-        this.previousJobs = [  ];
-
         break;
       case "Last 6 Months":
-        this.previousJobs = [];
         break;
-
       default:
         break;
     }
+  }
 
-    console.log(this.dateOption);
+  getColor(status){
+    console.log(status)
+    if(status == 6 || status == 7 ||status == 8 ||status == 9){
+      return "danger"
+    }else{
+      if(status == 12){
+        return "success"
+      }else{
+        return "warning"
+      }
+    }
   }
 
 

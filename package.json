@@ -30,7 +30,7 @@
     "@ionic-native/file": "^5.29.0",
     "@ionic-native/file-path": "^5.30.0",
     "@ionic-native/geolocation": "^5.29.0",
-    "@ionic-native/google-maps": "^5.27.0-beta-20200630",
+    "@ionic-native/google-maps": "^5.5.0",
     "@ionic-native/in-app-browser": "^5.30.0",
     "@ionic-native/insomnia": "^5.29.0",
     "@ionic-native/launch-navigator": "^5.29.0",
@@ -38,7 +38,8 @@
     "@ionic-native/location-accuracy": "^5.30.0",
     "@ionic-native/market": "^5.29.0",
     "@ionic-native/media": "^5.29.0",
-    "@ionic-native/network": "^5.29.0",
+    "@ionic-native/media-capture": "^5.31.1",
+    "@ionic-native/network": "^5.31.1",
     "@ionic-native/onesignal": "^5.29.0",
     "@ionic-native/photo-viewer": "^5.30.0",
     "@ionic-native/pin-dialog": "^5.30.0",
@@ -47,13 +48,17 @@
     "@ionic-native/status-bar": "^5.0.0",
     "@ionic/angular": "^5.0.0",
     "@ionic/storage": "^2.3.1",
+    "@sentry/angular": "^6.0.1",
+    "@sentry/tracing": "^6.0.1",
     "@types/google-maps": "^3.2.2",
     "@types/googlemaps": "^3.39.12",
     "@types/jquery": "^3.5.4",
     "angular-code-input": "^1.2.2",
+    "angular2-signaturepad": "^3.0.4",
     "cordova-android": "9.0.0",
     "jquery": "^3.5.1",
     "moment": "^2.29.1",
+    "ngx-google-places-autocomplete": "^2.0.5",
     "rxjs": "~6.5.5",
     "tslib": "^2.0.0",
     "zone.js": "~0.10.3"
@@ -89,6 +94,7 @@
     "cordova-plugin-ionic-webview": "^4.2.1",
     "cordova-plugin-local-notification": "^0.9.0-beta.2",
     "cordova-plugin-media": "^5.0.3",
+    "cordova-plugin-media-capture": "^3.0.3",
     "cordova-plugin-network-information": "^2.0.2",
     "cordova-plugin-pin-dialog": "^0.1.3",
     "cordova-plugin-request-location-accuracy": "^2.3.0",
@@ -158,7 +164,8 @@
         "PLAY_SERVICES_LOCATION_VERSION": "16.+"
       },
       "cordova-plugin-filepath": {},
-      "cordova-plugin-inappbrowser": {}
+      "cordova-plugin-inappbrowser": {},
+      "cordova-plugin-media-capture": {}
     },
     "platforms": [
       "android"

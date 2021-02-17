@@ -1,0 +1,136 @@
+<ion-header>
+  <ion-toolbar color='primary'>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/app/tabs/tab1"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Accident Details</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)='pause()'>Pause </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <app-motoraccident-claim-step [current]="step-1" [thirdParty]="claim.isThirdParty" [completed]="claim.completed"></app-motoraccident-claim-step>
+  <div class='container'>
+    <form id="form-project" role="form" #stepForm="ngForm">
+      <div class='controls'>
+        <div class='heading'>Incident</div>
+        <!-- <ion-item lines='none'>
+          <ion-label class="ion-text-wrap">
+            <ion-text>Date of Loss</ion-text>
+          </ion-label>
+          <ion-datetime displayFormat="DD MMM YYYY" [(ngModel)]="claim.call.accDateOfLoss" name="accDateOfLoss" [max]="maxDate"></ion-datetime>
+        </ion-item>
+
+        <ion-item lines='none'>
+          <ion-label class="ion-text-wrap">
+            <ion-text>Time of Loss</ion-text>
+          </ion-label>
+          <ion-datetime displayFormat="HH:mm" [(ngModel)]="claim.call.accTimeOfLoss" name="accTimeOfLoss"></ion-datetime>
+        </ion-item> -->
+
+        <!-- google address -->
+        <div class="custom-location">
+          <app-validated-form-control [control]="txtAddress">
+            <label>Accident Location</label>
+            <input ngx-google-places-autocomplete [(ngModel)]="claim.call.accPlace" name='txtAddress' class="form-control" [options]='addressOptions' #txtAddress="ngModel" (onAddressChange)="handleAddressChange($event)" />
+          </app-validated-form-control>
+          <div class="location-btn">
+            <ion-button fill='clear' slot="end" (click)='locateUser()'>
+              <ion-icon slot="icon-only" name="locate-outline"></ion-icon>
+            </ion-button>
+          </div>
+        </div>
+
+        <!-- <app-validated-form-control [control]="txtSpeed">
+          <label>Estimated Travelling Speed at the Time of the Accident</label>
+          <input type="number" placeholder="Enter estimated travelling speed (km/h)" class="form-control" name="txtSpeed" [(ngModel)]="claim.call.accEstimateTravelingSpeed" #txtSpeed="ngModel">
+        </app-validated-form-control> -->
+
+        <app-validated-form-control [control]="txtDescription">
+          <label>Detailed Description of accident</label>
+          <textarea placeholder="Enter detailed description of accident" class="form-control" name="txtDescription" [(ngModel)]="claim.call.accDetailedDescription" #txtDescription="ngModel"></textarea>
+        </app-validated-form-control>
+<!-- 
+        <app-validated-form-control [control]="txtBlame">
+          <label>Who in your opinion was to blame and why?</label>
+          <textarea placeholder="Enter who was to blame" class="form-control" name="txtBlame" [(ngModel)]="claim.call.accBlameDescription" #txtBlame="ngModel"></textarea>
+        </app-validated-form-control> -->
+
+        <div class='heading'>Conditions</div>
+        <ion-item lines='none' class="custom-select">
+          <ion-label class="ion-text-wrap">
+            <ion-text>How was the visibility?</ion-text>
+          </ion-label>
+          <ion-select placeholder="Select One" [(ngModel)]="claim.call.accCondVisible" name="myVisibility">
+            <ion-select-option *ngFor="let visibility of visibilityOptions" [value]="visibility.title">{{visibility.title | titlecase}}</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item lines='none' class="custom-select">
+          <ion-label class="ion-text-wrap">
+            <ion-text>What was the state of the road?</ion-text>
+          </ion-label>
+          <ion-select placeholder="Select One" [(ngModel)]="claim.call.accCondRoad" name="myRoadState">
+            <ion-select-option *ngFor="let roadState of roadStateOptions" [value]="roadState.title">{{roadState.title | titlecase}}</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item lines='none' class="custom-select">
+          <ion-label class="ion-text-wrap">
+            <ion-text>What was the width of the road?</ion-text>
+          </ion-label>
+          <ion-select placeholder="Select One" [(ngModel)]="claim.call.accCondWidth" name="myRoadWidth">
+            <ion-select-option *ngFor="let roadWidth of roadWidthOptions" [value]="roadWidth.title">{{roadWidth.title | titlecase}}</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item lines='none' class="custom-select">
+          <ion-label class="ion-text-wrap">
+            <ion-text>Weather Conditions</ion-text>
+          </ion-label>
+          <ion-select placeholder="Select One" [(ngModel)]="claim.call.accCondWeather" name="myWeather">
+            <ion-select-option *ngFor="let weather of weatherOptions" [value]="weather.title">{{weather.title | titlecase}}</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item lines='none' class="custom-select">
+          <ion-label class="ion-text-wrap">
+            <ion-text>Street Lighting</ion-text>
+          </ion-label>
+          <ion-select placeholder="Select One" [(ngModel)]="claim.call.accCondStreetLight" name="myStreetLighting">
+            <ion-select-option *ngFor="let streetLighting of streetLightingOptions" [value]="streetLighting.title">{{streetLighting.title | titlecase}}</ion-select-option>
+          </ion-select>
+        </ion-item>
+<!-- 
+        <div class='heading'>Police</div>
+
+        <app-validated-form-control [control]="txtPoliceStation">
+          <label>Police Station where the Incident was Reported</label>
+          <input type="text" placeholder="Enter police station" class="form-control" name="txtPoliceStation" [(ngModel)]="claim.call.accPoliceStation" #txtPoliceStation="ngModel">
+        </app-validated-form-control>
+        <app-validated-form-control [control]="txtPoliceReference">
+          <label>Police Reference Number</label>
+          <input type="text" placeholder="Enter police reference number" class="form-control" name="txtPoliceReference" [(ngModel)]="claim.call.accPoliceReference" #txtPoliceReference="ngModel">
+        </app-validated-form-control> -->
+
+      </div>
+    </form>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)='previousStep()'>Previous
+        <ion-icon name="arrow-back" slot='start'></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button (click)='nextStep()'>Next
+        <ion-icon name="arrow-forward" slot='end'></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

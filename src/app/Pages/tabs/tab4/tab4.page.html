@@ -29,15 +29,15 @@
   <div *ngIf="previousJobs.length > 0">
     <ion-card *ngFor="let previousJob of previousJobs; let i = index">
       <ion-card-header>
-        <ion-card-title>{{previousJob.client}}</ion-card-title>
-        <ion-card-subtitle>{{previousJob.date_opened}}</ion-card-subtitle>
+        <ion-card-title> REF #{{previousJob.call_reference_number}}</ion-card-title>
+        <ion-card-subtitle>{{previousJob.client}}</ion-card-subtitle>
         <ion-row>
           <ion-col size="7">
-            <ion-label><strong>REF #{{previousJob.call_reference_number}}</strong></ion-label>
+            <ion-label [color]="getColor(previousJob.status_id)"><strong>{{previousJob.date_opened}}</strong></ion-label>
           </ion-col>
-          <ion-col size="5" (click)="showJobDetails();">
+          <ion-col size="5">
             <!-- <ion-label color="primary">Job Details -></ion-label> -->
-            <ion-label color="success">{{previousJob.status}}</ion-label>
+            <ion-label [color]="getColor(previousJob.status_id)"><strong>{{previousJob.status}}</strong></ion-label>
 
           </ion-col>
         </ion-row>

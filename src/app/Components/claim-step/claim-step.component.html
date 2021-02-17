@@ -1,0 +1,9 @@
+<div class="stage">
+  <div *ngFor="let back of items; let i = index" class='segment' (click)='navigate(i)' [class.selected-segment]='i == current'>
+    <div class='number' [class.completed-text]="itemCompleted[i]" [class.selected-text]='i == current'>
+      <span *ngIf='!itemCompleted[i] || i == current'>{{i+1}}</span>
+      <ion-icon name="checkmark" color='primary' slot='end' class='end-icon' *ngIf='itemCompleted[i] && i !== current'></ion-icon>
+    </div>
+    <div class="stage-bar" [class.completed]="itemCompleted[i]" [class.selected]='i == current'></div>
+  </div>
+</div>

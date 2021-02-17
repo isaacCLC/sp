@@ -6,11 +6,11 @@ import { AlertController } from "@ionic/angular";
 export class AlertsProviderService {
   constructor(public alertController: AlertController) {}
 
-  async presentAlert(subHeader: string, msg: string) {
+  async presentAlert(subHeader: string, msg: string, header: string) {
     const alert = await this.alertController.create({
-      header: "CLC Service Provider",
-      subHeader: subHeader,
-      message: msg,
+      header: subHeader,
+      subHeader: msg ,
+      message: header,
       buttons: ["OK"],
       backdropDismiss: false
     });

@@ -1,0 +1,128 @@
+<ion-header>
+  <ion-toolbar color='primary'>
+    <ion-buttons slot="start" mode='md'>
+      <ion-button (click)="close()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Damaged Item</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class='container'>
+    <div class='heading'>Enter Damaged Item Info Below</div>
+    <form id="form-project" role="form" #stepForm="ngForm">
+      <div class='controls'>
+        <div class='heading'>Details of the Damaged Items</div>
+
+        <ion-item lines='none'>
+          <ion-label class="ion-text-wrap">
+            <ion-text>Type</ion-text>
+          </ion-label>
+          <ion-select placeholder="Select One" [(ngModel)]="prop.propType" name="propType" (onChange)="clearProperty()">
+            <ion-select-option value="Craft">Craft</ion-select-option>
+            <ion-select-option value="Trailer">Trailer</ion-select-option>
+            <ion-select-option value="Equipment">Equipment</ion-select-option>
+            <ion-select-option value="Other">Other</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <app-validated-form-control [control]="txtMake">
+          <label>Make</label>
+          <input type="text" placeholder="Enter Make" class="form-control" name="txtMake" [(ngModel)]="prop.propMake" #txtMake="ngModel" required>
+        </app-validated-form-control>
+
+        <app-validated-form-control [control]="txtModel" *ngIf="prop.propType == 'Craft'">
+          <label>Model</label>
+          <input type="text" placeholder="Enter Model" class="form-control" name="txtModel" [(ngModel)]="prop.propModel" #txtModel="ngModel" required>
+        </app-validated-form-control>
+
+        <app-validated-form-control [control]="txtCrew" *ngIf="prop.propType == 'Craft'">
+          <label>Number of Crew</label>
+          <input type="number" placeholder="Enter Number of Crew" class="form-control" name="txtCrew" [(ngModel)]="prop.propCrewTotal" #txtCrew="ngModel" required>
+        </app-validated-form-control>
+
+        <app-validated-form-control [control]="txtDescription" *ngIf="prop.propType == 'Trailer' || prop.propType == 'Equipment' || prop.propType == 'Other'">
+          <label>Description</label>
+          <textarea type="text" placeholder="Enter Description" class="form-control" name="txtDescription" [(ngModel)]="prop.propDescription" #txtDescription="ngModel" required></textarea>
+        </app-validated-form-control>
+
+        <ion-item lines='none' *ngIf="prop.propType == 'Equipment'">
+          <ion-label class="ion-text-wrap">
+            <ion-text>When was it purchased</ion-text>
+          </ion-label>
+          <ion-datetime displayFormat="YYYY" value="2019-12-15T13:47:20.789" [(ngModel)]="prop.propYear" name="propYear"></ion-datetime>
+        </ion-item>
+
+        <app-validated-form-control [control]="txtWherePurchased" *ngIf="prop.propType == 'Equipment'">
+          <label>Where was it purchased</label>
+          <textarea type="text" placeholder="Enter Where Purchased" class="form-control" name="txtWherePurchased" [(ngModel)]="prop.propWherePurchased" #txtWherePurchased="ngModel" required></textarea>
+        </app-validated-form-control>
+
+        <ion-item lines='none' *ngIf="prop.propType == 'Craft' || prop.propType == 'Trailer'">
+          <ion-label class="ion-text-wrap">
+            <ion-text>Year</ion-text>
+          </ion-label>
+          <ion-datetime displayFormat="YYYY" value="2019-12-15T13:47:20.789" [(ngModel)]="prop.propYear" name="propYear"></ion-datetime>
+        </ion-item>
+
+        <app-validated-form-control [control]="txtLength" *ngIf="prop.propType == 'Craft'">
+          <label>Length (Feet)</label>
+          <input type="number" placeholder="Enter Length in feet" class="form-control" name="txtLength" [(ngModel)]="prop.propLengthFeet" #txtLength="ngModel" required>
+        </app-validated-form-control>
+
+        <app-validated-form-control [control]="txtSpeed" *ngIf="prop.propType == 'Craft'">
+          <label>Designed Speed</label>
+          <input type="number" placeholder="Enter Designed Speed" class="form-control" name="txtSpeed" [(ngModel)]="prop.propDesignedSpeed" #txtSpeed="ngModel" required>
+        </app-validated-form-control>
+
+        <app-validated-form-control [control]="txtHorsePower" *ngIf="prop.propType == 'Craft'">
+          <label>Horse Power</label>
+          <input type="number" placeholder="Enter Horse Power" class="form-control" name="txtHorsePower" [(ngModel)]="prop.propHorsePower" #txtHorsePower="ngModel" required>
+        </app-validated-form-control>
+
+        <app-validated-form-control [control]="Registration" *ngIf="prop.propType == 'Trailer'">
+          <label>Registration Number</label>
+          <input type="text" placeholder="Enter Registration Number" class="form-control" name="Registration" [(ngModel)]="prop.propRegistrationNumber" #Registration="ngModel" required>
+        </app-validated-form-control>
+
+        <ion-item lines='none' class="custom-select" *ngIf="prop.propType == 'Craft'">
+          <ion-label class="ion-text-wrap">
+            <ion-text>Paintwork</ion-text>
+          </ion-label>
+          <ion-select placeholder="Select One" [(ngModel)]="prop.propPaintworkDescription" name="myPaintwork">
+            <ion-select-option *ngFor="let paintwork of paintworkOptions" [value]="paintwork.title">{{paintwork.title | titlecase}}</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <app-validated-form-control [control]="txtReplacementValue">
+          <label>Replacement Value (R)</label>
+          <input type="number" placeholder="Enter Replacement Value" class="form-control" name="txtReplacementValue" [(ngModel)]="prop.propReplacementValue" #txtReplacementValue="ngModel">
+        </app-validated-form-control>
+
+        <app-validated-form-control [control]="txtMarketValue">
+          <label>Market Value (R)</label>
+          <input type="number" placeholder="Enter Market Value" class="form-control" name="txtMarketValue" [(ngModel)]="prop.propMarketValue" #txtMarketValue="ngModel">
+        </app-validated-form-control>
+
+        <app-validated-form-control [control]="txtSumInsured">
+          <label>Sum Insured (R)</label>
+          <input type="number" placeholder="Enter Sum Insured" class="form-control" name="txtSumInsured" [(ngModel)]="prop.propSumInsured" #txtSumInsured="ngModel" required>
+        </app-validated-form-control>
+
+      </div>
+    </form>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons slot='start'>
+      <ion-button color='danger' (click)='closeAndDelete()'>Delete</ion-button>
+    </ion-buttons>
+    <ion-buttons slot='end'>
+      <ion-button (click)='save(prop)'>Save</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

@@ -73,6 +73,10 @@ export interface iServiceRequest{
   }
 }
 
+export class LoggedInStatus{
+  status: boolean;
+  driver: DriverDetails;
+}
 
 export class iClaimDetails{
   dateOfIncident:string;
@@ -112,7 +116,7 @@ export interface myLoc {
   lat?: any;
   lng?: any;
 }
-export interface ServiceProviderDetails {
+export interface DriverDetails {
   location?: Geoposition;
   name?: string;
   surname?: string;
@@ -145,6 +149,11 @@ export interface ServiceProviderDetails {
   driverPreviousMotorOffences?: boolean;
   driverSpId?: number;
   driverValid?: number;
+  driverAlternativeNumbers?:alertNativeNumbers[]; 
+}
+
+export interface alertNativeNumbers{
+  mobileNumber: string;
 }
 
 export interface UserProfile {
@@ -164,24 +173,12 @@ export interface InsuredDetails {
   email?: string;
   occupation?: string;
 }
-export interface DriverDetails {
-  name?: string;
-  surname?: string;
-  address?: string;
-  cellNum?: number;
-  email?: string;
-  occupation?: string;
-  driverLicenceImg?: string;
-  driverLicenceNum?: string;
-  driverLicenceCode?: string;
-  driverLicenceDateIssue?: string;
-  driverLicenceLearners?: string;
-  samaAsInsured?: string;
-}
+
 export interface TripDetails {
   Distance: string;
   Eta: string; 
   finalDestination;
+  timeMinutesValue: number;
 }
 
 export interface ClientDetails {

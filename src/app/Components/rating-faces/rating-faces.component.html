@@ -1,0 +1,27 @@
+<ion-row>
+  <ion-col col-2>
+    <img src='assets/img/rating/none.png' [class.selected]='rating == 0' (click)='rating = 0'>
+  </ion-col>
+  <ion-col col-2>
+    <img src='assets/img/rating/veryunhappy.png' [class.selected]='rating == 1' (click)='rating = 1'>
+  </ion-col>
+  <ion-col col-2>
+    <img src='assets/img/rating/unhappy.png' [class.selected]='rating == 2' (click)='rating = 2'>
+  </ion-col>
+  <ion-col col-2>
+    <img src='assets/img/rating/neutral.png' [class.selected]='rating == 3' (click)='rating = 3'>
+  </ion-col>
+  <ion-col col-2>
+    <img src='assets/img/rating/veryhappy.png' [class.selected]='rating == 4' (click)='rating = 4'>
+  </ion-col>
+  <ion-col col-2>
+    <img src='assets/img/rating/veryhappy2.png' [class.selected]='rating == 5' (click)='rating = 5'>
+  </ion-col>
+</ion-row>
+
+<ion-row *ngIf='rating > 0 && rating <= 2'>
+  <app-validated-form-control [control]="txtReason" style='width:100%;'>
+    <label>Reason for low rating</label>
+    <textarea type="text" placeholder="Please let us know the reason this for rating." class="form-control" name="txtReason" [(ngModel)]="reason" #txtReason="ngModel"></textarea>
+  </app-validated-form-control>
+</ion-row>

@@ -1,0 +1,69 @@
+<ion-header>
+  <ion-toolbar color='primary'>
+    <ion-buttons slot="start" mode='md'>
+      <ion-button (click)="close()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Claimant</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class='container'>
+    <div class='heading'>Enter Claimant Info Below</div>
+    <form id="form-project" role="form" #stepForm="ngForm">
+      <div class='controls'>
+
+        <app-validated-form-control [control]="txtName">
+          <label>Name</label>
+          <input type="text" placeholder="Enter name" class="form-control" name="txtName" [(ngModel)]="claimant.claimantFirstName" #txtName="ngModel" required>
+        </app-validated-form-control>
+
+        <app-validated-form-control [control]="txtSurname">
+          <label>Surname</label>
+          <input type="text" placeholder="Enter surname" class="form-control" name="txtSurname" [(ngModel)]="claimant.claimantLastName" #txtSurname="ngModel" required>
+        </app-validated-form-control>
+
+        <app-validated-form-control [control]="txtIdNumber">
+          <label>Id Number</label>
+          <input type="number" placeholder="Enter Id Number" class="form-control" name="txtIdNumber" [(ngModel)]="claimant.claimantIdNumber" #txtIdNumber="ngModel" required>
+        </app-validated-form-control>
+
+        <!-- google address -->
+        <app-validated-form-control [control]="txtAddress">
+          <label>Address</label>
+          <input ngx-google-places-autocomplete [(ngModel)]="claimant.claimantAddress" name='txtAddress' class="form-control" [options]='addressOptions' #txtAddress="ngModel" (onAddressChange)="handleAddressChange($event)" />
+        </app-validated-form-control>
+
+        <app-validated-form-control [control]="txtContactNumber">
+          <label>Contact Number</label>
+          <input type="tel" placeholder="Enter contact number" class="form-control" name="txtContactNumber" [(ngModel)]="claimant.claimantContactNumber" #txtContactNumber="ngModel" required>
+        </app-validated-form-control>
+
+        <ion-item lines='none' class="custom-select">
+          <ion-label class="ion-text-wrap">
+            <ion-text>Occupation</ion-text>
+          </ion-label>
+          <!-- <ion-select placeholder="Select One" [(ngModel)]="claimant.claimantOccupation" name="selectedOccupation">
+            <ion-select-option *ngFor="let occupation of occupationOptions" [value]="occupation.title">{{occupation.title | titlecase}}</ion-select-option>
+          </ion-select> -->
+          <ionic-selectable [(ngModel)]="selectedOccupation"  [items]="occupationOptions" itemValueField="lookup_item_id" itemTextField="title"
+            [canSearch]="true"  [hasVirtualScroll]="true" name="selectedOccupation" (onChange)="occupationChosen()">
+          </ionic-selectable>
+        </ion-item>
+      </div>
+    </form>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons slot='start'>
+      <ion-button color='danger' (click)='closeAndDelete()'>Delete</ion-button>
+    </ion-buttons>
+    <ion-buttons slot='end'>
+      <ion-button (click)='save(claimant)' [disabled]="!stepForm.valid">Save</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

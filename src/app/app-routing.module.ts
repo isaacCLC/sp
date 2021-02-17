@@ -84,7 +84,11 @@ const routes: Routes = [
   { path: 'final-checklist', loadChildren: './Pages/Accident-scene/final-checklist/final-checklist.module#FinalChecklistPageModule' },
   { path: 'scene-information', loadChildren: './Pages/Accident-scene/scene-information/scene-information.module#SceneInformationPageModule' },
   { path: 'scene-photos', loadChildren: './Pages/Accident-scene/scene-photos/scene-photos.module#ScenePhotosPageModule' },
-  { path: 'additional-content', loadChildren: './Pages/Accident-scene/additional-content/additional-content.module#AdditionalContentPageModule' }
+  { path: 'additional-content', loadChildren: './Pages/Accident-scene/additional-content/additional-content.module#AdditionalContentPageModule' },
+  {
+    path: 'motoraccident',
+    loadChildren: () => import('./pages/scene/motoraccident/claim-motoraccident.module').then(m => m.ClaimMotorAccidentModule)
+  },
 ];
 
 @NgModule({

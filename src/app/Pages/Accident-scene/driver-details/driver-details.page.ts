@@ -12,20 +12,20 @@ import { ApiGateWayService } from "src/app/Providers/api-gate-way.service";
   styleUrls: ["./driver-details.page.scss"]
 })
 export class DriverDetailsPage implements OnInit {
-  driverDetails: DriverDetails = {
-    name: null,
-    surname: null,
-    address: null,
-    cellNum: null,
-    email: null,
-    occupation: null,
-    driverLicenceImg: null,
-    driverLicenceNum: null,
-    driverLicenceCode: null,
-    driverLicenceDateIssue: null,
-    driverLicenceLearners: null,
-    samaAsInsured: "No"
-  };
+  // driverDetails: DriverDetails = {
+  //   name: null,
+  //   surname: null,
+  //   address: null,
+  //   cellNum: null,
+  //   email: null,
+  //   occupation: null,
+  //   driverLicenceImg: null,
+  //   driverLicenceNum: null,
+  //   driverLicenceCode: null,
+  //   driverLicenceDateIssue: null,
+  //   driverLicenceLearners: null,
+  //   samaAsInsured: "No"
+  // };
   finalDestination: any
   constructor(private route: Router, private _api: ApiGateWayService, public navCtrl: NavController, private camera: Camera, private helpers: Helpers, private platform: Platform, private storage: Storage) { }
 
@@ -39,14 +39,14 @@ export class DriverDetailsPage implements OnInit {
 
   async startTow() {
     this.storage.get("clcDriverID").then(driverID => {
-      this._api.checkServiceRequests(driverID).subscribe(data => {
+      this._api.checkServiceRequests().then(data => {
         let response;
         if (data.data.finalDestination.latitude){
           response = "startTow"
         }else{
           response = "noFD"
         }
-        this._api.acceptJob(driverID, data.data.serviceRequests.callId, response, data.data.serviceRequests.callRef).subscribe(response => {
+        this._api.acceptJob(data.data.serviceRequests.callId, response, data.data.serviceRequests.callRef).then(response => {
           this.route.navigate(["app/tabs/tab1"]);
         })
       })
@@ -63,9 +63,9 @@ export class DriverDetailsPage implements OnInit {
 
   samaAsInsured(evt: any) {
     if (evt.detail.checked == true) {
-      this.driverDetails.samaAsInsured = "Yes";
+      // this.driverDetails.samaAsInsured = "Yes";
     } else {
-      this.driverDetails.samaAsInsured = "No";
+      // this.driverDetails.samaAsInsured = "No";
     }
   }
   driverLicPhoto() {
@@ -80,7 +80,7 @@ export class DriverDetailsPage implements OnInit {
       imageData => {
         // imageData is either a base64 encoded string or a file URI
         // If it's base64:
-        this.driverDetails.driverLicenceImg = "data:image/jpeg;base64," + imageData;
+        // this.driverDetails.driverLicenceImg = "data:image/jpeg;base64," + imageData;
       },
       err => {
         // Handle error

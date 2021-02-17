@@ -19,11 +19,11 @@
             </div>
             <div  class="ion-padding">
               <ion-item>
-                <ion-input name="username" [value]='username' type="username" placeholder="Username" ngModel required></ion-input>
+                <ion-input (keypress)='keyPress($event.keyCode)' name="username" type="username" placeholder="Username" [(ngModel)]='username' required></ion-input>
               </ion-item>
               <br> 
               <ion-item> 
-                <ion-input name="password"   [type]="showPass ? 'text' : 'password'" placeholder="Password" ngModel required></ion-input>
+                <ion-input (keypress)='keyPress($event.keyCode)' name="password" [(ngModel)]='password'  [type]="showPass ? 'text' : 'password'" placeholder="Password" required></ion-input>
                 <ion-icon  name="eye" class=" passwordIcon" (click)='hideShowPassword()'></ion-icon>
               </ion-item>
             </div>

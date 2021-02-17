@@ -7,6 +7,9 @@ import { GeneralService } from "../../Helpers/generals";
 import { AlertsProviderService } from '../../Providers/alerts-provider.service';
 import { load } from 'google-maps';
 import { SmsRetriever } from '@ionic-native/sms-retriever/ngx';
+import { Helpers } from "src/app/Helpers/helpers";
+import { DriverDetails } from "src/app/models/appModels";
+import { UserState } from "src/app/Helpers/user-state";
 
 @Component({
   selector: "app-select-tel-number",
@@ -22,40 +25,37 @@ export class SelectTelNumberPage {
   selectedNumber: any;
   isNumSelected: boolean;
   generals: GeneralService;
-  spDetails: any;
+  driverDetails: DriverDetails;
   isNumDefault: boolean = false;
   @ViewChildren(IonItemSliding) slidingItems: any;
   alreadyVerified = []
   radioValue: any;
+ 
 
   constructor(
+    private userState: UserState,
     private route: Router,
     private loadingCtrl: LoadingController,
     private storage: Storage,
     private _api: ApiGateWayService,
     private activatedRoute: ActivatedRoute,
     private alertProvider: AlertsProviderService,
+    private helpers: Helpers
   ) {
     this.contactDetails = new Array();
     this.generals = new GeneralService();
-    //  this.contactDetails = []
-    this.alreadyVerified
-    console.log(this.alreadyVerified.includes(this.selectedNumber))
     this.activatedRoute.queryParams.subscribe(params => {
-      console.log(params)
       this.alreadyVerified.push(params['verified'])
     });
   }
 
 
   async ionViewDidEnter() {
-    console.log("View inited")
     let firstTime = true;
     this.slidingItems.changes.subscribe((change) => {
       if (firstTime) {
         firstTime = false;
-        console.log("Change happened")
-        // console.log(this.slidingItems)
+
         let counter = 0;
         this.slidingItems.forEach(element => {
           setTimeout(() => { element.open() }, 100)
@@ -68,17 +68,15 @@ export class SelectTelNumberPage {
       message: "Please wait..."
     }).then(loader => {
       loader.present()
-      this.storage.get("clcDriverID").then(res => {
-        let driverID = res;
-        this._api.getSPDetails(driverID).subscribe(
+        this._api.getDriver().then(
           res => {
-            this.spDetails = res.data[0]
-            console.log(this.contactDetails)
-            if (this.spDetails.driverContactNumber) {
-              this.contactDetails = [this.spDetails.driverContactNumber]
+            this.driverDetails = res.data[0]
+            console.log(this.driverDetails)
+            if (this.driverDetails.driverContactNumber) {
+              this.contactDetails = [this.driverDetails.driverContactNumber]
             }
-            this.spDetails.driverAlternativeNumbers.forEach(element => {
-              if (element.mobileNumber != this.spDetails.driverContactNumber) {
+            this.driverDetails.driverAlternativeNumbers.forEach(element => {
+              if (element.mobileNumber != this.driverDetails.driverContactNumber) {
                 this.contactDetails.push(element.mobileNumber)
               }
             })
@@ -89,16 +87,12 @@ export class SelectTelNumberPage {
 
           }, err => {
             console.log(err);
-            this.alertProvider.presentAlert("Getting numbers error", "Something Went Wrong, Please Try Again")
+            this.alertProvider.presentAlert("Oops", "Getting numbers error", "Something Went Wrong, Please Try Again")
           })
-      });
     })
 
   }
 
-  // ngAfterViewInit(){
-
-  // }
 
 
 
@@ -112,16 +106,6 @@ export class SelectTelNumberPage {
     }
   }
 
-  // mcqAnswer(e) {
-  //   console.log(this.radioValue)
-  //   console.log("Selecting new number")
-  //   console.log(e)
-  //   this.selectedNumber = e;
-  //   this.isNumSelected = true;
-  //   console.log(this.alreadyVerified)
-  //   console.log(this.alreadyVerified.includes(e))
-
-  // }
 
   async selectCellNumber(verifired: boolean) {
     this.loadingCtrl.create({
@@ -131,7 +115,7 @@ export class SelectTelNumberPage {
       if (verifired) {
         this._api.addDiverNumber({
           mobileNumber: this.selectedNumber,
-          driverId: this.spDetails.driverId,
+          driverId: this.driverDetails.driverId,
           useNumber: true
         }).then((response) => {
           loader.dismiss()
@@ -148,7 +132,7 @@ export class SelectTelNumberPage {
   verifyNumber(number, confirmOnly: boolean, loader: any) {
     number = number.replace(/^(.{3})(.{3})(.*)$/, "$1 $2 $3").split(" ").join("");
     console.log(number)
-    this._api.getOTP(this.spDetails.driverId, number).subscribe(
+    this._api.getOTP(number).then(
       otpData => {
         loader.dismiss()
         if (otpData.body.status == true) {
@@ -166,7 +150,7 @@ export class SelectTelNumberPage {
       }, err => {
         console.log(err)
         loader.dismiss()
-        this.alertProvider.presentAlert("OTP Error", "Something Went Wrong, Please Try Again")
+        this.alertProvider.presentAlert("Oops","OTP Error", "Something Went Wrong, Please Try Again")
       })
   }
 
@@ -193,7 +177,7 @@ export class SelectTelNumberPage {
         }
       } else {
         loader.dismiss();
-        this.alertProvider.presentAlert("Duplicate Error", "This number already exists. Please select it on the list")
+        this.alertProvider.presentAlert("Oops..","Duplicate Error", "This number already exists. Please select it on the list")
       }
 
     })
@@ -209,7 +193,7 @@ export class SelectTelNumberPage {
   removeNumber(i: number) {
     let details = {
       mobileNumber: this.contactDetails[i],
-      driverId: this.spDetails.driverId,
+      driverId: this.driverDetails.driverId,
       setInvalid: true
     }
 
@@ -218,17 +202,17 @@ export class SelectTelNumberPage {
         if (i = this.selectedNumber) {
           this.selectedNumber = ""
         }
-        this._api.getSPDetails(details.driverId).subscribe( //reload API and fetch updated contact details
+        this._api.getDriver().then( //reload API and fetch updated contact details
           res => {
-            this.spDetails = res.data[0]
+            this.driverDetails = res.data[0]
             this.contactDetails = [];
-            this.contactDetails = [this.spDetails.driverContactNumber];
-            this.spDetails.driverAlternativeNumbers.forEach(element =>
+            this.contactDetails = [this.driverDetails.driverContactNumber];
+            this.driverDetails.driverAlternativeNumbers.forEach(element =>
               this.contactDetails.push(element.mobileNumber));
 
             //   console.log(this.contactDetails)
           })
-        this.alertProvider.presentAlert("Info", "Cell number has been removed")
+        this.alertProvider.presentAlert("Alert", "Info", "Cell number has been removed")
       }
     });
 

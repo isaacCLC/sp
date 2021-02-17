@@ -37,27 +37,21 @@ this.showPass2 = false ;
     let driverID =  await this.storage.get("clcDriverID") 
     if (this.password1 != undefined && this.password2 != undefined) {
       if (this.password1 == this.password2) {
-        this._api.changePassword({driverId:driverID,driverPassword:this.password1}).subscribe(resp=>{
-              if(!resp.status){
-                this.alerts.presentAlert(
-                  this._genService.getGeneralError()['heading'],
-                  this._genService.getGeneralError()['mainMessage']
-                );
-                return;
-              }
-               alert("Password Updated Successfully");
-              this.
-              route.navigateByUrl("login");
+        this._api.changePassword({driverId:driverID,driverPassword:this.password1}).then(resp=>{
+              alert("Password Updated Successfully");
+              this.route.navigateByUrl("/app/tabs/tab1");
         })
        
       } else {
         this.alerts.presentAlert(
+          "Oops...",
           "Password Missmatch",
           "Your Passwords Do Not Match"
         );
       }
     } else {
       this.alerts.presentAlert(
+        "Oops...",
         "Enter Passwords",
         "Please Enter All Password Fields"
       );

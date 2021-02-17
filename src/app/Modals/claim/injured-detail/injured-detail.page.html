@@ -1,0 +1,92 @@
+<ion-header>
+  <ion-toolbar color='primary'>
+    <ion-buttons slot="start" mode='md'>
+      <ion-button (click)="close()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Patient</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class='container'>
+    <form id="form-project" role="form" #stepForm="ngForm">
+      <div class='controls'>
+        <!-- Injury -->
+        <div class='heading'>Injury</div>
+
+        <app-validated-form-control [control]="txtFirstName">
+          <label>Name</label>
+          <input type="text" placeholder="Enter Name" class="form-control" name="txtFirstName" [(ngModel)]="injured.injuredFirstName" #txtFirstName="ngModel" required>
+        </app-validated-form-control>
+
+        <app-validated-form-control [control]="txtLastName">
+          <label>Surname</label>
+          <input type="text" placeholder="Enter Surname" class="form-control" name="txtLastName" [(ngModel)]="injured.injuredLastName" #txtLastName="ngModel" required>
+        </app-validated-form-control>
+
+        <app-validated-form-control [control]="txtIdNumber">
+          <label>Id Number</label>
+          <input type="number" placeholder="Enter Id Number" class="form-control" name="txtIdNumber" [(ngModel)]="injured.injuredIdNumber" #txtIdNumber="ngModel" required>
+        </app-validated-form-control>
+
+        <app-validated-form-control [control]="txtContactNumber">
+          <label>Contact Number</label>
+          <input type="tel" placeholder="Enter Name" class="form-control" name="txtContactNumber" [(ngModel)]="injured.injuredContactNumber" #txtContactNumber="ngModel" required>
+        </app-validated-form-control>
+
+        <!-- google address -->
+        <div class="custom-location">
+          <app-validated-form-control [control]="txtAddress">
+            <label>Address</label>
+            <input ngx-google-places-autocomplete [(ngModel)]="injured.injuredAddress" name='txtAddress' class="form-control" [options]='addressOptions' #txtAddress="ngx-places" (onAddressChange)="handleAddressChange($event)" />
+          </app-validated-form-control>
+          <div class="location-btn">
+            <ion-button fill='clear' slot="end" (click)='locateUser()'>
+              <ion-icon slot="icon-only" name="locate-outline"></ion-icon>
+            </ion-button>
+          </div>
+        </div>
+
+        <app-validated-form-control [control]="txtDescriptionOfInuries">
+          <label>Description Of Injuries</label>
+          <textarea type="text" placeholder="Enter Description" class="form-control" name="txtDescriptionOfInuries" [(ngModel)]="injured.injuredDescriptionOfInuries" #txtDescriptionOfInuries="ngModel" required></textarea>
+        </app-validated-form-control>
+
+        <ion-item lines='none'>
+          <ion-label class="ion-text-wrap">
+            <ion-text>Has A Claim Been Lodged Against You?</ion-text>
+          </ion-label>
+          <ion-checkbox slot="end" name='injuredClaimLoggedFlag' [(ngModel)]="injured.injuredClaimLoggedFlag"></ion-checkbox>
+        </ion-item>
+
+        <ng-container *ngIf="injured.injuredClaimLoggedFlag">
+
+          <app-validated-form-control [control]="txtClaimAmount">
+            <label>If Yes: For What Amount (R)</label>
+            <input type="number" placeholder="Enter Amount" class="form-control" name="txtClaimAmount" [(ngModel)]="injured.injuredClaimAmount" #txtClaimAmount="ngModel" required>
+          </app-validated-form-control>
+
+          <ion-item lines='none'>
+            <ion-label class="ion-text-wrap">
+              <ion-text>Has A Settlement Offer Been Made?</ion-text>
+            </ion-label>
+            <ion-checkbox slot="end" name='injuredClaimSettlementOfferFlag' [(ngModel)]="injured.injuredClaimSettlementOfferFlag"></ion-checkbox>
+          </ion-item>
+        </ng-container>
+      </div>
+    </form>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons slot='start'>
+      <ion-button color='danger' (click)='closeAndDelete()'>Delete</ion-button>
+    </ion-buttons>
+    <ion-buttons slot='end'>
+      <ion-button (click)='save(injured)'>Save</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

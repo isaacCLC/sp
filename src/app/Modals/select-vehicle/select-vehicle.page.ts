@@ -9,7 +9,7 @@ import { Helpers } from "../../Helpers/helpers";
 import { Storage } from "@ionic/storage";
 import { AlertsProviderService } from "../../Providers/alerts-provider.service";
 import { ApiGateWayService } from "../../Providers/api-gate-way.service";
-import { VehicleDetails } from "../../models/appModels";
+import { DriverDetails, VehicleDetails } from "../../models/appModels";
 import { SmsRetriever } from '@ionic-native/sms-retriever/ngx';
 
 @Component({
@@ -24,7 +24,7 @@ export class SelectVehiclePage implements OnInit {
   loader: any;
   myVehicles: any = [];
   vehLogo: string;
-  spDetails: any;
+  driverDetails: DriverDetails;
   constructor(
     private barcodeScanner: BarcodeScanner,
     private route: Router,
@@ -44,12 +44,12 @@ export class SelectVehiclePage implements OnInit {
     
   }
 
-  ionViewWillEnter() {
-    this.storage.get("clcSPDetails").then(res => {
-      console.log(res)
-      this.spDetails = res;
-      this.loadVehicles(res.driverSpId);
-    });
+  async ionViewWillEnter() {
+    this._api.getDriver().then(driver=>{
+      console.log(driver)
+      this.driverDetails = driver.data[0]
+      this.loadVehicles(this.driverDetails.driverSpId);
+    })
   }
 
   async loadVehicles(spID: any) {
@@ -66,14 +66,13 @@ export class SelectVehiclePage implements OnInit {
         err => {
           loader.dismiss()
           this.alertprovider
-            .presentAlert("Information", "No Vehicles availale")
+            .presentAlert("Alert","Information", "No Vehicles availale")
             .then(() => {
               this.route.navigateByUrl("app/tabs/tab3");
             });
         }
       );
     })
-
   }
 
   async confirmCar(index: any) {
@@ -91,11 +90,6 @@ export class SelectVehiclePage implements OnInit {
           text: "Disagree",
           role: "cancel",
           cssClass: "secondary",
-          handler: blah => {
-            this.storage.set("isVehicleSet", this.isVehicleSet).then(data => {
-              this.route.navigateByUrl("select-vehicle");
-            });
-          }
         },
         {
           text: "Agree",
@@ -131,7 +125,7 @@ export class SelectVehiclePage implements OnInit {
           if (this.platform.is("android")) {
             // if (this.scannedCarLicNum == this.myVehicles[idx].registrationNumber.split(" ").join("")) {
             if (true) {
-              this._api.verifyVehicle(this.spDetails.driverId, this.myVehicles[idx].registrationNumber.split(" ").join("")).subscribe(response=>{
+              this._api.verifyVehicle(this.myVehicles[idx].registrationNumber.split(" ").join("")).then(response=>{
                 if(response.status){
                   this.isVehicleSet = true;
                   this.storage.set("isVehicleSet", this.isVehicleSet).then(() => {
@@ -141,24 +135,28 @@ export class SelectVehiclePage implements OnInit {
                   });
                 }else{
                   this.alertprovider.presentAlert(
+                    "Oops",
                     "Something went wrong",
                     "Could not assign you this vehicle, Please Try Again"
                   );    
                 }
               },err=>{
                 this.alertprovider.presentAlert(
+                  "Oops",
                   "Something went wrong",
                   "Could not assign you this vehicle, Please try again or contact CLC"
                 );
               })
             } else {
               this.alertprovider.presentAlert(
+                "Oops",
                 "Vehicle Validation",
                 "The Selected Vehicle Does Not Match The Scanned License Disk, Please Try Another Vehicle"
               );
             }
           } else {
             this.alertprovider.presentAlert(
+              "Oops",
               "Error",
               "Couldn't scan license disk, please try again"
             );
@@ -173,6 +171,7 @@ export class SelectVehiclePage implements OnInit {
           loader.dismiss();
           console.log(err)
           this.alertprovider.presentAlert(
+            "Oops",
             "Error",
             "Couldn't scan license disk, please try again"
           );

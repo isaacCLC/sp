@@ -33,6 +33,12 @@ import { SmsRetriever } from '@ionic-native/sms-retriever/ngx';
 import { LocationAccuracy } from '@ionic-native/location-accuracy/ngx';
 import { ClaimManager } from "./Helpers/claim-manager";
 import { Device } from "@ionic-native/device/ngx";
+import { InAppBrowser } from "@ionic-native/in-app-browser/ngx";
+import { GooglePlaceModule } from "ngx-google-places-autocomplete";
+import { MediaManager } from "./utils/media-manager";
+import { FilePath } from "@ionic-native/file-path/ngx";
+import { FileUtil } from "./utils/file-util";
+import { MediaCapture } from "@ionic-native/media-capture/ngx";
 
 @NgModule({
   declarations: [
@@ -52,8 +58,8 @@ import { Device } from "@ionic-native/device/ngx";
     IonicStorageModule.forRoot(),
     AgmCoreModule.forRoot({
       apiKey: 'AIzaSyBo-0cSqDB1H3mAsfJEdnyhTu0vrBGXsy0'
-    })
-
+    }),
+    GooglePlaceModule
   ],
   providers: [
     StatusBar,
@@ -78,7 +84,12 @@ import { Device } from "@ionic-native/device/ngx";
     SmsRetriever,
     LocationAccuracy ,
     ClaimManager,
-    Device
+    Device,
+    InAppBrowser,
+    MediaManager,
+    FilePath,
+    FileUtil,
+    MediaCapture
   ],
   bootstrap: [AppComponent]
 })

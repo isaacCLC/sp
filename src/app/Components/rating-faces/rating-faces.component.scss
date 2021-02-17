@@ -1,0 +1,9 @@
+@import '../../../styles/custom';
+
+.selected {
+  filter: saturate(100%);
+}
+
+img {
+  filter : saturate(0%);
+}

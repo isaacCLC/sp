@@ -13,13 +13,6 @@ export class GeneralService {
 
   allocateJob(spID: any): any { }
 
-  setDriverDetails(deriverDetails: any) {
-    this.driverDetails = deriverDetails;
-  }
-  getDriverDetails() {
-    return this.driverDetails;
-  }
-
   timeBetweenTwoDates(endDate: any) {
     const currDate = new Date();
     var diff = currDate.getTime() - endDate.getTime();

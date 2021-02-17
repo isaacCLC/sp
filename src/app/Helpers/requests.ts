@@ -1,3 +1,5 @@
+import { CheckList } from "./claim-manager";
+
 export interface addSubMemberRegisterRequest {
   call: Call;
   submember: addSubMemberRegisterRequestData[];
@@ -352,6 +354,7 @@ export interface Vehicle {
   vehicleTypeId: number;
   registrationNumber: string;
   makeId: number;
+  make: string;
   model: string;
   vehicleYear: number;
   vehicleColour: string;
@@ -361,6 +364,7 @@ export interface Vehicle {
   vehicleChassisNumber: string;
   vehicleClientRefId: string;
   vehicleValid: boolean;
+  dontUpdate: boolean;
 }
 
 export interface Address {
@@ -441,6 +445,8 @@ export interface AddClaimRequest {
   claimant: Claimant[];
   patient: Patient[];
   drivers: Driver[];
+  callID: string;
+  checklist: CheckList;
 }
 
 export interface SetLocationRequest {

@@ -1,0 +1,116 @@
+@import '../../../../styles/custom';
+
+::ng-deep {
+  .dark {
+    label {
+      color: $label-color-light !important;
+    }
+
+    .error {
+      color: rgba(255,255,255,.75) !important;
+    }
+
+    .valid {
+      color: rgba(255,255,255,.75) !important;
+    }
+  }
+
+  .input-validator {
+    text-align: left !important;
+
+    label {
+      font-size: .9rem;
+      font-weight: 400;
+      color: $label-color;
+      margin-bottom: 5px;
+    }
+
+    ion-icon {
+      font-size: 12px;
+      margin-right: 4px;
+    }
+
+    p {
+      font-size: .85rem;
+    }
+
+    $control-height: 38px;
+
+    .form-control {
+      border: 1px solid rgba(#cdd3d8, .5);
+      color: #6c7293;
+      height: $control-height;
+      margin-top: 0;
+      margin-bottom: 1rem;
+      padding-left: 1.25rem;
+      padding-right: 1.25rem;
+      transition: background-color .2s ease-out;
+      background-color: rgb(253,253,255);
+      margin-bottom: 1rem;
+      min-width: 100%;
+      border-radius: 3px;
+      font-size: .95rem;
+
+      &:focus {
+        box-shadow: none;
+        border: 1px solid #bfc3c7;
+        background-color: rgba(249, 249, 254, 1);
+      }
+
+      &:hover {
+        background-color: rgba(249, 249, 254, 1);
+      }
+
+      ::-moz-placeholder {
+        height: $control-height;
+      }
+    }
+
+    input {
+      line-height: 2;
+    }
+
+    textarea {
+      height: 100px !important;
+      line-height: 2;
+    }
+    // .ng-valid {
+    //   background-color: rgb(232, 240, 254) !important;
+    // }
+
+    .indicator {
+      margin-right: 8px;
+      transition: all .2s ease-out;
+    }
+
+    .error {
+      color: var(--ion-color-danger);
+    }
+
+    .valid {
+      color: limegreen;
+    }
+
+    .error-box {
+      transition: all .2s ease-out;
+
+      p {
+        margin: 3px 0 0;
+        font-weight: 500;
+        font-size: .8rem;
+        //font-family: 'Roboto', 'Poppins', 'Arial';
+      }
+    }
+  }
+
+  .has-error {
+    .form-control {
+      border-color: var(--ion-color-danger) !important;
+      margin-bottom: 0;
+    }
+
+    .error-box {
+      margin-bottom: 8px;
+    }
+  }
+}

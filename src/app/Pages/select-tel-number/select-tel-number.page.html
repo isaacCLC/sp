@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-back-button (click)="closemodal()" defaultHref="app/tabs/tab3"></ion-back-button>
+      <ion-back-button defaultHref="app/tabs/tab3"></ion-back-button>
     </ion-buttons>
     <ion-title>Select Cell Number</ion-title>
   </ion-toolbar>
@@ -14,7 +14,7 @@
     <p>This will help clients to be able to reach you during your service progress</p>
     <ion-radio-group [(ngModel)]="selectedNumber">
       <ng-container *ngFor="let cellNum of contactDetails; let idx = index">
-        <ion-item-sliding [disabled]="cellNum == this.spDetails.driverContactNumber" >
+        <ion-item-sliding [disabled]="cellNum == this.driverDetails.driverContactNumber" >
           <ion-item-options side="start">
             <ion-item-option color="danger" (click)="removeNumber(idx)">Delete</ion-item-option>
           </ion-item-options>

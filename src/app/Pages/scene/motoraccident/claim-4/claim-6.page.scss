@@ -1,0 +1,32 @@
+@import '../../../../../styles/custom';
+
+ion-content {
+  --background: linear-gradient( to top left, hsl(0, 0%, 93.65%) 0%, hsl(0, 0%, 93.65%) 20%, hsl(0, 0%, 95.28%) 20%, hsl(0, 0%, 95.28%) 40%, hsl(0, 0%, 96.88%) 40%, hsl(0, 0%, 96.88%) 60%, hsl(0, 0%, 98.45%) 60%, hsl(0, 0%, 98.45%) 80%, hsl(0, 0%, 100%) 80%, hsl(0, 0%, 100%) 100% );
+}
+
+.controls {
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+
+ion-item {
+  --background: white;
+  // padding-left: 10px;
+  // padding-right: 10px;
+  font-size: .9rem;
+  --color: #363948;
+  margin-bottom: 1rem;
+  // border: 1px solid rgba(205, 211, 216, 0.5);
+  --border-style: solid;
+  --border-radius: 3px;
+  --border-color: rgba(205, 211, 216, 0.5);
+  --border-width: 1px;
+
+  ion-label {
+    font-size: .9rem;
+  }
+}
+
+.end-icon {
+  font-size: 1.5rem;
+}

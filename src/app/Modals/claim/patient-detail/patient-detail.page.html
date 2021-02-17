@@ -1,0 +1,60 @@
+<ion-header>
+  <ion-toolbar color='primary'>
+    <ion-buttons slot="start" mode='md'>
+      <ion-button (click)="close()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Patient</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class='container'>
+    <form id="form-project" role="form" #stepForm="ngForm">
+      <div class='controls'>
+        <div class='heading'>Enter Patient Info Below</div>
+        <app-validated-form-control [control]="txtName">
+          <label>Name</label>
+          <input type="text" placeholder="Enter name" class="form-control" name="txtName" [(ngModel)]="patient.injuredFirstName" #txtName="ngModel" required>
+        </app-validated-form-control>
+        <app-validated-form-control [control]="txtSurname">
+          <label>Surname</label>
+          <input type="text" placeholder="Enter surname" class="form-control" name="txtSurname" [(ngModel)]="patient.injuredLastName" #txtSurname="ngModel" required>
+        </app-validated-form-control>
+        <app-validated-form-control [control]="txtIdNumber">
+          <label>Id Number</label>
+          <input type="number" placeholder="Enter Id Number" class="form-control" name="txtIdNumber" [(ngModel)]="patient.injuredIdNumber" #txtIdNumber="ngModel" required>
+        </app-validated-form-control>
+        <app-validated-form-control [control]="txtContactNumber">
+          <label>Contact Number</label>
+          <input type="tel" placeholder="Enter contact number" class="form-control" name="txtContactNumber" [(ngModel)]="patient.injuredContactNumber" #txtContactNumber="ngModel" required>
+        </app-validated-form-control>
+        <app-validated-form-control [control]="txtDescription">
+          <label>Description</label>
+          <textarea type="text" placeholder="Enter Description" class="form-control" name="txtDescription" [(ngModel)]="patient.injuredDescriptionOfInuries" #txtDescription="ngModel" required></textarea>
+        </app-validated-form-control>
+        <div class='heading'>Enter Medical Costs Below</div>
+        <app-validated-form-control [control]="txtMedicalCosts">
+          <label>Medical Costs (R)</label>
+          <input type="number" placeholder="Enter Medical Costs" class="form-control" name="txtMedicalCosts" [(ngModel)]="patient.injuredMedicalCosts" #txtMedicalCosts="ngModel" required>
+        </app-validated-form-control>
+        <app-validated-form-control [control]="txtMedicalServiceProvider">
+          <label>Medical Service Provider</label>
+          <input type="text" placeholder="Enter Medical Service Provider" class="form-control" name="txtMedicalServiceProvider" [(ngModel)]="patient.injuredMedicalServiceProvider" #txtMedicalServiceProvider="ngModel" required>
+        </app-validated-form-control>
+      </div>
+    </form>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons slot='start'>
+      <ion-button color='danger' (click)='closeAndDelete()'>Delete</ion-button>
+    </ion-buttons>
+    <ion-buttons slot='end'>
+      <ion-button (click)='save(patient)'>Save</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

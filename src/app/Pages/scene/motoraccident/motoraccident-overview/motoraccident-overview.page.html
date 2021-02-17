@@ -1,0 +1,90 @@
+<ion-header>
+  <ion-toolbar color='primary'>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/app/tabs/tab1"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Incident Scene</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class='container'>
+    <div class='heading' style='margin-bottom:0'>Please complete the following sections</div>
+    <p class='note'>Your progress is saved automatically.</p>
+    <ion-list class='shadow sections' style='margin-bottom:15px;'>
+      <ion-item detail='true' routerLink='/motoraccident/step1'>
+        <div class='number' [style.color]="progress.section1?'#4BB543':'red'" slot="start">1</div>
+        <ion-label class="ion-text-wrap">The Driver</ion-label>
+        <ion-icon name="checkmark" color='success' slot='end' class='end-icon' *ngIf='progress.section1'></ion-icon>
+        <ion-icon name="help-circle-outline" color='danger' slot='end' class='end-icon' *ngIf='!progress.section1'></ion-icon>
+
+      </ion-item>
+      <ion-item detail='true' routerLink='/motoraccident/step2'>
+        <div [style.color]="progress.section2?'#4BB543':'red'" class='number' slot="start">2</div>
+        <ion-label class="ion-text-wrap">Vehicle Details</ion-label>
+        <ion-icon name="checkmark" color='success' slot='end' class='end-icon' *ngIf='progress.section2'></ion-icon>
+        <ion-icon name="help-circle-outline" color='danger' slot='end' class='end-icon' *ngIf='!progress.section2'></ion-icon>
+
+      </ion-item>
+      <ion-item color detail='true' routerLink='/motoraccident/step3'>
+        <div [style.color]="progress.section3?'#4BB543':'red'" class='number' slot="start">3</div>
+        <ion-label class="ion-text-wrap">Damage Details</ion-label>
+        <ion-icon name="checkmark" color='success' slot='end' class='end-icon' *ngIf='progress.section3'></ion-icon>
+        <ion-icon name="help-circle-outline" color='danger' slot='end' class='end-icon' *ngIf='!progress.section3'></ion-icon>
+      </ion-item>
+      <ion-item detail='true' routerLink='/motoraccident/step4'>
+        <div [style.color]="progress.section4?'#4BB543':'red'" class='number' slot="start">4</div>
+        <ion-label class="ion-text-wrap">Incident Details</ion-label>
+        <ion-icon name="checkmark" color='success' slot='end' class='end-icon' *ngIf='progress.section4'></ion-icon>
+        <ion-icon name="help-circle-outline" color='danger' slot='end' class='end-icon' *ngIf='!progress.section4'></ion-icon>
+      </ion-item>
+      <ion-item detail='true' routerLink='/motoraccident/step5'>
+        <div [style.color]="progress.section5?'#4BB543':'red'" class='number' slot="start">5</div>
+        <ion-label class="ion-text-wrap">Vehcile Checklist</ion-label>
+        <ion-icon name="checkmark" color='success' slot='end' class='end-icon' *ngIf='progress.section5'></ion-icon>
+        <ion-icon name="help-circle-outline" color='danger' slot='end' class='end-icon' *ngIf='!progress.section5'></ion-icon>
+      </ion-item>
+    </ion-list>
+
+    <div class='signatures'>
+      <div class='heading' style='margin-top:2rem'>
+        Declaration
+      </div>
+
+      <ion-list class='shadow' style='margin-bottom:2rem;'>
+        <ion-item (click)='captureInsuredSignature()'>
+          <ion-label class="ion-text-wrap">
+            <ion-text>Driver Signature</ion-text>
+            <p>Please ask the driver of the vehicle to sign here.</p>
+          </ion-label>
+          <ion-icon name="create-outline" [style.color]="'#ffce00'" slot='end' class='end-icon' *ngIf='!insuredSignature'></ion-icon>
+          <ion-icon name="checkmark" color='success' slot='end' class='end-icon' *ngIf='insuredSignature'></ion-icon>
+        </ion-item>
+      </ion-list>
+    </div>
+  </div>
+
+</ion-content>
+<ion-footer>
+  <ion-toolbar>
+    <div slot='start' class='status-text'>
+      <p [style.color]="'red'" *ngIf='stillToComplete > 0'>* {{stillToComplete}} {{stillToComplete == 1 ? 'section' : 'sections'}} to complete</p>
+      <p [style.color]="'#ffce00'" *ngIf='stillToComplete <= 0 && !insuredSignature'>* Ask driver to sign if available</p>
+      <p [style.color]="'#4BB543'" *ngIf='stillToComplete <= 0'>All sections complete - ready to submit!</p>
+    </div>
+    <ion-buttons slot='end'>
+      <!-- <ion-button fill="outline" color="primary" expand='block' class='action-button' *ngIf='stillToComplete == 10' (click)='startClaim()'>
+        Start a new claim
+      </ion-button> -->
+      <ion-button fill="outline" color="primary" expand='block' class='action-button' *ngIf='stillToComplete > 0 && stillToComplete < 10' (click)="continue()">
+        Continue
+      </ion-button>
+      <ion-button fill="outline" color="danger" expand='block' class='action-button' (click)="deleteClaim()">
+        Cancel
+      </ion-button>
+      <ion-button fill="outline" color="primary" expand='block' class='action-button' *ngIf='stillToComplete <= 0' (click)='submitClaim()'>
+        Submit
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

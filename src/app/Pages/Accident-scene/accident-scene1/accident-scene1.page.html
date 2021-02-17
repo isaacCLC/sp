@@ -33,23 +33,23 @@
             <br>
             <ion-label position="floating"><strong>Location</strong></ion-label>
             <ion-item>
-              <ion-input readonly name="accidentLocation" [(ngModel)]="claimDetails.incidentLocation"></ion-input>
+              <ion-input readonly name="accidentLocation" [(ngModel)]="claim.call.physicalAddress"></ion-input>
             </ion-item>
             <br> 
             <ion-label position="floating"><strong>Detailed Description</strong></ion-label>
             <ion-item>
-              <textarea rows="6"  name="accidentDesc"  [(ngModel)]="claimDetails.incidentDescription"></textarea>
+              <textarea rows="6"  name="accidentDesc"  [(ngModel)]="claim.call.physicalAddress"></textarea>
             </ion-item>
 
-            <br>
+            <!-- <br>
             <ion-label><strong>License Disk Scan</strong></ion-label>
             <ion-button type="submit" expand="block" (click)="scanBarcode()">Scan Vehicle Disk
-            </ion-button>
-            <br>
+            </ion-button> -->
+            <!-- <br>
             <ion-label position="floating"><strong>If License Disk Is Unavailable</strong></ion-label>
             <ion-button type="submit" [disabled]="form.invalid" expand="block" (click)="manualCarDetails()">Enter
               Vehicle Details
-              Manually</ion-button>
+              Manually</ion-button> -->
 
           </div>
           <div>

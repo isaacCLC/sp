@@ -20,14 +20,14 @@ export class OtpPagePage implements OnInit {
   generatedOtpNum: any;
   otpResend: boolean;
   spID: any;
-  
+
   constructor(
     private route: Router,
     private loadingCtrl: LoadingController,
     private storage: Storage,
     private alertPvd: AlertsProviderService,
     private _api: ApiGateWayService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.isOtpEntered = false;
@@ -35,18 +35,16 @@ export class OtpPagePage implements OnInit {
     this.enaableBth = false;
     this.cellValid = true;
     this.otpResend = false;
-    this.storage.get("clcDriverID").then(res => { 
-      this.spID = res;
-      this._api.getSPDetails(this.spID).subscribe(
-        res => {  
-           this.cellNum = res.data[0].driverContactNumber 
-          if(this.cellNum.length > 9)
-             this.enaableBth = true}
-          )
-    });
+    this._api.getDriver().then(
+      res => {
+        this.cellNum = res.data[0].driverContactNumber
+        if (this.cellNum.length > 9)
+          this.enaableBth = true
+      }
+    )
   }
 
-  ionViewWillEnter() { 
+  ionViewWillEnter() {
   }
 
   async verifyOtp() {
@@ -56,7 +54,7 @@ export class OtpPagePage implements OnInit {
       message: "Please wait..."
     });
     await this.loader.present();
-    this._api.verifyOtp(this.spID, this.otpNum).subscribe(
+    this._api.verifyOtp(this.otpNum).then(
       res => {
         console.log(res);
         if (res.status == 200 && res.body.status == true) {
@@ -67,7 +65,7 @@ export class OtpPagePage implements OnInit {
       err => {
         console.log(err)
         this.loader.dismiss();
-        this.alertPvd.presentAlert("OTP Error", "Wrong OTP Entered!");
+        this.alertPvd.presentAlert("Oops..", "OTP Error", "Wrong OTP Entered!");
       }
     );
 
@@ -80,10 +78,10 @@ export class OtpPagePage implements OnInit {
       message: "Please wait..."
     });
     await this.loader.present();
-    await this._api.getOTP(this.spID, this.cellNum).subscribe(
-      otpData => {},
+    await this._api.getOTP(this.cellNum).then(
+      otpData => { },
       err => {
-        this.alertPvd.presentAlert("OTP Error", "Error in generating OTP");
+        this.alertPvd.presentAlert("Oops..", "OTP Error", "Error in generating OTP");
       }
     );
     this.loader.dismiss();
@@ -110,7 +108,7 @@ export class OtpPagePage implements OnInit {
     var isnum = /^\d+$/.test(this.cellNum);
     if (isnum == true && this.cellNum.length == 10) {
       this.cellNum = this.cellNum.split(" ").join("");
-      await this._api.getOTP(this.spID, this.cellNum).subscribe(
+      await this._api.getOTP(this.cellNum).then(
         otpData => {
           console.log(otpData);
           // if (otpData.body.status  == true  && otpData.status == true) {
@@ -122,7 +120,7 @@ export class OtpPagePage implements OnInit {
           // }
         },
         err => {
-          this.alertPvd.presentAlert("OTP Error", "Error in generating OTP");
+          this.alertPvd.presentAlert("Oops..", "OTP Error", "Error in generating OTP");
         }
       );
       this.loader.dismiss();

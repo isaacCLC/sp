@@ -25,50 +25,17 @@ export class Tab2Page {
    this._genService = new GeneralService()
   }
 
-  async ngOnInit() { 
-    // this.storage.get('clcSPDetails').then((res)=>{  
-    //   this.userProfile.myphoto = res.driverImageUrl
-    //   this.userProfile.name = res.driverFirstName;
-    //   this.userProfile.surname = res.driverLastName;
-    //   this.userProfile.address =
-    //     "Unit 23, Cambridge Office Park, 5 Bauhinia St, Highveld Techno Park";
-    //   this.userProfile.cell = res.driverContactNumber;
-    //   this.userProfile.company = res.serviceProviderName;
-    //   this.userProfile.password = "P@ssword123";
-    // })
-  }
   async ionViewWillEnter() { 
     this.loadingCtrl.create({
       message: "Loading..."
     }).then(loader => {
       loader.present()
-      this.storage.get("clcSPDetails").then(res => {
-        this._api.getSPDetails(res.driverId).subscribe(spDetails => {
+        this._api.getDriver().then(spDetails => {
           console.log(spDetails)
           this.userProfile = spDetails.data[0];
           loader.dismiss()
         })
-      });
     })
-   
-
-    // await  this.storage.get("clcrequestResponse").then(res => { 
-    //   if (res != null || res != undefined) {
-    //     this.route.navigate(["app/tabs/tab1"]);
-    //  //   this.storage.remove("clcrequestResponse")
-    //   }
-    // }); 
-    // await  this.storage.get("navToFinDist").then(res => { 
-    //   if (res != null || res != undefined) {
-    //     this.route.navigate(["app/tabs/tab1"]);
-    //  //   this.storage.remove("clcrequestResponse")
-    //   }
-    // }); 
-
-    // await this.storage.get("callComplete").then(res=>{
-    //   if(res != null || res != undefined)
-    //   this.route.navigate(["app/tabs/tab1"]);
-    // })
   }
 
   updateProfile() {
@@ -90,7 +57,7 @@ export class Tab2Page {
       },
       err => {
         // Handle error
-        this.alerts.presentAlert("Picture Error", "Could Not Get Your Image");
+        this.alerts.presentAlert("Oops..","Picture Error", "Could Not Get Your Image");
       }
     );
   } //end

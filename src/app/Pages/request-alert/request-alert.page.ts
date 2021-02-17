@@ -6,7 +6,8 @@ import { GoogleMaps, GoogleMap, Marker, GoogleMapOptions, Circle, GoogleMapsEven
 import { Storage } from "@ionic/storage";
 import { Router, ActivatedRoute, NavigationExtras } from "@angular/router";
 import { AlertsProviderService } from "../../Providers/alerts-provider.service";
-import { iServiceRequest, ServiceProviderDetails } from '../../models/appModels';
+import { DriverDetails, iServiceRequest } from '../../models/appModels';
+import { StaticMapService } from "src/app/utils/static-map";
 
 @Component({
   selector: "app-request-alert",
@@ -53,7 +54,7 @@ export class RequestAlertPage implements OnInit {
     }
 
   };
-  serviceProvider: ServiceProviderDetails = {};
+  serviceProvider: DriverDetails = {};
   clientFullAddress: any;
   distance: any = 0;
   eta: any = "0";
@@ -66,6 +67,7 @@ export class RequestAlertPage implements OnInit {
   vehicleDescription: string;
   vehicleRegistration: string;
   initialMapLoad: boolean = true;
+  staticMapsURL = "https://maps.googleapis.com/maps/api/staticmap?center=-25.881055,%2028.181996&zoom=13&size=640x640&maptype=roadmap&key=AIzaSyBo-0cSqDB1H3mAsfJEdnyhTu0vrBGXsy0"
   constructor(
     private _api: ApiGateWayService,
     private modalCtrl: ModalController,
@@ -76,6 +78,7 @@ export class RequestAlertPage implements OnInit {
     private alertProvider: AlertsProviderService,
     public platform: Platform,
     public loadingCtrl: LoadingController,
+    public mapService: StaticMapService
   ) {
     this.reqAccepted = false;
     this.gotToTns = false;
@@ -83,6 +86,9 @@ export class RequestAlertPage implements OnInit {
 
 
   ngOnInit() {
+    setTimeout(() => {
+      document.getElementById('map-parent').style.width = "100%";
+    }, 10);
     this.activatedRoute.queryParams.subscribe(params => {
       this.loadingCtrl.create({
         message: "Please wait..."
@@ -103,7 +109,11 @@ export class RequestAlertPage implements OnInit {
     if (params) {
       this.serviceRequest = JSON.parse(params.serviceRequest);
       this.serviceProvider = JSON.parse(params.serviceProvider);
-
+      // this.staticMapsURL = "https://maps.googleapis.com/maps/api/staticmap?scale=2&center=" + this.serviceRequest.data.clientLocation.latitude + "," + this.serviceRequest.data.clientLocation.longitude + "&zoom=17&size=640x640&maptype=roadmap&key=AIzaSyBo-0cSqDB1H3mAsfJEdnyhTu0vrBGXsy0&markers=icon:https://images.lmsystem.co.za/ccacellapp/main/icon-main-protect-me-64.png%7C" + this.serviceRequest.data.clientLocation.latitude + "," + this.serviceRequest.data.clientLocation.longitude;
+      this.mapService.getStaticMapBase64(Number(this.serviceRequest.data.clientLocation.latitude), Number(this.serviceRequest.data.clientLocation.longitude), '5', 12).then(pic=>{
+        console.log(pic)
+        this.staticMapsURL = pic
+      })
       console.log(this.serviceProvider)
       this.getDistance({
         latA: this.serviceProvider.location.coords.latitude,
@@ -116,13 +126,6 @@ export class RequestAlertPage implements OnInit {
   }
 
   getClientAddress() {
-    let icon = {
-      url: this.helpers.clientIcon,
-      size: {
-        width: 40,
-        height: 40
-      }
-    };
     this._api.getGeoCoding(this.serviceRequest.data.clientLocation.latitude, this.serviceRequest.data.clientLocation.longitude)
       .subscribe(res => {
         this.clientFullAddress = res.body.data.results[0].formatted_address;
@@ -152,11 +155,21 @@ export class RequestAlertPage implements OnInit {
 
   continue() {
     if (this.termsState == true) {
-      this._api.acceptJob(this.serviceProvider.driverId, this.serviceRequest.data.serviceRequests.callId, true, this.serviceRequest.data.serviceRequests.callRef).subscribe(apiResponse => {
-        this.alertProvider.presentAlert(
-          "Job Accepted",
-          "Thank you for accepting this job. You will be notified if this job is allocated to you shortly"
-        );    
+      this._api.acceptJob(this.serviceRequest.data.serviceRequests.callId, true, this.serviceRequest.data.serviceRequests.callRef).then(apiResponse => {
+        if(apiResponse.data.Allocated){
+          this.alertProvider.presentAlert(
+            "JOB REF #"+this.serviceRequest.data.serviceRequests.callRef,
+            "Job Accepted",
+            "Thank you for accepting this job. You will be notified if this job is allocated to you shortly"
+          );
+        }else{
+          this.alertProvider.presentAlert(
+            "JOB REF #"+this.serviceRequest.data.serviceRequests.callRef,
+            "Oops..",
+            "This job has already been allocated"
+          );
+        }
+            
         this.route.navigate(["app/tabs/tab1"]);
       })
     } else {
@@ -179,10 +192,11 @@ export class RequestAlertPage implements OnInit {
     this.helpers.stopSoundAlert();
     this.reqAccepted = false;
     this.alertProvider.presentAlert(
+      "Alert",
       "Job Declined",
       "You have declined this job request. Stay online for more service requests."
     );
-    this._api.acceptJob(this.serviceProvider.driverId, this.serviceRequest.data.serviceRequests.callId, false,  this.serviceRequest.data.serviceRequests.callRef).subscribe(response => {
+    this._api.acceptJob(this.serviceRequest.data.serviceRequests.callId, false,  this.serviceRequest.data.serviceRequests.callRef).then(response => {
       this.route.navigate(["app/tabs/tab1"]);
     })
   }
