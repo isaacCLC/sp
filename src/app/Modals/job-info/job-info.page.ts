@@ -111,7 +111,7 @@ export class JobInfoPage implements OnInit {
   }
 
   messageClient() {
-    this.alertprovider.presentPrompt()
+    this.route.navigate(["/chat"],{queryParams:{jobInfoFlag:true}});
   }
 
   // animateMapCamera() {

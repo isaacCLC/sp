@@ -39,6 +39,7 @@ import { MediaManager } from "./utils/media-manager";
 import { FilePath } from "@ionic-native/file-path/ngx";
 import { FileUtil } from "./utils/file-util";
 import { MediaCapture } from "@ionic-native/media-capture/ngx";
+import { PusherProvider } from "./Providers/pusher/pusher";
 
 @NgModule({
   declarations: [
@@ -89,7 +90,8 @@ import { MediaCapture } from "@ionic-native/media-capture/ngx";
     MediaManager,
     FilePath,
     FileUtil,
-    MediaCapture
+    MediaCapture,
+    PusherProvider
   ],
   bootstrap: [AppComponent]
 })

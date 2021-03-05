@@ -1,7 +1,7 @@
 import { Component, ɵConsole, ViewChild, ElementRef } from "@angular/core";
 import { Helpers } from "../../../Helpers/helpers";
 import { ApiGateWayService } from "../../../Providers/api-gate-way.service";
-import { GoogleMaps, GoogleMap, Marker, GoogleMapOptions, Environment, GoogleMapsEvent, LatLngBounds } from "@ionic-native/google-maps";
+import { GoogleMaps, GoogleMap, Marker, GoogleMapOptions, Environment, GoogleMapsEvent, LatLngBounds, Polyline, PolylineOptions, Poly, ILatLng} from "@ionic-native/google-maps";
 import { Geolocation, Geoposition, PositionError } from "@ionic-native/geolocation/ngx";
 import { TripDetails, ClientDetails, myLoc, iServiceRequest, iFinalDest, DriverDetails } from "../../../models/appModels";
 import { Insomnia } from '@ionic-native/insomnia/ngx';
@@ -30,6 +30,8 @@ declare var google;
 })
 export class Tab1Page {
   @ViewChild('draggable') private startTowing: ElementRef;
+  fdPolyline: any;
+  path: ILatLng[];
   lastLocationUpdate: number = Date.now();
   lastMarkerUpdate: number = Date.now();
   cameraMoving: boolean = false;
@@ -284,6 +286,10 @@ export class Tab1Page {
                   }).finally(() => {
                     this.cameraMoving = false;
                   })
+                  console.log(this.fdPolyline)
+                  let currentLoc = new google.maps.LatLng(location.coords.latitude,location.coords.longitude)
+                  this.path?console.log(google.maps.geometry.poly.containsLocation(currentLoc, this.fdPolyline)):"";
+              
                   break;
               }
             }
@@ -569,14 +575,17 @@ export class Tab1Page {
             lng: nRoutes[i].lat_lngs[j].lng()
           };
           navPoints.push(drivePlanCoordinates);
+          
         }
       }
-      this.map.addPolyline({
+      this.path = navPoints;
+      this.fdPolyline = new google.maps.Polyline({
         points: navPoints,
         color: "#000000",
-        width: 3,
-        geodesic: true
-      });
+        width: 5,
+        // geodesic: true
+      })
+      this.map.addPolyline(this.fdPolyline);
 
     });
   }

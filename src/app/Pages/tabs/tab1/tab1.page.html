@@ -54,8 +54,8 @@
 <div *ngIf="serviceReq.data.serviceRequests.callId != 0" class="job-btns">
   <ion-grid>
     <ion-row>
-      <ion-col>
-        <ion-button *ngIf="serviceReq.data.serviceRequests.callId != 0" color="danger" (click)="canceljob()" primary block>
+      <ion-col  *ngIf="serviceReq.data.serviceRequests.callId != 0 && serviceReq.data.serviceRequests.status != 13 && serviceReq.data.serviceRequests.status != 16 && serviceReq.data.serviceRequests.status != 10 && serviceReq.data.serviceRequests.status != 14">
+        <ion-button  color="danger" (click)="canceljob()" primary block>
           <ion-label><strong>Cancel Job</strong></ion-label>
         </ion-button>
       </ion-col>
