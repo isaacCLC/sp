@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { Helpers } from "../../..//Helpers/helpers";
+import { Helpers } from "../../../Helpers/helpers";
 import { Camera, CameraOptions } from "@ionic-native/camera/ngx";
 import { Router } from "@angular/router";
 import { AlertsProviderService } from "../../../Providers/alerts-provider.service";

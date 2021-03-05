@@ -6,7 +6,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
 import { ModalPage } from './modal.page';
-import { AppAccordionModule } from 'src/app/Components/accordion/app-accordion.module';
+import { AppAccordionModule } from 'src/app/components/accordion/app-accordion.module';
 
 const routes: Routes = [
   {

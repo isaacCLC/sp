@@ -1,12 +1,12 @@
-<!-- <ion-header>
+<ion-header>
   <ion-toolbar color="primary">
     <ion-title>
       User Profile
     </ion-title>
   </ion-toolbar>
-</ion-header> -->
+</ion-header>
 
-<ion-content>
+<ion-content class='ion-padding'>
   <div id="content">
     <div id="profile-info">
       <img id="profile-image" (click)="getImage()" src="{{userProfile.driverImageUrl}}">
@@ -26,10 +26,10 @@
         <ion-label><strong>Cell Num:</strong></ion-label>
         <ion-input type="text" [(ngModel)]="userProfile.driverContactNumber" name="cell" readonly></ion-input>
       </ion-item>
-      <ion-item>
+      <!-- <ion-item>
         <ion-label><strong>Address:</strong></ion-label>
         <ion-textarea [(ngModel)]="userProfile.driverAddressDescription" name="address" readonly></ion-textarea>
-      </ion-item>
+      </ion-item> -->
       <!-- <ion-item>
         <ion-label><strong>Company:</strong></ion-label>
         <ion-input type="text" [(ngModel)]="userProfile.serviceProviderName" name="company" readonly></ion-input>
@@ -41,6 +41,10 @@
       <!-- <br /> -->
       <!-- <ion-button expand="block" type="submit">Update Details</ion-button> -->
     </form>
+  </div>
+  <br>
+  <div class="bottom-button" id="settings-buttons">
+    <ion-button expand="block" (click)="logout()">Sign Out</ion-button>
   </div>
 </ion-content>
 
