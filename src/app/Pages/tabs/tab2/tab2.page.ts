@@ -6,6 +6,7 @@ import { Router } from "@angular/router";
 import { GeneralService } from '../../../Helpers/generals';
 import { ApiGateWayService } from "src/app/Providers/api-gate-way.service";
 import { LoadingController } from "@ionic/angular";
+import { Helpers } from "src/app/Helpers/helpers";
 @Component({
   selector: "app-tab2",
   templateUrl: "tab2.page.html",
@@ -21,6 +22,8 @@ export class Tab2Page {
     private route: Router,
     private _api: ApiGateWayService,
     public loadingCtrl: LoadingController,
+    private alertProvider: AlertsProviderService,
+    private helpers: Helpers,
   ) { 
    this._genService = new GeneralService()
   }
@@ -40,6 +43,46 @@ export class Tab2Page {
 
   updateProfile() {
     console.log(this.userProfile);
+  }
+  async logout() {
+    this.loadingCtrl.create({
+      message: "Logging Off..."
+    }).then(loader => {
+      loader.present();
+      let userDetails = {
+        driverId: this.userProfile.driverId
+      }
+      console.log("User details")
+      console.log(this.userProfile)
+      this._api.completeJOB().then(res => {
+        if (res.status) {
+          this._api.getDriverlogout(userDetails).then(res => {
+            loader.dismiss()
+            this.helpers.stopRequestCheck();
+            this.helpers.stopWatchLocation();
+            if (res.status) {
+              this.storage.get("username").then(username => {
+                this.storage.clear().then(() => {
+                  this.storage.set("username", username)
+                })
+              })
+              this.route.navigate(["/login"]);
+            }
+            else {
+              this.alertProvider.presentAlert("Oops..", "Logout Error", res.data.errorMessage)
+            }
+          })
+        }
+        else {
+          loader.dismiss()
+          this.alertProvider.presentAlert("Oops..","Logout Error", res.data.errorMessage)
+        }
+      }, err => {
+        loader.dismiss();
+        this.alertProvider.presentAlert("Oops..","Error", "An Error has occured, Please contact your system administrtaor");
+        return;
+      })
+    })
   }
   getImage() {
     const options: CameraOptions = {

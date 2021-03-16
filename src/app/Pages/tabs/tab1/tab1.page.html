@@ -1,28 +1,45 @@
-<!-- <ion-header id="btnOnline">
+<ion-header id="btnOnline">
   <ion-toolbar color="primary">
-    <ion-title>
-      Home
-    </ion-title>
+    <ion-row>
+      <ion-col size="4">
+        <ion-avatar>
+          <ion-img
+            *ngIf="driverDetails.driverImageUrl != null || driverDetails.driverImageUrl != undefined || driverDetails.driverImageUrl != ''"
+            [src]="driverDetails.driverImageUrl"></ion-img>
+          <!-- <ion-img *ngIf="driverDetails.driverImageUrl == null || driverDetails.driverImageUrl == undefined || driverDetails.driverImageUrl == ''"
+            src="https://www.pinclipart.com/picdir/middle/60-602450_profile-clipart-profile-icon-round-profile-pic-png.png"> 
+          </ion-img>-->
+        </ion-avatar>
+      </ion-col>
+    
+    <ion-col class="avail-col" size="8">
+      <h2 *ngIf="serviceReq.data.driverStatus == 1 && serviceReq.data.serviceRequests.callId == 0">On Duty</h2>
+      <h2 *ngIf="serviceReq.data.driverStatus == 1 && serviceReq.data.serviceRequests.callId != 0">{{serviceReq.data.serviceRequests.status}}</h2>
+
+      <h3 color="primary" *ngIf="serviceReq.data.driverStatus == 0">Off Duty</h3>
+    </ion-col>
+    <!-- <ion-title color='success'> -->
+      <!-- <h2 *ngIf="serviceReq.data.driverStatus == 1">On Duty</h2>
+      <h3 color="primary" *ngIf="serviceReq.data.driverStatus == 0">Off Duty</h3> -->
+    <!-- </ion-title1> -->
+  </ion-row>
   </ion-toolbar>
-</ion-header> -->
+</ion-header>
 
 <section class="avail-data" id="head-data">
-  <ion-row >
+  <!-- <ion-row >
     <ion-col size="4">
       <ion-avatar>
         <ion-img
           *ngIf="driverDetails.driverImageUrl != null || driverDetails.driverImageUrl != undefined || driverDetails.driverImageUrl != ''"
           [src]="driverDetails.driverImageUrl"></ion-img>
-        <!-- <ion-img *ngIf="driverDetails.driverImageUrl == null || driverDetails.driverImageUrl == undefined || driverDetails.driverImageUrl == ''"
-          src="https://www.pinclipart.com/picdir/middle/60-602450_profile-clipart-profile-icon-round-profile-pic-png.png"> 
-        </ion-img>-->
       </ion-avatar>
     </ion-col>
     <ion-col class="avail-col" size="8">
       <h2 *ngIf="serviceReq.data.driverStatus == 1">On Duty</h2>
       <h3 color="primary" *ngIf="serviceReq.data.driverStatus == 0">Off Duty</h3>
     </ion-col>
-  </ion-row>
+  </ion-row> -->
   <ion-item class="pad-items" >
     <ion-label>Are You Available?</ion-label>
     <ion-toggle [disabled]="serviceReq.data.serviceRequests.callId != 0 || !iscarSelected" [(ngModel)]="serviceReq.data.driverStatus" (ionChange)="availableClick()"></ion-toggle>
