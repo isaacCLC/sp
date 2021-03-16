@@ -20,6 +20,9 @@ import { ClaimCall, ClaimManager, ClaimTypeId, CurrentClaim } from "src/app/Help
 import { UserState } from "src/app/Helpers/user-state";
 import { CommonUtils } from "src/app/Helpers/common-utils";
 import { PopupHelper } from "src/app/Helpers/popup-helper";
+import { ServiceRequestsService } from "src/app/utils/service-requests.service";
+import { AppLocation } from "src/app/utils/app-location";
+import { ChatService } from "src/app/Helpers/chat.service";
 
 declare var google;
 
@@ -39,6 +42,7 @@ export class Tab1Page {
   isAvailable: boolean;
   counter: number = 0;
   statusChanged: boolean;
+  newMessage: string = 'await-btn2';
   serviceReq: iServiceRequest = {
     status: false,
     data: {
@@ -142,10 +146,15 @@ export class Tab1Page {
     private locationAccuracy: LocationAccuracy,
     private userState: UserState,
     private claimManager: ClaimManager,
-    private popup: PopupHelper
+    private popup: PopupHelper,
+    private serviceRequestsService: ServiceRequestsService,
+    private appLocation: AppLocation,
+    private chatService: ChatService
   ) {
     this._genServices = new GeneralService();
     this.stayActive = false;
+
+   
 
     platform.ready().then(() => {
       this.platform.pause.subscribe(() => {
@@ -157,15 +166,12 @@ export class Tab1Page {
       });
 
       this.locationAccuracy.canRequest().then((canRequest: boolean) => {
-        console.log("Location accuracy")
-        console.log(canRequest)
+
         if (canRequest) {
           // the accuracy option will be ignored by iOS
           this.locationAccuracy.request(this.locationAccuracy.REQUEST_PRIORITY_HIGH_ACCURACY).then(() => {
-            console.log('Request successful')
           }
           ).catch(error => {
-            console.log('Error requesting location permissions', error)
             this.popup.showToast("You will not receive service requests unless you turn on you location.")
           })
         } else {
@@ -188,115 +194,75 @@ export class Tab1Page {
   }
 
   initLocation() {
-    this.helpers.setWatchLocation(this.geolocation
-      .watchPosition({
-        maximumAge: 3000,
-        timeout: 10000,
-        enableHighAccuracy: true,
-      })
-      .subscribe(location => {
-        if ("coords" in location) {
-          this.driverDetails.location = location;
-          if (this.serviceReq.data.driverStatus == 1 && ((Date.now() - this.lastLocationUpdate) > 1000)) {
-            this.lastLocationUpdate = Date.now();
-            this._api.setSpLocation({
-              latitude: location.coords.latitude,
-              longitude: location.coords.longitude,
-              driverId: this.driverDetails.driverId,
-              mobileNumber: this.driverDetails.driverContactNumber,
-              // call_id: 0
-              call_id: this.serviceReq.data.serviceRequests.callId
-            }).then(
-              setLocationResponse => {
-                if (setLocationResponse.status == true && this.serviceReq.data.serviceRequests.status != 14) {
-                  this.failedToSetLocationCounter = 0;
-                  this.tripDetails.Eta = setLocationResponse.data.distance.time;
-                  this.tripDetails.Distance = setLocationResponse.data.distance.distance
-                  this.tripDetails.timeMinutesValue = setLocationResponse.data.distance.timeMinutesValue
-                }
-              },
-              err => {
-                this.failedToSetLocationCounter++;
-                if (this.failedToSetLocationCounter > 10) {
-                  // this.alertprovider.presentAlert(
-                  //   "Oops",
-                  //   "Connection Error",
-                  //   "Could not set your location. Please check your internet connection."
-                  // );
-                  // this.isToggled = false;
-                  // this.isAvailable = false;
-                }
-              }
-            );
-          }
-          if (this.route.isActive('app/tabs/tab1', false) && this.serviceReq.data.driverStatus == 1 && this.map) {
+    this.appLocation.locationUpdated.subscribe(location=>{
+      if(this.serviceRequestsService.serviceReq){
+        if (this.route.isActive('app/tabs/tab1', false) && this.serviceReq.data.driverStatus == 1 && this.map) {
 
-            this.spMarker ? this.spMarker.isVisible() ? this.spMarker.setPosition({
-              lat: location.coords.latitude,
-              lng: location.coords.longitude
-            }) : this.drawDriverMarker() : this.drawDriverMarker();
+          this.spMarker ? this.spMarker.isVisible() ? this.spMarker.setPosition({
+            lat: location.latitude,
+            lng: location.longitude
+          }) : this.drawDriverMarker() : this.drawDriverMarker();
 
-            if (!this.cameraMoving) {
-              switch (this.serviceReq.data.serviceRequests.status) {
-                case 0:
-                case 1:
-                case 2:
-                case 3:
-                case 5:
-                case 6:
-                case 7:
-                case 8:
-                case 9:
-                  this.cameraMoving = true;
-                  this.map.animateCamera({
-                    target: {
-                      lat: location.coords.latitude,
-                      lng: location.coords.longitude
-                    },
-                    zoom: 15,
-                    duration: 500
-                  }).finally(() => {
-                    this.cameraMoving = false;
-                  });
-                  break;
-                case 4:
-                case 15:
-                  this.cameraMoving = true;
-                  this.map.animateCamera({
-                    target: new LatLngBounds([
-                      { lat: this.serviceReq.data.clientLocation.latitude, lng: this.serviceReq.data.clientLocation.longitude },
-                      { lat: location.coords.latitude, lng: location.coords.longitude }
-                    ]),
-                    duration: 500,
-                    zoom: 1
-                  }).finally(() => {
-                    this.cameraMoving = false;
-                  })
-                  break;
-                case 13:
-                case 16:
-                  this.cameraMoving = true;
-                  this.map.animateCamera({
-                    target: [
-                      { lat: this.serviceReq.data.finalDestination.latitude, lng: this.serviceReq.data.finalDestination.longitude },
-                      { lat: location.coords.latitude, lng: this.driverDetails.location.coords.longitude }
-                    ],
-                    duration: 500,
-                    zoom: 10
-                  }).finally(() => {
-                    this.cameraMoving = false;
-                  })
-                  console.log(this.fdPolyline)
-                  let currentLoc = new google.maps.LatLng(location.coords.latitude,location.coords.longitude)
-                  this.path?console.log(google.maps.geometry.poly.containsLocation(currentLoc, this.fdPolyline)):"";
-              
-                  break;
-              }
+          if (!this.cameraMoving) {
+            switch (this.serviceReq.data.serviceRequests.status) {
+              case 0:
+              case 1:
+              case 2:
+              case 3:
+              case 5:
+              case 6:
+              case 7:
+              case 8:
+              case 9:
+                this.cameraMoving = true;
+                this.map.animateCamera({
+                  target: {
+                    lat: location.latitude,
+                    lng: location.longitude
+                  },
+                  zoom: 15,
+                  duration: 500
+                }).finally(() => {
+                  this.cameraMoving = false;
+                });
+                break;
+              case 4:
+              case 15:
+                this.cameraMoving = true;
+                this.map.animateCamera({
+                  target: new LatLngBounds([
+                    { lat: this.serviceReq.data.clientLocation.latitude, lng: this.serviceReq.data.clientLocation.longitude },
+                    { lat: location.latitude, lng: location.longitude }
+                  ]),
+                  duration: 500,
+                  zoom: 1
+                }).finally(() => {
+                  this.cameraMoving = false;
+                })
+                break;
+              case 13:
+              case 16:
+                this.cameraMoving = true;
+                this.map.animateCamera({
+                  target: [
+                    { lat: this.serviceReq.data.finalDestination.latitude, lng: this.serviceReq.data.finalDestination.longitude },
+                    { lat: location.latitude, lng: this.driverDetails.location.coords.longitude }
+                  ],
+                  duration: 500,
+                  zoom: 10
+                }).finally(() => {
+                  this.cameraMoving = false;
+                })
+                let currentLoc = new google.maps.LatLng(location.latitude,location.longitude)
+                this.path?console.log(google.maps.geometry.poly.containsLocation(currentLoc, this.fdPolyline)):"";
+            
+                break;
             }
-
           }
+
         }
-      }))
+      }
+    })
   }
 
   async ionViewWillEnter() {
@@ -308,7 +274,6 @@ export class Tab1Page {
           this.iscarSelected = res.data[0].driverVehicleId
           this.driverDetails = res.data[0];
           this.driverDetails.location = loc
-          console.log(this.driverDetails)
           this.getRequests().then(() => {
             loader.dismiss()
             this.availableClick()
@@ -337,15 +302,12 @@ export class Tab1Page {
   }
 
   async availableClick() {
+    this._api.setDriveStatus(this.serviceReq.data.driverStatus?1:0)
     if (this.serviceReq.data.driverStatus && this.iscarSelected) {
-      this._api.setDriveStatus(this._genServices.driveStatus.available)
       this.insomnia.keepAwake()
-
     } else {
-      this._api.setDriveStatus(this._genServices.driveStatus.notAvailable)
       this.map.clear();
       this.insomnia.allowSleepAgain()
-
     }
   }
 
@@ -358,7 +320,6 @@ export class Tab1Page {
 
   async getRequests() {
     if (this.helpers.requestCheckClosed()) {
-      console.log("Starting to check for locations")
       this.helpers.setRequestCheck(interval(5000).subscribe(() => {
         if (this.serviceReq.data.driverStatus == 1) {
           this.getRequests()
@@ -402,7 +363,6 @@ export class Tab1Page {
             this.statusChanged ? this.resetTripDetails() : "";
             this.statusChanged ? this.map.clear() : "";
             !this.isJobAllocaed && this.driverDetails.location ? this.allocateJob() : "";
-            console.log(this.tripDetails.timeMinutesValue)
             this.tripDetails.timeMinutesValue > 0 && this.tripDetails.timeMinutesValue < 6 ? this.checkRequest("nearScene") : "";
             break;
           case 8:
@@ -464,7 +424,6 @@ export class Tab1Page {
   }
 
   async checkRequest(acceptResponse) {
-    console.log("Response")
     this._api.acceptJob(this.serviceReq.data.serviceRequests.callId, acceptResponse, this.serviceReq.data.serviceRequests.callRef).then(response => {
       this.checkingRequest = false;
       if (acceptResponse == "notAllocated") {
@@ -700,8 +659,8 @@ export class Tab1Page {
     this.spMarker = this.map.addMarkerSync({
       title: "Current Location",
       position: {
-        lat: this.driverDetails.location.coords.latitude,
-        lng: this.driverDetails.location.coords.longitude,
+        lat: this.appLocation.LastKnownLatitude,
+        lng: this.appLocation.LastKnownLongitude,
       },
       animation: 'DROP',
       icon: {

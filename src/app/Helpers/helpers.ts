@@ -45,6 +45,8 @@ export class Helpers {
   vehIcon: string;
   driver: DriverDetails = {};
   watchLocation: Subscription;
+  watchMessages: Subscription;
+  messages: [];
   constructor(
     private geolocation: Geolocation,
     private toastCtrl: ToastController,
@@ -97,26 +99,13 @@ export class Helpers {
           }, 3000);
     });
 
-    // this.network.onChange().subscribe(() => {
-    //   console.log("Network changed")
-    //   console.log(this.network.type)
-    //   setTimeout(() => {
-    //     this.claimManager.getClaims().then(claims=>{
-    //       claims.forEach(claim=>{
-    //         console.log(claim)
-    //       })
-    //     })
-    //     if (this.network.type === 'wifi') {
-    //       console.log('we got a wifi connection, woohoo!');
-    //     }
-    //   }, 3000);
-    // })
   }
 
   setLogInStatus(logInFlag: boolean, driver): void {
     this.loggedIn = logInFlag;
     this.driver = driver;
   }
+
 
   getLogInStatus(): LoggedInStatus {
     return {status: this.loggedIn, driver: this.driver}
@@ -139,8 +128,16 @@ export class Helpers {
     this.watchLocation = watchLocation
   }
 
+  setWatchMessage(watchMessages){
+    this.watchMessages = watchMessages
+  }
+
   watchLocationClosed(){
     return this.watchLocation?this.watchLocation.closed:true;
+  }
+
+  stopwatchMessages(){
+    this.watchMessages?this.watchMessages.unsubscribe():"";
   }
 
   stopWatchLocation(){

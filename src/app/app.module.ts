@@ -40,6 +40,7 @@ import { FilePath } from "@ionic-native/file-path/ngx";
 import { FileUtil } from "./utils/file-util";
 import { MediaCapture } from "@ionic-native/media-capture/ngx";
 import { PusherProvider } from "./Providers/pusher/pusher";
+import {Nl2BrPipeModule} from 'nl2br-pipe';
 
 @NgModule({
   declarations: [
@@ -60,7 +61,8 @@ import { PusherProvider } from "./Providers/pusher/pusher";
     AgmCoreModule.forRoot({
       apiKey: 'AIzaSyBo-0cSqDB1H3mAsfJEdnyhTu0vrBGXsy0'
     }),
-    GooglePlaceModule
+    GooglePlaceModule,
+    Nl2BrPipeModule
   ],
   providers: [
     StatusBar,

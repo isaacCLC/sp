@@ -181,6 +181,43 @@ export class ApiGateWayService {
     }).toPromise()
   }
 
+  async getChats(callID): Promise<any> {
+    let id = await this.storage.get("driverID")
+    return this._http.get(this.serverHost + "/rest/cca/v1/sp/chat.php", {
+      params: {
+        key: this.api_key,
+        call_id: callID,
+        action: 'getChats',
+        driverId: id
+      }
+    }).toPromise()
+  }
+
+  async sendMessage(callID, message): Promise<any> {
+    let id = await this.storage.get("driverID")
+    return this._http.get(this.serverHost + "/rest/cca/v1/sp/chat.php", {
+      params: {
+        key: this.api_key,
+        call_id: callID,
+        message: message,
+        driverID: id,
+        action: 'sendMessage'
+      }
+    }).toPromise()
+  }
+
+  async markMessageAsRead(callID, messageID): Promise<any> {
+    let id = await this.storage.get("driverID")
+    return this._http.get(this.serverHost + "/rest/cca/v1/sp/chat.php", {
+      params: {
+        key: this.api_key,
+        call_id: callID,
+        messageID: messageID,
+        action: 'markAsRead'
+      }
+    }).toPromise()
+  }
+
   getSpVehicleList(spID: any): Observable<any> {
     return this._http.get(
       this.serverHost + "/rest/cca/v1/client/vehicle/getUserVehicleList.php",
@@ -320,7 +357,6 @@ export class ApiGateWayService {
         key: this.api_key,
         latitude: coordinates.latitude,
         longitude: coordinates.longitude,
-        mobileNumber: coordinates.mobileNumber,
         call_id: coordinates.call_id
       }
     }).toPromise()

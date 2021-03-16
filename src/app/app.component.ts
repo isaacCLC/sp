@@ -7,6 +7,7 @@ import { Device } from "@ionic-native/device/ngx";
 import { OneSignal } from "@ionic-native/onesignal/ngx";
 import { Storage } from "@ionic/storage";
 import { Router } from '@angular/router';
+import { ChatService } from "./Helpers/chat.service";
 
 @Component({
   selector: "app-root",

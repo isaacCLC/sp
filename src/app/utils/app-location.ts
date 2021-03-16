@@ -1,7 +1,11 @@
 import { EventEmitter, Injectable } from '@angular/core';
-import { Geolocation, GeolocationOptions, PositionError } from '@ionic-native/geolocation/ngx';
+import { Geolocation, GeolocationOptions, PositionError, Geoposition } from '@ionic-native/geolocation/ngx';
 import { Subscription } from 'rxjs';
+import { UserState } from '../Helpers/user-state';
+import { TripDetails } from '../models/appModels';
+import { ApiGateWayService } from '../Providers/api-gate-way.service';
 import { AppStorage } from '../utils/app-storage';
+import { ServiceRequestsService } from './service-requests.service';
 
 // REQUIRES
 //  ionic cordova plugin add cordova-plugin-geolocation --save
@@ -17,6 +21,14 @@ export class AppLocation {
     //private sub: Subscription;
     private geolocationSub: Subscription = undefined;
     private _locationUpdated: EventEmitter<any> = new EventEmitter();
+    lastLocationUpdate: number = Date.now();
+    tripDetails: TripDetails = {
+        Distance: null,
+        Eta: null,
+        finalDestination: null,
+        timeMinutesValue: -1
+      };
+
     intervalId: number;
     options: GeolocationOptions = {
         timeout: 5000, // 5s
@@ -24,8 +36,9 @@ export class AppLocation {
         maximumAge: 5000 // 5s
     };
 
-    constructor(public storage: AppStorage, public geolocation: Geolocation) {
-
+    constructor(public storage: AppStorage, public geolocation: Geolocation, private serviceRequestsService: ServiceRequestsService, private _api: ApiGateWayService) {
+        this.init()
+        this.startWatching()
     }
 
     public get locationUpdated(): EventEmitter<any> {
@@ -40,7 +53,7 @@ export class AppLocation {
         this.locate(true);
 
         // setup a timer to locate the user every 2 mins
-        this.intervalId = window.setInterval(() => this.locate(), 2 * 60 * 1000);
+        // this.intervalId = window.setInterval(() => this.locate(), 2 * 60 * 1000);
     }
 
     startWatching() {
@@ -53,11 +66,27 @@ export class AppLocation {
         // fire up the GPS to update last known position as soon as possible
         this.geolocationSub = this.geolocation.watchPosition(options)
             .subscribe(position => {
-                console.log("Watched location")
                 if (!position)
                     return;
                     
                 if ('coords' in position) {
+                    if(this.serviceRequestsService.serviceReq){
+                        if(this.serviceRequestsService.serviceReq.data.driverStatus == 1  && ((Date.now() - this.lastLocationUpdate) > 1000)){
+                            this.lastLocationUpdate = Date.now();
+                            this._api.setSpLocation({
+                                latitude: position.coords.latitude,
+                                longitude: position.coords.longitude,
+                                driverId: this.serviceRequestsService.serviceReq.data.driverId,
+                                call_id: this.serviceRequestsService.serviceReq.data.serviceRequests.callId
+                            }).then(setLocationResponse=>{
+                                if(setLocationResponse.data.distance.distance){
+                                    this.tripDetails.Eta = setLocationResponse.data.distance.time;
+                                    this.tripDetails.Distance = setLocationResponse.data.distance.distance
+                                    this.tripDetails.timeMinutesValue = setLocationResponse.data.distance.timeMinutesValue
+                                }
+                            })
+                        }
+                    }
                     this.LastKnownLatitude = position.coords.latitude;
                     this.LastKnownLongitude = position.coords.longitude;
                     this._locationUpdated.emit(position.coords);
@@ -83,7 +112,7 @@ export class AppLocation {
 
             if (navigator.geolocation) {
                 this.geolocation.getCurrentPosition(this.options)
-                    .then((position: Position) => {
+                    .then((position: Geoposition) => {
                         resolve(this.buildLocationResponse(true, "Successful", "Location found!", position));
                     })
                     .catch((error: PositionError) => {
@@ -137,7 +166,7 @@ export class AppLocation {
         this.storage.setLastKnownLongitude(value);
     }
 
-    private buildLocationResponse(success: boolean, heading: string, description: string, location: Position): LocationResponse {
+    private buildLocationResponse(success: boolean, heading: string, description: string, location: Geoposition): LocationResponse {
         let response: LocationResponse = {
             wasSuccessful: success,
             heading: heading,

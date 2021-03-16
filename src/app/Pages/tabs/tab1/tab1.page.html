@@ -28,10 +28,11 @@
     <ion-toggle [disabled]="serviceReq.data.serviceRequests.callId != 0 || !iscarSelected" [(ngModel)]="serviceReq.data.driverStatus" (ionChange)="availableClick()"></ion-toggle>
   </ion-item>
 </section>
+
 <!-- <ion-content class="ion-padding" class="center"> -->
 
-  <ion-fab *ngIf="serviceReq.data.serviceRequests.status == 4 || serviceReq.data.serviceRequests.status == 13" vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button (click)="navigate();">
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button *ngIf="serviceRequestsService.serviceReq && (serviceRequestsService.serviceReq.data.serviceRequests.status == 4 || serviceRequestsService.serviceReq.data.serviceRequests.status == 13)" (click)="navigate();">
       <ion-icon  class="iconSize" name="navigate-circle-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>
@@ -54,15 +55,15 @@
 <div *ngIf="serviceReq.data.serviceRequests.callId != 0" class="job-btns">
   <ion-grid>
     <ion-row>
-      <ion-col  *ngIf="serviceReq.data.serviceRequests.callId != 0 && serviceReq.data.serviceRequests.status != 13 && serviceReq.data.serviceRequests.status != 16 && serviceReq.data.serviceRequests.status != 10 && serviceReq.data.serviceRequests.status != 14">
-        <ion-button  color="danger" (click)="canceljob()" primary block>
+      <ion-col    *ngIf="serviceReq.data.serviceRequests.callId != 0 && serviceReq.data.serviceRequests.status != 13 && serviceReq.data.serviceRequests.status != 16 && serviceReq.data.serviceRequests.status != 10 && serviceReq.data.serviceRequests.status != 14">
+        <button type="button" class="await-btn3" color="danger" (click)="canceljob()" primary block>
           <ion-label><strong>Cancel Job</strong></ion-label>
-        </ion-button>
+        </button>
       </ion-col>
       <ion-col>
-        <ion-button *ngIf="serviceReq.data.serviceRequests.callId != 0" color="primary" (click)="jobInfo()" primary block>
+        <button type="button"  [class]="newMessage" *ngIf="serviceReq.data.serviceRequests.callId != 0" color="primary" (click)="jobInfo()">
           <ion-label><strong>Job Info</strong></ion-label>
-        </ion-button>
+        </button>
       </ion-col>
     </ion-row>
   </ion-grid>
@@ -78,9 +79,16 @@
   <ion-icon name="navigate"></ion-icon>&nbsp;&nbsp;
   <ion-label> Start Tow</ion-label>
 </ion-button>
-<button (click)="alert('awaitingAllocation');" type="button" class="await-btn" *ngIf="serviceReq.data.serviceRequests.status == 3">
-  <ion-label> Awaiting Allocation....</ion-label>
-</button>
+<ion-grid *ngIf="serviceReq.data.serviceRequests.status == 3">
+  <ion-row>
+    <ion-col size="28" pull="8">
+      <button (click)="alert('awaitingAllocation');" type="button" class="await-btn" >
+        <ion-label> Awaiting Allocation....</ion-label>
+      </button>
+    </ion-col>  
+  </ion-row>
+</ion-grid>
+
 <button (click)="alert('awaitingFD');" type="button" class="await-btn" *ngIf="serviceReq.data.serviceRequests.status == 14">
   <ion-label> Awaiting Final Destination....</ion-label>
 </button>

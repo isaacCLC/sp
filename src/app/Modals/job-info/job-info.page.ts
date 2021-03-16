@@ -6,6 +6,8 @@ import { GoogleMaps, GoogleMap, Marker } from "@ionic-native/google-maps";
 import { CallNumber } from '@ionic-native/call-number/ngx';
 import { AlertsProviderService } from '../../Providers/alerts-provider.service';
 import { iServiceRequest, DriverDetails } from "src/app/models/appModels";
+import { AppLocation } from "src/app/utils/app-location";
+import { ServiceRequestsService } from "src/app/utils/service-requests.service";
 @Component({
   selector: "app-job-info",
   templateUrl: "./job-info.page.html",
@@ -16,88 +18,59 @@ export class JobInfoPage implements OnInit {
   jobDetails: iServiceRequest;
   spDetails: DriverDetails;
   marker: Marker;
+  JSON: any;
   constructor(
     private helpers: Helpers,
     private route: Router,
-    private activatedRoute: ActivatedRoute, 
+    private activatedRoute: ActivatedRoute,
     private callNumber: CallNumber,
     private alertprovider: AlertsProviderService,
     private _api: ApiGateWayService,
-  ) {}
+    private appLocation: AppLocation,
+    private serviceRequestsService: ServiceRequestsService
+  ) {this.JSON = JSON; }
 
   async ngOnInit() {
-    this.activatedRoute.queryParams.subscribe(params => {
-      this.spDetails = JSON.parse(params.spDetails);
-      this.jobDetails = JSON.parse(params.jobInfo);
-      this._api.getGeoCoding(this.jobDetails.data.clientLocation.latitude, this.jobDetails.data.clientLocation.longitude)
-      .subscribe(res => {
-        console.log(res.body.data.results[0].formatted_address)
-        this.jobDetails.data.clientLocation['address'] = res.body.data.results[0].formatted_address;
-      }, err => { console.log(err) });
-      this._api.getDistance({latA: this.spDetails.location.coords.latitude,
-        lonA: this.spDetails.location.coords.longitude,
-        latB: this.jobDetails.data.clientLocation.latitude,
-        lonB: this.jobDetails.data.clientLocation.longitude})
-      .then(res => {
-        if (res) {
-          console.log(res)
-          this.jobDetails.data.clientLocation['distance'] = res.data.distance
-          this.jobDetails.data.clientLocation['time'] = res.data.time
-        }
-      }, err => {
-        alert(JSON.stringify(err))
-      });
-      if(this.jobDetails.data.finalDestination.latitude){
-        this._api.getDistance({latA: this.spDetails.location.coords.latitude,
-          lonA: this.spDetails.location.coords.longitude,
-          latB: this.jobDetails.data.finalDestination.latitude,
-          lonB: this.jobDetails.data.finalDestination.longitude})
-        .then(res => {
-          if (res) {
-            this.jobDetails.data.finalDestination['distance'] = res.data.distance
-            this.jobDetails.data.finalDestination['time'] = res.data.time
-          }
-        }, err => {
-          alert(JSON.stringify(err))
-        }); 
-      }
-      // this.map = GoogleMaps.create("map_canvas2", {
-      //   camera: {
-      //     target: {
-      //       lat: this.jobDetails.data.clientLocation.latitude,
-      //       lng: this.jobDetails.data.clientLocation.longitude
-      //     },
-      //     zoom: 10
-      //   }
-      // });
-      // let markerIcon = {
-      //   url: this.helpers.clientIcon,
-      //   size: {
-      //     width: 30,
-      //     height: 30
-      //   }
-      // };
 
-      // this.marker = this.map.addMarkerSync({
-      //   title: "Scene location",
-      //   position: {
-      //     lat: this.jobDetails.data.clientLocation.latitude,
-      //     lng: this.jobDetails.data.clientLocation.longitude
-      //   },
-      //   icon: markerIcon
-      // });
-      // this.marker.showInfoWindow();
-      // this.animateMapCamera();
-    })
-    
   }
+
+  async ionViewWillEnter() {
+    console.log(this.serviceRequestsService)
+    console.log(typeof(this.appLocation.tripDetails))
+    // this._api.getGeoCoding(this.serviceRequestsService.serviceReq.data.clientLocation.latitude, this.serviceRequestsService.serviceReq.data.clientLocation.longitude).subscribe(res => {
+    //   this.serviceRequestsService.serviceReq.data.clientLocation['address'] = res.body.data.results[0].formatted_address;
+    // });
+    // this._api.getDistance({
+    //   latA: this.appLocation.LastKnownLatitude,
+    //   lonA: this.appLocation.LastKnownLongitude,
+    //   latB: this.serviceRequestsService.serviceReq.data.clientLocation.latitude,
+    //   lonB: this.serviceRequestsService.serviceReq.data.clientLocation.longitude
+    // }).then(res => {
+    //   if (res) {
+    //     console.log(res)
+    //     this.serviceRequestsService.serviceReq.data.clientLocation['distance'] = res.data.distance;
+    //     this.serviceRequestsService.serviceReq.data.clientLocation['time'] = res.data.time;
+    //   }
+    // });
+    // if (this.jobDetails.data.finalDestination.latitude) {
+    //   this._api.getDistance({
+    //     latA: this.appLocation.LastKnownLatitude,
+    //     lonA: this.appLocation.LastKnownLongitude,
+    //     latB: this.serviceRequestsService.serviceReq.data.finalDestination.latitude,
+    //     lonB: this.serviceRequestsService.serviceReq.data.finalDestination.longitude
+    //   }).then(res => {
+    //       if (res) {
+    //         this.serviceRequestsService.serviceReq.data.finalDestination['distance'] = res.data.distance;
+    //         this.serviceRequestsService.serviceReq.data.finalDestination['time'] = res.data.time;
+    //       }
+    //     });
+    // }
+  }
+
+
   goToHome() {
-    this.route.navigate(["/app/tabs/tab1"],{queryParams:{jobInfoFlag:true}});
+    this.route.navigate(["/app/tabs/tab1"], { queryParams: { jobInfoFlag: true } });
   }
-
-  // drawMarkers(title: string, lat: number, lng: number, icon) {
-    
-  // }
 
   callClient() {
     this.callNumber.callNumber(this.jobDetails.data.client.number, true)
@@ -111,34 +84,6 @@ export class JobInfoPage implements OnInit {
   }
 
   messageClient() {
-    this.route.navigate(["/chat"],{queryParams:{jobInfoFlag:true}});
+    this.route.navigate(["chat"]);
   }
-
-  // animateMapCamera() {
-  //   this.helpers.getCurrentLocation().then(location => {
-  //     this.map.animateCamera({
-  //       target: [
-  //         { lat: location.coords.latitude, lng: location.coords.longitude },
-  //         { lat: this.jobDetails.data.clientLocation.latitude, lng: this.jobDetails.data.clientLocation.longitude }
-  //       ],
-  //       duration: 1000,
-  //       zoom: 10
-  //     });
-  //     this.drawMarkers("you", location.coords.latitude, location.coords.longitude, this.helpers.SPIcon);
-  //     let navPoints = [
-  //       { lat: location.coords.latitude, lng: location.coords.longitude },
-  //       { lat: this.jobDetails.data.clientLocation.latitude, lng: this.jobDetails.data.clientLocation.longitude }
-  //     ];
-  //     this.map.addPolyline({
-  //       points: navPoints,
-  //       color: "#0A20E7",
-  //       width: 3,
-  //       geodesic: true
-  //     });
-  //   });
-  // }
-
-  // loadMap(lat: number, lng: number, zoomLevel: number) {
-    
-  // }
 }
