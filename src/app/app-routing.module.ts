@@ -89,6 +89,11 @@ const routes: Routes = [
     path: 'motoraccident',
     loadChildren: () => import('./pages/scene/motoraccident/claim-motoraccident.module').then(m => m.ClaimMotorAccidentModule)
   },
+  {
+    path: 'chat',
+    loadChildren: () => import('./Pages/chat/chat.module').then( m => m.ChatPageModule)
+  },
+
 ];
 
 @NgModule({
