@@ -3,7 +3,7 @@
     <name>CLC SP</name>
     <description>CLC Service Provider App.</description>
     <author email="mavhungu2@gmail.com" href="https://clc.co.za/">Isaac Mpharalala</author>
-    <content original-src="index.html" src="http://localhost:8100" />
+    <content src="index.html" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
