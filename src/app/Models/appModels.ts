@@ -51,6 +51,7 @@ export interface iServiceRequest{
               timezone: string
           },
           status: number,
+          statusDescription: string,
           sub_sub_product_name: string,
           callRef: number,
       },
@@ -61,7 +62,8 @@ export interface iServiceRequest{
       },
       clientLocation: {
         latitude: number,
-        longitude: number
+        longitude: number,
+        address: string
       },
       finalDestination: {
         latitude: number,
@@ -150,6 +152,7 @@ export interface DriverDetails {
   driverSpId?: number;
   driverValid?: number;
   driverAlternativeNumbers?:alertNativeNumbers[]; 
+  driverVehicle: any;
 }
 
 export interface alertNativeNumbers{
@@ -177,7 +180,6 @@ export interface InsuredDetails {
 export interface TripDetails {
   Distance: string;
   Eta: string; 
-  finalDestination;
   timeMinutesValue: number;
 }
 

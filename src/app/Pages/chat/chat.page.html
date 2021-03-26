@@ -9,69 +9,68 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <ion-content has-bouncing="true" class="has-header has-footer" delegate-handle="userMessageScroll">
+<ion-content *ngIf="chatService.messages" #content has-bouncing="true" class="has-header has-footer"
+  delegate-handle="userMessageScroll">
+  <div class='ion-text-center' *ngIf='chatService.messages.length <= 0;'>
+    <p>Send a message by typing below.</p>
+  </div>
+  <div #messagesDiv *ngFor="let message of chatService.messages; let last = last" class="message-wrapper">
 
-    <div ng-repeat="message in messages" class="message-wrapper" on-hold="onMessageHold($event, $index, message)">
+    <div *ngIf="message.sentBy == 'agent'">
 
-      <div ng-if="user._id !== message.userId">
+      <img class="profile-pic left" src='https://image.flaticon.com/icons/svg/145/145867.svg' />
 
-        <img class="profile-pic left" src='https://source.unsplash.com/random/200x200' />
+      <div class="chat-bubble left">
 
-        <div class="chat-bubble left">
-
-          <div class="message" ng-bind-html="message.text | nl2br" autolinker>
-          </div>
-
-          <div class="message-detail">
-            <span ng-click="viewProfile(message)" class="bold">Test</span>,
-            <span am-time-ago="message.date"></span>
-          </div>
-
+        <div class="message" [innerHTML]="message.chatMessage | nl2br" autolinker>
         </div>
-      </div>
 
-      <div ng-if="user._id === message.userId">
-
-        <img ng-click="viewProfile(message)" class="profile-pic right"
-        src='https://source.unsplash.com/random/200x200' onerror="onProfilePicError(this)" />
-
-        <div class="chat-bubble right">
-
-          <div class="message" ng-bind-html="message.text | nl2br" autolinker>
-          </div>
-
-          <div class="message-detail">
-            <span ng-click="viewProfile(message)" class="bold">test</span>,
-            <span am-time-ago="message.date"></span>
-          </div>
-
+        <div class="message-detail">
+          <span class="bold">{{message.user_first_name}}
+            {{message.user_last_name}}</span>,
+          <span>{{message.chatDateTime.date | amTimeAgo}}</span>
         </div>
 
       </div>
+    </div>
 
-      <div class="cf"></div>
+    <div *ngIf="message.sentBy == 'sp'">
+
+      <img class="profile-pic right" [src]='message.driverImageUrl'
+        onerror="onProfilePicError(this)" />
+
+      <div class="chat-bubble right">
+
+        <div class="message" [innerHTML]="message.chatMessage | nl2br" autolinker>
+        </div>
+
+        <div class="message-detail">
+          <span class="bold">You</span>,
+          <span>{{message.chatDateTime.date | amTimeAgo}}</span>
+        </div>
+
+      </div>
 
     </div>
-  </ion-content>
-  <!-- <form name="sendMessageForm" ng-submit="sendMessage(sendMessageForm)" novalidate>
-    <ion-footer-bar class="bar-stable item-input-inset message-footer" keyboard-attach>
-        <label class="item-input-wrapper">
-            <textarea ng-model="input.message" value="" placeholder="Send test a message..." required minlength="1" maxlength="1500" msd-elastic></textarea>
-        </label>
-        <div class="footer-btn-wrap">
-          <button class="button button-icon icon ion-android-send footer-btn" type="submit"
-              ng-disabled="!input.message || input.message === ''">
-          </button>
-        </div>
-    </ion-footer-bar>
-</form> -->
+    <span>{{last ? !scrolled?scrollBottom(): ' ':' '}}</span>
+    <div class="cf"></div>
+
+  </div>
+</ion-content>
+<ion-content *ngIf="!chatService.messages" #content has-bouncing="true" class="has-header has-footer"elegate-handle="userMessageScroll">
+  <br>
+  <div class='ion-text-center'>
+    <ion-spinner></ion-spinner>
+  </div>
 </ion-content>
 <ion-footer>
   <ion-toolbar>
     <ion-item no-lines #chatInput>
-      <ion-input spellcheck="true" autoComplete="true" autocorrect="true" maxlength="500" type="text" (keyup.enter)="sendMessage(newMessage); newMessage=''" placeholder="Type your message..." [(ngModel)]="newMessage"></ion-input>
-      <ion-button size="default" expand="round" color="success" item-right (click)="sendMessage(newMessage); newMessage=''">
+      <ion-input spellcheck="true" autoComplete="true" autocorrect="true" maxlength="500" type="text"
+        (keyup.enter)="sendMessage(newMessage); newMessage=''" placeholder="Type your message..."
+        [(ngModel)]="newMessage"></ion-input>
+      <ion-button [disabled]="!newMessage" size="default" expand="round" color="success" item-right
+        (click)="sendMessage(newMessage); newMessage=''">
         <ion-icon slot="icon-only" name="send"></ion-icon>
       </ion-button>
     </ion-item>

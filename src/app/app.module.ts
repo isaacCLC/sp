@@ -9,7 +9,6 @@ import { ModalPageModule } from "./Modals/modal/modal.module";
 import { RequestModalPageModule } from "./Modals/request-modal/request-modal.module";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
-import { Geolocation } from "@ionic-native/geolocation/ngx";
 import { Camera } from "@ionic-native/camera/ngx";
 import { Helpers } from "./Helpers/helpers";
 import { HttpClientModule } from "@angular/common/http";
@@ -40,6 +39,9 @@ import { FilePath } from "@ionic-native/file-path/ngx";
 import { FileUtil } from "./utils/file-util";
 import { MediaCapture } from "@ionic-native/media-capture/ngx";
 import { PusherProvider } from "./Providers/pusher/pusher";
+import {Nl2BrPipeModule} from 'nl2br-pipe';
+import { BackgroundGeolocation } from "@ionic-native/background-geolocation/ngx";
+import { Geolocation } from "@ionic-native/geolocation/ngx";
 
 @NgModule({
   declarations: [
@@ -60,13 +62,13 @@ import { PusherProvider } from "./Providers/pusher/pusher";
     AgmCoreModule.forRoot({
       apiKey: 'AIzaSyBo-0cSqDB1H3mAsfJEdnyhTu0vrBGXsy0'
     }),
-    GooglePlaceModule
+    GooglePlaceModule,
+    Nl2BrPipeModule,
   ],
   providers: [
     StatusBar,
     SplashScreen,
     Helpers,
-    Geolocation,
     Camera,
     Network,
     BackgroundMode,
@@ -91,7 +93,9 @@ import { PusherProvider } from "./Providers/pusher/pusher";
     FilePath,
     FileUtil,
     MediaCapture,
-    PusherProvider
+    PusherProvider,
+    BackgroundGeolocation,
+    Geolocation
   ],
   bootstrap: [AppComponent]
 })

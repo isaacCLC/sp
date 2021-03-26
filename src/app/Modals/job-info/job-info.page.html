@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-row>
-      <ion-col size="2">
+      <ion-col size="1">
         <ion-button (click)="goToHome()">
           <ion-icon name="arrow-back"></ion-icon>
         </ion-button>
@@ -13,12 +13,11 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
+<ion-content class="ion-padding" *ngIf="serviceRequestsService.serviceReq">
 
 
-  <!-- <div id="map_canvas2">
-  </div> -->
-  <div *ngIf="jobDetails.data.serviceRequests.status != 13 && jobDetails.data.serviceRequests.status != 14" class="client-details">
+
+  <div *ngIf="serviceRequestsService.serviceReq.data.serviceRequests.status != 13 && serviceRequestsService.serviceReq.data.serviceRequests.status != 14  && serviceRequestsService.serviceReq.data.serviceRequests.status != 16" class="client-details">
     <h5 class="center">Client Details</h5>
     <ion-grid>
       <ion-row>
@@ -26,7 +25,7 @@
           <strong> Full Name:</strong>
         </ion-col>
         <ion-col size="6">
-          <i> {{jobDetails.data.client.name}} {{jobDetails.data.client.surname}}</i>
+          <i> {{serviceRequestsService.serviceReq.data.client.name}} {{serviceRequestsService.serviceReq.data.client.surname}}</i>
         </ion-col>
       </ion-row>
       <ion-row>
@@ -34,7 +33,7 @@
           <strong>Location:</strong>
         </ion-col>
         <ion-col size="6">
-          <i> {{jobDetails.data.clientLocation.address}}</i>
+          <i> {{serviceRequestsService.serviceReq.data.clientLocation.address}}</i>
         </ion-col>
       </ion-row>
       <ion-row>
@@ -42,7 +41,8 @@
           <strong>Distance:</strong>
         </ion-col>
         <ion-col size="6">
-          <i>{{jobDetails.data.clientLocation.distance}}</i>
+          <!-- {{appLocation?JSON.stringify(appLocation.tripDetails):""}} -->
+          <i>{{appLocation.tripDetails?appLocation.tripDetails.Distance:""}}</i>
         </ion-col>
       </ion-row>
       <ion-row>
@@ -50,28 +50,20 @@
           <strong>ETA:</strong>
         </ion-col>
         <ion-col size="6">
-          <i> {{jobDetails.data.clientLocation.time}}</i>
+          <i> {{appLocation.tripDetails?appLocation.tripDetails.Eta:""}}</i>
         </ion-col>
       </ion-row>
     </ion-grid>
   </div>
-  <div *ngIf="jobDetails.data.serviceRequests.status == 13 || jobDetails.data.serviceRequests.status == 14" class="client-details">
+  <div *ngIf="serviceRequestsService.serviceReq.data.serviceRequests.status == 13 || serviceRequestsService.serviceReq.data.serviceRequests.status == 14 || serviceRequestsService.serviceReq.data.serviceRequests.status == 16" class="client-details">
     <h5 class="center">Final Destination Details</h5>
     <ion-grid>
-      <!-- <ion-row>
-        <ion-col size="6">
-          <strong> Full Name:</strong>
-        </ion-col>
-        <ion-col size="6">
-          <i> {{jobDetails.data.client.name}} {{jobDetails.data.client.surname}}</i>
-        </ion-col>
-      </ion-row> -->
       <ion-row>
         <ion-col size="6">
           <strong>Location:</strong>
         </ion-col>
         <ion-col size="6">
-          <i> {{jobDetails.data.finalDestination.address}}</i>
+          <i> {{serviceRequestsService.serviceReq.data.finalDestination.address}}</i>
         </ion-col>
       </ion-row>
       <ion-row>
@@ -79,7 +71,7 @@
           <strong>Distance:</strong>
         </ion-col>
         <ion-col size="6">
-          <i>{{jobDetails.data.finalDestination.distance}}</i>
+          <i>{{appLocation.tripDetails?appLocation.tripDetails.Distance:""}}</i>
         </ion-col>
       </ion-row>
       <ion-row>
@@ -87,7 +79,7 @@
           <strong>ETA:</strong>
         </ion-col>
         <ion-col size="6">
-          <i> {{jobDetails.data.finalDestination.time}}</i>
+          <i> {{appLocation.tripDetails?appLocation.tripDetails.Eta:""}}</i>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -101,37 +93,42 @@
           <strong>Reference Number:</strong>
         </ion-col>
         <ion-col size="6">
-          <i> REF{{jobDetails.data.serviceRequests.callRef}} </i>
+          <i> REF{{serviceRequestsService.serviceReq.data.serviceRequests.callRef}} </i>
         </ion-col>
       </ion-row>
-      <!-- <ion-row>
-        <ion-col size="6">
-          <strong>Final Destination:</strong>
-        </ion-col>
-        <ion-col size="6">
-          <i> {{jobDetails.data.finalDestination.address}} </i>
-          <i *ngIf="jobDetails.data.finalDestination.address == null"> Not Yet Avaliable </i>
-        </ion-col>
-      </ion-row> -->
       <ion-row>
         <ion-col size="6">
           <strong>Job Type:</strong>
         </ion-col>
         <ion-col size="6">
-          <i>{{jobDetails.data.serviceRequests.sub_sub_product_name}}</i>
+          <i>{{serviceRequestsService.serviceReq.data.serviceRequests.sub_sub_product_name}}</i>
         </ion-col>
       </ion-row>
     </ion-grid>
   </div>
   <ion-row class="contact-btns">
     <ion-col size="4">
-      <ion-button style="font-size: 10px;" color="primary" (click)="messageClient()">Message CLC</ion-button>
+      <ion-button (click)="callCLC()" shape="round">
+        <ion-icon style="color: green" size="large" name="call">
+        </ion-icon>
+        CLC &nbsp;&nbsp;
+      </ion-button>
     </ion-col>
     <ion-col size="4">
-      <ion-button style="font-size: 10px;" color="primary" (click)="callCLC()">Call CLC</ion-button>
+      <ion-button (click)="callClient()" shape="round">
+        <ion-icon style="color: green" size="large" name="call">
+        </ion-icon>
+        Client
+      </ion-button>
     </ion-col>
     <ion-col size="4">
-      <ion-button style="font-size: 10px;" color="primary" (click)="callClient()">Call Client</ion-button>
+      <!-- <ion-button style="font-size: 10px;" color="primary" >Message CLC</ion-button> -->
+      <ion-button (click)="messageClient()" shape="round">
+        <ion-icon style="color:orange" size="large" name="chatbubble-ellipses-outline">
+        </ion-icon>
+        CLC &nbsp;
+        <!-- <ion-badge [class.badge-one]="1 ==1" color="danger">1</ion-badge> -->
+      </ion-button>
     </ion-col>
   </ion-row>
 

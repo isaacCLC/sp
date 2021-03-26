@@ -48,9 +48,6 @@
           <!-- <ion-select placeholder="Select One" [(ngModel)]="claimant.claimantOccupation" name="selectedOccupation">
             <ion-select-option *ngFor="let occupation of occupationOptions" [value]="occupation.title">{{occupation.title | titlecase}}</ion-select-option>
           </ion-select> -->
-          <ionic-selectable [(ngModel)]="selectedOccupation"  [items]="occupationOptions" itemValueField="lookup_item_id" itemTextField="title"
-            [canSearch]="true"  [hasVirtualScroll]="true" name="selectedOccupation" (onChange)="occupationChosen()">
-          </ionic-selectable>
         </ion-item>
       </div>
     </form>

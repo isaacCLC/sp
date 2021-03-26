@@ -7,13 +7,16 @@ import { IonicModule } from '@ionic/angular';
 import { ChatPageRoutingModule } from './chat-routing.module';
 
 import { ChatPage } from './chat.page';
-
+import { Nl2BrPipeModule } from 'nl2br-pipe';
+import { MomentModule } from 'ngx-moment';
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    ChatPageRoutingModule
+    ChatPageRoutingModule,
+    Nl2BrPipeModule,
+    MomentModule
   ],
   declarations: [ChatPage]
 })

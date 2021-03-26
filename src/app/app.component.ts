@@ -7,6 +7,8 @@ import { Device } from "@ionic-native/device/ngx";
 import { OneSignal } from "@ionic-native/onesignal/ngx";
 import { Storage } from "@ionic/storage";
 import { Router } from '@angular/router';
+import { ChatService } from "./Helpers/chat.service";
+import { BackgroundGeolocation, BackgroundGeolocationConfig, BackgroundGeolocationEvents, BackgroundGeolocationResponse } from '@ionic-native/background-geolocation/ngx';
 
 @Component({
   selector: "app-root",
@@ -23,6 +25,7 @@ export class AppComponent {
     private oneSignal: OneSignal,
     private storage: Storage,
     private route: Router,
+    private backgroundGeolocation: BackgroundGeolocation
   ) {
     this.initializeApp();
   }
@@ -30,7 +33,8 @@ export class AppComponent {
   async initializeApp() {
     await this.platform.ready().then(() => { })
     this.statusBar.styleLightContent();
-
+    this.statusBar.backgroundColorByHexString("#0e3083")
+    // this.statusBar.styleDefault()
     this.pushSetUp();
     // await this.storage.get("clcDriverID").then(res => {
     //   console.log(res)
@@ -52,7 +56,7 @@ export class AppComponent {
     //       throw err
     //     }
     //   );
-
+   
   }
 
   pushSetUp() {

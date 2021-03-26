@@ -14,6 +14,7 @@ import { getHomeProductListData, getLookupResponse, getMasterProductListResponse
 export class UserState {
 
   isLoggedIn: boolean = false;
+  isOnline: boolean = false;
   appUserId: number;
   driver: DriverDetails;
   masterProductList: getMasterProductListResponse;
@@ -21,11 +22,19 @@ export class UserState {
   subMemberData: SubmemberLoginData;
   lookupValues: Map<number, getLookupResponse> = new Map();
 
+
   constructor(private storage: Storage, private push: PushMessage) {
+    // setup a timer to locate get driver every 2 mins
+    window.setInterval(() => this.getDriver(), 2 * 60 * 1000);
   }
 
   async init() {
     console.log("getting driver")
     this.driver = await this.storage.get("driver");
+  }
+
+  public getDriver(){
+    console.log(this.driver)
+    return this.driver;
   }
 }

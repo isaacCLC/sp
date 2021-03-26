@@ -1,120 +1,117 @@
 <ion-header id="btnOnline">
   <ion-toolbar color="primary">
     <ion-row>
-      <ion-col size="4">
-        <ion-avatar>
+      <ion-col size="3">
+        <ion-avatar *ngIf="driverDetails">
           <ion-img
             *ngIf="driverDetails.driverImageUrl != null || driverDetails.driverImageUrl != undefined || driverDetails.driverImageUrl != ''"
             [src]="driverDetails.driverImageUrl"></ion-img>
-          <!-- <ion-img *ngIf="driverDetails.driverImageUrl == null || driverDetails.driverImageUrl == undefined || driverDetails.driverImageUrl == ''"
-            src="https://www.pinclipart.com/picdir/middle/60-602450_profile-clipart-profile-icon-round-profile-pic-png.png"> 
-          </ion-img>-->
+          <ion-img
+            *ngIf="driverDetails.driverImageUrl == null || driverDetails.driverImageUrl == undefined || driverDetails.driverImageUrl == ''"
+            src="https://www.pinclipart.com/picdir/middle/60-602450_profile-clipart-profile-icon-round-profile-pic-png.png">
+          </ion-img>
         </ion-avatar>
       </ion-col>
-    
-    <ion-col class="avail-col" size="8">
-      <h2 *ngIf="serviceReq.data.driverStatus == 1 && serviceReq.data.serviceRequests.callId == 0">On Duty</h2>
-      <h2 *ngIf="serviceReq.data.driverStatus == 1 && serviceReq.data.serviceRequests.callId != 0">{{serviceReq.data.serviceRequests.status}}</h2>
 
-      <h3 color="primary" *ngIf="serviceReq.data.driverStatus == 0">Off Duty</h3>
-    </ion-col>
-    <!-- <ion-title color='success'> -->
-      <!-- <h2 *ngIf="serviceReq.data.driverStatus == 1">On Duty</h2>
-      <h3 color="primary" *ngIf="serviceReq.data.driverStatus == 0">Off Duty</h3> -->
-    <!-- </ion-title1> -->
-  </ion-row>
+      <ion-col class="avail-col" size="9" *ngIf="serviceRequestsService.serviceReq">
+        <h2 style="color: #2dd36f;"
+          *ngIf="!serviceRequestsService.serviceReq.data.serviceRequests.callId && serviceRequestsService.serviceReq.data.driverStatus == 1">
+          On Duty</h2>
+        <h2 style="color: #2dd36f;" *ngIf="serviceRequestsService.serviceReq.data.serviceRequests.callId != 0">
+          {{serviceRequestsService.serviceReq.data.serviceRequests.statusDescription}}</h2>
+
+        <h3 style="color: #eb445a;" *ngIf="serviceRequestsService.serviceReq.data.driverStatus == 0">Off Duty</h3>
+      </ion-col>
+      <ion-col class="avail-col" size="8" *ngIf="!serviceRequestsService.serviceReq">
+        <h3 style="color:  #ffc409;">Connecting....</h3>
+      </ion-col>
+    </ion-row>
   </ion-toolbar>
 </ion-header>
 
-<section class="avail-data" id="head-data">
-  <!-- <ion-row >
-    <ion-col size="4">
-      <ion-avatar>
-        <ion-img
-          *ngIf="driverDetails.driverImageUrl != null || driverDetails.driverImageUrl != undefined || driverDetails.driverImageUrl != ''"
-          [src]="driverDetails.driverImageUrl"></ion-img>
-      </ion-avatar>
-    </ion-col>
-    <ion-col class="avail-col" size="8">
-      <h2 *ngIf="serviceReq.data.driverStatus == 1">On Duty</h2>
-      <h3 color="primary" *ngIf="serviceReq.data.driverStatus == 0">Off Duty</h3>
-    </ion-col>
-  </ion-row> -->
-  <ion-item class="pad-items" >
+<section class="avail-data" id="head-data" *ngIf='serviceRequestsService.serviceReq && driverDetails'>
+  <ion-item class="pad-items">
     <ion-label>Are You Available?</ion-label>
-    <ion-toggle [disabled]="serviceReq.data.serviceRequests.callId != 0 || !iscarSelected" [(ngModel)]="serviceReq.data.driverStatus" (ionChange)="availableClick()"></ion-toggle>
+    <ion-toggle
+      [disabled]="!serviceRequestsService.serviceReq || serviceRequestsService.serviceReq.data.serviceRequests.callId || !driverDetails.driverVehicle.registration_number"
+      [(ngModel)]="serviceRequestsService.serviceReq.data.driverStatus" (ionChange)="availableClick()"></ion-toggle>
   </ion-item>
 </section>
-<!-- <ion-content class="ion-padding" class="center"> -->
 
-  <ion-fab *ngIf="serviceReq.data.serviceRequests.status == 4 || serviceReq.data.serviceRequests.status == 13" vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button (click)="navigate();">
-      <ion-icon  class="iconSize" name="navigate-circle-outline"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
+<ion-fab vertical="bottom" horizontal="end" slot="fixed"
+  *ngIf="serviceRequestsService.serviceReq && (serviceRequestsService.serviceReq.data.serviceRequests.status == 4 || serviceRequestsService.serviceReq.data.serviceRequests.status == 13)">
+  <ion-fab-button (click)="navigate();">
+    <ion-icon class="iconSize" name="navigate-circle-outline"></ion-icon>
+  </ion-fab-button>
+</ion-fab>
 
 <div id="map_canvas">
 </div>
 
-<div *ngIf="( tripDetails != null && isJobAllocaed == true) || (navigatingToFD == true && tripDetails != null )"
-  id="over_map">
-  <label>ETA: {{tripDetails.Eta}}... <strong><i>{{tripDetails.Distance}}</i></strong></label>
-</div>
+<div *ngIf='serviceRequestsService.serviceReq && driverDetails'>
+  <div *ngIf="appLocation.tripDetails" id="over_map">
+    <label>ETA: {{appLocation.tripDetails.Eta}}... <strong><i>{{appLocation.tripDetails.Distance}}</i></strong></label>
+  </div>
+  <!-- <ion-button *ngIf="serviceRequestsService.serviceReq.data.driverStatus == 0 && iscarSelected " color="warning" primary
+    block>
+    <ion-label> You're Offline</ion-label>
+  </ion-button>
+  <ion-button *ngIf="serviceRequestsService.serviceReq.data.driverStatus == 1 && !serviceRequestsService.serviceReq.data.serviceRequests.callId" color="success"
+    primary block>
+    <ion-label> You're Online</ion-label>
+  </ion-button> -->
 
-<ion-button *ngIf="serviceReq.data.driverStatus == 0 && iscarSelected " color="warning" primary block>
-  <ion-label> You're Offline</ion-label>
-</ion-button>
-<ion-button *ngIf="serviceReq.data.driverStatus == 1 &&  (serviceReq.data.serviceRequests.status == 1 || serviceReq.data.serviceRequests.status == 2 || serviceReq.data.serviceRequests.status == 0)" color="success" primary block>
-  <ion-label> You're Online</ion-label>
-</ion-button>
+  <div *ngIf="serviceRequestsService.serviceReq.data.serviceRequests.callId" class="job-btns">
+    <ion-grid>
+      <ion-row>
+        <ion-col
+          *ngIf="serviceRequestsService.serviceReq.data.serviceRequests.callId && ![13,16,10,14].includes(serviceRequestsService.serviceReq.data.serviceRequests.status)">
+          <button type="button" class="await-btn3" color="danger" (click)="canceljob()" primary block>
+            <ion-label><strong>Cancel Job</strong></ion-label>
+          </button>
+        </ion-col>
+        <ion-col>
+          <button type="button" [class]="newMessage"
+            *ngIf="serviceRequestsService.serviceReq.data.serviceRequests.callId" color="primary" (click)="jobInfo()">
+            <ion-label><strong>Job Info</strong></ion-label>
+          </button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
 
-<div *ngIf="serviceReq.data.serviceRequests.callId != 0" class="job-btns">
-  <ion-grid>
+  <ion-button *ngIf="startTow && driveFinDistTarget == null && !awaitingFD" #startTowing color="success" primary block
+    (click)="navigate();">
+    <ion-icon name="navigate"></ion-icon>&nbsp;&nbsp;
+    <ion-label> Start Tow</ion-label>
+  </ion-button>
+  <ion-grid *ngIf="serviceRequestsService.serviceReq.data.serviceRequests.status == 3">
     <ion-row>
-      <ion-col  *ngIf="serviceReq.data.serviceRequests.callId != 0 && serviceReq.data.serviceRequests.status != 13 && serviceReq.data.serviceRequests.status != 16 && serviceReq.data.serviceRequests.status != 10 && serviceReq.data.serviceRequests.status != 14">
-        <ion-button  color="danger" (click)="canceljob()" primary block>
-          <ion-label><strong>Cancel Job</strong></ion-label>
-        </ion-button>
-      </ion-col>
-      <ion-col>
-        <ion-button *ngIf="serviceReq.data.serviceRequests.callId != 0" color="primary" (click)="jobInfo()" primary block>
-          <ion-label><strong>Job Info</strong></ion-label>
-        </ion-button>
+      <ion-col size="28" pull="8">
+        <button (click)="alert('awaitingAllocation');" type="button" class="await-btn">
+          <ion-label> Awaiting Allocation....</ion-label>
+        </button>
       </ion-col>
     </ion-row>
   </ion-grid>
-</div>
 
-<!-- <ion-button *ngIf="serviceReq.data.serviceRequests.status == 4" color="tertiary" primary block
-  (click)="navigate();">
-  <ion-icon name="navigate"></ion-icon>&nbsp;&nbsp;
-  <ion-label> Navigate</ion-label>
-</ion-button> -->
-<ion-button *ngIf="startTow && driveFinDistTarget == null && !awaitingFD" #startTowing color="success" primary block
-  (click)="navigate();">
-  <ion-icon name="navigate"></ion-icon>&nbsp;&nbsp;
-  <ion-label> Start Tow</ion-label>
-</ion-button>
-<button (click)="alert('awaitingAllocation');" type="button" class="await-btn" *ngIf="serviceReq.data.serviceRequests.status == 3">
-  <ion-label> Awaiting Allocation....</ion-label>
-</button>
-<button (click)="alert('awaitingFD');" type="button" class="await-btn" *ngIf="serviceReq.data.serviceRequests.status == 14">
-  <ion-label> Awaiting Final Destination....</ion-label>
-</button>
-<ion-button *ngIf="!iscarSelected" color="secondary" primary block (click)="selectVeh()">
-  <ion-label>Select A Vehicle</ion-label>
-</ion-button>
-<ion-button class="aawait-btn" *ngIf="serviceReq.data.serviceRequests.status == 15" color="tertiary" primary block
-  (click)="arrived();">
-  <!-- <ion-label> Arrived An Final Dest</ion-label> -->
-  <ion-label>Arrived At Scene</ion-label>
-</ion-button>
-<ion-button class="aawait-btn" *ngIf="serviceReq.data.serviceRequests.status == 16" color="tertiary" primary block
-  (click)="arrivedFinDist();">
-  <ion-label>Arrived At Final Dist</ion-label>
-</ion-button>
-<!-- <button class="await-btn" *ngIf="serviceReq.data.serviceRequests.status == 13" color="tertiary" primary block
-  (click)="arrivedFinDist();">
-  <ion-label>Arrived At Final Dist</ion-label>
-</button> -->
+  <button (click)="alert('awaitingFD');" type="button" class="await-btn"
+    *ngIf="serviceRequestsService.serviceReq.data.serviceRequests.status == 14">
+    <ion-label> Awaiting Final Destination....</ion-label>
+  </button>
+
+  <ion-button class="aawait-btn" *ngIf="serviceRequestsService.serviceReq.data.serviceRequests.status == 15" color="tertiary"  expand="block"
+    (click)="arrived();">
+    <ion-label>Arrived At Scene</ion-label>
+  </ion-button>
+
+  <ion-button class="aawait-btn" *ngIf="serviceRequestsService.serviceReq.data.serviceRequests.status == 16" color="tertiary" expand="block"
+    (click)="arrivedFinDist();">
+    <ion-label>Arrived At Final Dist</ion-label>
+  </ion-button>
+
+  <ion-button *ngIf="!driverDetails.driverVehicle.registration_number" color="secondary" expand="block" (click)="selectVeh()">
+    <ion-label>Select A Vehicle</ion-label>
+  </ion-button>
+</div>
 

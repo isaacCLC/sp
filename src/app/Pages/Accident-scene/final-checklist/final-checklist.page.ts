@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { Camera, CameraOptions } from "@ionic-native/camera/ngx"; 
+import { Camera, CameraOptions } from "@ionic-native/camera/ngx";
 import { Storage } from "@ionic/storage";
 import { GeneralService } from 'src/app/Helpers/generals';
 import { AlertsProviderService } from 'src/app/Providers/alerts-provider.service';
@@ -9,7 +9,7 @@ import { ApiGateWayService } from 'src/app/Providers/api-gate-way.service';
   selector: 'app-final-checklist',
   templateUrl: './final-checklist.page.html',
   styleUrls: ['./final-checklist.page.scss'],
-}) 
+})
 export class FinalChecklistPage implements OnInit {
   @ViewChild("imageCanvas") canvas: ElementRef;
   vehicleCheckList = new Array(6);
@@ -18,8 +18,8 @@ export class FinalChecklistPage implements OnInit {
   saveX: number;
   saveY: number;
   generalHelpers: GeneralService;
-  constructor( private route: Router,private alertprovider: AlertsProviderService,
-    private camera: Camera, private storage: Storage, private _api: ApiGateWayService) { 
+  constructor(private route: Router, private alertprovider: AlertsProviderService,
+    private camera: Camera, private storage: Storage, private _api: ApiGateWayService) {
     this.vehicleCheckList = [
       { listItem: "Spare Wheel", isAvailable: false },
       { listItem: "Wheel Spanner", isAvailable: false },
@@ -32,7 +32,7 @@ export class FinalChecklistPage implements OnInit {
   ngOnInit() {
   }
 
-  async submitClaim() { 
+  async submitClaim() {
     this.storage.get("clcDriverID").then(driverID => {
       this._api.checkServiceRequests().then(data => {
         this._api.acceptJob(data.data.serviceRequests.callId, "endTow", data.data.serviceRequests.callRef).then(response => {
@@ -45,9 +45,13 @@ export class FinalChecklistPage implements OnInit {
         })
       })
     })
-    
-   
-   
+
+
+
+  }
+
+  goBack() {
+    this.route.navigate(["app/tabs/tab1"])
   }
 
   ngAfterViewInit() {
@@ -65,16 +69,16 @@ export class FinalChecklistPage implements OnInit {
     var canvasPos = this.canvasElement.getBoundingClientRect();
     this.saveX = evt.touches[0].pageX - canvasPos.x;
     this.saveY = evt.touches[0].pageY - canvasPos.y;
-    this.canvasElement.addEventListener("touchstart", function(event) {
+    this.canvasElement.addEventListener("touchstart", function (event) {
       event.preventDefault();
     });
-    this.canvasElement.addEventListener("touchmove", function(event) {
+    this.canvasElement.addEventListener("touchmove", function (event) {
       event.preventDefault();
     });
-    this.canvasElement.addEventListener("touchend", function(event) {
+    this.canvasElement.addEventListener("touchend", function (event) {
       event.preventDefault();
     });
-    this.canvasElement.addEventListener("touchcancel", function(event) {
+    this.canvasElement.addEventListener("touchcancel", function (event) {
       event.preventDefault();
     });
   }
@@ -104,7 +108,7 @@ export class FinalChecklistPage implements OnInit {
   }
   clearCanvasImage() {
     let drawnContext = this.canvasElement.getContext("2d");
-    drawnContext.clearRect(0,0,drawnContext.canvas.width,drawnContext.canvas.height);
+    drawnContext.clearRect(0, 0, drawnContext.canvas.width, drawnContext.canvas.height);
   }
 
   towSlipPhoto() {
@@ -113,7 +117,7 @@ export class FinalChecklistPage implements OnInit {
       destinationType: this.camera.DestinationType.DATA_URL,
       sourceType: this.camera.PictureSourceType.CAMERA,
       saveToPhotoAlbum: false,
-      correctOrientation:true
+      correctOrientation: true
     };
     this.camera.getPicture(options).then(
       imageData => {

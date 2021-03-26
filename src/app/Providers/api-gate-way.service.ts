@@ -10,6 +10,7 @@ import { AddClaimRequest } from "../Helpers/requests";
 import { Storage } from "@ionic/storage";
 import { FormParameter } from "./base";
 import { addToDocumentWarehouseResponse } from "../Helpers/responses";
+import { SmsRetriever } from "@ionic-native/sms-retriever/ngx";
 const httpOptions = {
   headers: new HttpHeaders({
     "Content-Type": "application/json",
@@ -28,7 +29,7 @@ export class ApiGateWayService {
   private _generals: GeneralService = new GeneralService();
   private api_key: string;
 
-  constructor(private claimManager: ClaimManager, private storage: Storage, private _http: HttpClient, private alertProvider: AlertsProviderService) {
+  constructor(private claimManager: ClaimManager, private storage: Storage, private _http: HttpClient, private alertProvider: AlertsProviderService,  private smsRetriever: SmsRetriever) {
 
     this.prodHost = "https://api.lmsystem.co.za";
     this.devHost = "https://apidev.lmsystem.co.za";
@@ -163,12 +164,14 @@ export class ApiGateWayService {
 
   async checkServiceRequests(): Promise<any> {
     let id = await this.storage.get("driverID")
-    return this._http.get(this.serverHost + "/rest/cca/v1/sp/checkServiceRequests.php", {
-      params: {
-        driverId: id,
-        key: this.api_key
-      }
-    }).toPromise()
+    if(id){
+      return this._http.get(this.serverHost + "/rest/cca/v1/sp/checkServiceRequests.php", {
+        params: {
+          driverId: id,
+          key: this.api_key
+        }
+      }).toPromise()
+    }
   }
 
   async getJobHistory(): Promise<any> {
@@ -177,6 +180,43 @@ export class ApiGateWayService {
       params: {
         key: this.api_key,
         driverId: id,
+      }
+    }).toPromise()
+  }
+
+  async getChats(callID): Promise<any> {
+    let id = await this.storage.get("driverID")
+    return this._http.get(this.serverHost + "/rest/cca/v1/sp/chat.php", {
+      params: {
+        key: this.api_key,
+        call_id: callID,
+        action: 'getChats',
+        driverId: id
+      }
+    }).toPromise()
+  }
+
+  async sendMessage(callID, message): Promise<any> {
+    let id = await this.storage.get("driverID")
+    return this._http.get(this.serverHost + "/rest/cca/v1/sp/chat.php", {
+      params: {
+        key: this.api_key,
+        call_id: callID,
+        message: message,
+        driverID: id,
+        action: 'sendMessage'
+      }
+    }).toPromise()
+  }
+
+  async markMessageAsRead(callID, messageID): Promise<any> {
+    let id = await this.storage.get("driverID")
+    return this._http.get(this.serverHost + "/rest/cca/v1/sp/chat.php", {
+      params: {
+        key: this.api_key,
+        call_id: callID,
+        messageID: messageID,
+        action: 'markAsRead'
       }
     }).toPromise()
   }
@@ -293,14 +333,15 @@ export class ApiGateWayService {
     return res;
   }
 
-  getCallTerms(payLoad): Observable<any> {
+  async getCallTerms(callRef): Promise<any> {
+    let id = await this.storage.get("driverID")
     return this._http.get(this.serverHost + "/rest/cca/v1/calls/getCallTerms.php", {
       params: {
-        appUserId: payLoad.driverId,
-        callRef: payLoad.callRef,
+        appUserId: id,
+        callRef: callRef,
         key: this.api_key,
       }
-    });
+    }).toPromise()
   }
 
   getDistance(payLoad): Promise<any> {
@@ -320,7 +361,6 @@ export class ApiGateWayService {
         key: this.api_key,
         latitude: coordinates.latitude,
         longitude: coordinates.longitude,
-        mobileNumber: coordinates.mobileNumber,
         call_id: coordinates.call_id
       }
     }).toPromise()
@@ -358,11 +398,13 @@ export class ApiGateWayService {
 
   async getOTP(cellNumber: any): Promise<any> {
     let id = await this.storage.get("driverID")
+    let hash = await this.smsRetriever.getAppHash()
     return this._http.get(this.serverHost + "/rest/cca/v1/sp/getVerifyMobile.php", {
       params: {
         key: this.api_key,
         driverId: id,
-        mobileNumber: cellNumber
+        mobileNumber: cellNumber,
+        hash: hash
       },
       observe: "response"
     }).toPromise()
@@ -374,7 +416,7 @@ export class ApiGateWayService {
       params: {
         key: this.api_key,
         driverId: id,
-        OTP: otpNum
+        OTP: otpNum,
       },
       observe: "response"
     }).toPromise()

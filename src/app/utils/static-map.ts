@@ -6,6 +6,8 @@ import { HttpClient } from "@angular/common/http";
 })
 export class StaticMapService {
     constructor(private httpClient: HttpClient) {}
+    public currenLocLat: string;
+    public currenLocLng: string;
 
     getStaticMapBase64(
         lat: number,
