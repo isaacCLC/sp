@@ -46,6 +46,7 @@ export class AddNumberOtpPage implements OnInit {
     this._api.getDriver().then(driver=>{
       this.driverDetails = driver.data[0]
       this.isOtpEntered = false;
+
       this.smsRetriever.startWatching()
         .then((res: any) => {
           this.otpNum = res.Message.match(/\b\d{4}\b/)[0];
@@ -82,7 +83,7 @@ export class AddNumberOtpPage implements OnInit {
                 loader.dismiss()
                 console.log(response)
                 if (response.status) {
-                  this.route.navigate(["app/tabs/tab3"]);
+                  this.route.navigate(["app/tabs/tab1"]);
                 }
               })
             } else {

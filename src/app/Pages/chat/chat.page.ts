@@ -17,10 +17,11 @@ export class ChatPage implements OnInit {
   jobDetails: iServiceRequest;
   spDetails: DriverDetails;
   messages: [];scrolled = false;
+  newMessage: string;
   @ViewChild('content') private content: any;
   @ViewChild('messagesDiv') private messagesDiv: any;
   constructor(
-    private chatService: ChatService, public _zone: NgZone) {
+    public chatService: ChatService, public _zone: NgZone) {
 
     }
 

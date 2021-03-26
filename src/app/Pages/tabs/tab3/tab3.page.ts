@@ -34,7 +34,7 @@ export class Tab3Page {
     private storage: Storage,
     public loadingCtrl: LoadingController,
     private alertProvider: AlertsProviderService,
-    private photoViewer: PhotoViewer,
+    public photoViewer: PhotoViewer,
     private helpers: Helpers,
   ) { }
 

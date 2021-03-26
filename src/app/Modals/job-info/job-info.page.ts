@@ -26,8 +26,8 @@ export class JobInfoPage implements OnInit {
     private callNumber: CallNumber,
     private alertprovider: AlertsProviderService,
     private _api: ApiGateWayService,
-    private appLocation: AppLocation,
-    private serviceRequestsService: ServiceRequestsService
+    public appLocation: AppLocation,
+    public serviceRequestsService: ServiceRequestsService
   ) {this.JSON = JSON; }
 
   async ngOnInit() {
@@ -35,8 +35,7 @@ export class JobInfoPage implements OnInit {
   }
 
   async ionViewWillEnter() {
-    console.log(this.serviceRequestsService)
-    console.log(typeof(this.appLocation.tripDetails))
+
     // this._api.getGeoCoding(this.serviceRequestsService.serviceReq.data.clientLocation.latitude, this.serviceRequestsService.serviceReq.data.clientLocation.longitude).subscribe(res => {
     //   this.serviceRequestsService.serviceReq.data.clientLocation['address'] = res.body.data.results[0].formatted_address;
     // });
@@ -72,7 +71,7 @@ export class JobInfoPage implements OnInit {
     this.route.navigate(["/app/tabs/tab1"], { queryParams: { jobInfoFlag: true } });
   }
 
-  callClient() {
+  callClient() {  
     this.callNumber.callNumber(this.jobDetails.data.client.number, true)
       .then(res => console.log('Launched dialer!', res))
       .catch(err => console.log('Error launching dialer', err));
@@ -83,7 +82,8 @@ export class JobInfoPage implements OnInit {
       .catch(err => console.log('Error launching dialer', err));
   }
 
-  messageClient() {
+  messageClient() { 
+    console.log(this.serviceRequestsService.serviceReq)
     this.route.navigate(["chat"]);
   }
 }

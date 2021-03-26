@@ -14,8 +14,7 @@
   <div class='ion-text-center' *ngIf='chatService.messages.length <= 0;'>
     <p>Send a message by typing below.</p>
   </div>
-  <div #messagesDiv *ngFor="let message of chatService.messages; let last = last" class="message-wrapper"
-    on-hold="onMessageHold($event, $index, message)">
+  <div #messagesDiv *ngFor="let message of chatService.messages; let last = last" class="message-wrapper">
 
     <div *ngIf="message.sentBy == 'agent'">
 
@@ -27,7 +26,7 @@
         </div>
 
         <div class="message-detail">
-          <span (click)="viewProfile(message)" class="bold">{{message.user_first_name}}
+          <span class="bold">{{message.user_first_name}}
             {{message.user_last_name}}</span>,
           <span>{{message.chatDateTime.date | amTimeAgo}}</span>
         </div>
@@ -37,7 +36,7 @@
 
     <div *ngIf="message.sentBy == 'sp'">
 
-      <img (click)="viewProfile(message)" class="profile-pic right" [src]='message.driverImageUrl'
+      <img class="profile-pic right" [src]='message.driverImageUrl'
         onerror="onProfilePicError(this)" />
 
       <div class="chat-bubble right">
@@ -46,7 +45,7 @@
         </div>
 
         <div class="message-detail">
-          <span (click)="viewProfile(message)" class="bold">You</span>,
+          <span class="bold">You</span>,
           <span>{{message.chatDateTime.date | amTimeAgo}}</span>
         </div>
 

@@ -41,9 +41,13 @@ export class Helpers {
   public isNetworkAvailable: boolean = true;
   public storage: Storage;
   public SPIcon: any;
+  public SPred = "/assets/sp-red.png";
+  public SPblue = "/assets/sp-blue.png";
+  public SPorange: "/assets/sp-orange.png";
+
   public clientIcon: any;
   vehIcon: string;
-  driver: DriverDetails = {};
+  driver: DriverDetails;
   watchLocation: Subscription;
   watchMessages: Subscription;
   messages: [];

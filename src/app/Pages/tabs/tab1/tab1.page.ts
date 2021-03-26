@@ -1,14 +1,12 @@
 import { Component, ɵConsole, ViewChild, ElementRef } from "@angular/core";
 import { Helpers } from "../../../Helpers/helpers";
 import { ApiGateWayService } from "../../../Providers/api-gate-way.service";
-import { GoogleMaps, GoogleMap, Marker, GoogleMapOptions, Environment, GoogleMapsEvent, LatLngBounds, Polyline, PolylineOptions, Poly, ILatLng} from "@ionic-native/google-maps";
+import { GoogleMaps, GoogleMap, Marker, GoogleMapOptions, Environment, GoogleMapsEvent, LatLngBounds, Polyline, PolylineOptions, Poly, ILatLng, Spherical } from "@ionic-native/google-maps";
 import { Geolocation, Geoposition, PositionError } from "@ionic-native/geolocation/ngx";
 import { TripDetails, ClientDetails, myLoc, iServiceRequest, iFinalDest, DriverDetails } from "../../../models/appModels";
-import { Insomnia } from '@ionic-native/insomnia/ngx';
 import {
   Platform, LoadingController, ModalController, NavController, AlertController
 } from "@ionic/angular";
-import { CallNumber } from '@ionic-native/call-number/ngx';
 import { interval, Subscriber, Observable, Subscription, throwError } from "rxjs";
 import { Router, NavigationExtras, ActivatedRoute } from "@angular/router";
 import { Storage } from "@ionic/storage";
@@ -18,7 +16,6 @@ import { ActionSheetController } from '@ionic/angular';
 import { LocationAccuracy } from '@ionic-native/location-accuracy/ngx';
 import { ClaimCall, ClaimManager, ClaimTypeId, CurrentClaim } from "src/app/Helpers/claim-manager";
 import { UserState } from "src/app/Helpers/user-state";
-import { CommonUtils } from "src/app/Helpers/common-utils";
 import { PopupHelper } from "src/app/Helpers/popup-helper";
 import { ServiceRequestsService } from "src/app/utils/service-requests.service";
 import { AppLocation } from "src/app/utils/app-location";
@@ -33,7 +30,9 @@ declare var google;
 })
 export class Tab1Page {
   @ViewChild('draggable') private startTowing: ElementRef;
-  fdPolyline: any;
+  fdPolyline: Polyline;
+  scenePolyline: Polyline;
+
   path: ILatLng[];
   lastLocationUpdate: number = Date.now();
   lastMarkerUpdate: number = Date.now();
@@ -43,46 +42,9 @@ export class Tab1Page {
   counter: number = 0;
   statusChanged: boolean;
   newMessage: string = 'await-btn2';
-  serviceReq: iServiceRequest = {
-    status: false,
-    data: {
-      driverId: 0,
-      serviceRequests: {
-        callId: 0,
-        dateSent: {
-          date: "",
-          timezone_type: "",
-          timezone: ""
-        },
-        status: 0,
-        sub_sub_product_name: "",
-        callRef: 0,
-      },
-      driverVehicle: {
-        vehicleId: "",
-        vehicleDescription: "",
-        vehicleRegistration: ""
-      },
-      clientLocation: {
-        latitude: 0,
-        longitude: 0
-      },
-      finalDestination: {
-        latitude: 0,
-        longitude: 0,
-        address: "Not yet Available"
-      },
-      driverStatus: 0,
-      client: {
-        name: "",
-        surname: "",
-        number: ""
-      }
-    }
-  };
   navigatingToFD: boolean = false;
   checkingRequest: boolean;
-  driverDetails: DriverDetails = {};
+  driverDetails: DriverDetails;
   firstTime: boolean;
   map: GoogleMap;
   loader: any;
@@ -110,14 +72,11 @@ export class Tab1Page {
   _genServices: GeneralService;
   iscarSelected: boolean;
 
-  tripDetails: TripDetails = {
-    Distance: null,
-    Eta: null,
-    finalDestination: null,
-    timeMinutesValue: -1
-  };
 
   spMarker: Marker;
+  sceneMarker: Marker;
+  fdMarker: Marker;
+
   stayActive: boolean;
   appPaused: boolean = false;
   awaitingFD: boolean;
@@ -127,7 +86,9 @@ export class Tab1Page {
     longitude: 0
   }
   locationUpdated
-
+  bounds: LatLngBounds = new LatLngBounds;
+  points: any[] = [];
+  backLocations: [];
   constructor(
     private platform: Platform,
     private geolocation: Geolocation,
@@ -141,45 +102,20 @@ export class Tab1Page {
     public navCtrl: NavController,
     private alertController: AlertController,
     private activateRoute: ActivatedRoute,
-    private insomnia: Insomnia,
     public actionSheetController: ActionSheetController,
     private locationAccuracy: LocationAccuracy,
     private userState: UserState,
     private claimManager: ClaimManager,
     private popup: PopupHelper,
-    private serviceRequestsService: ServiceRequestsService,
-    private appLocation: AppLocation,
+    public serviceRequestsService: ServiceRequestsService,
+    public appLocation: AppLocation,
     private chatService: ChatService
   ) {
     this._genServices = new GeneralService();
     this.stayActive = false;
 
-   
 
-    platform.ready().then(() => {
-      this.platform.pause.subscribe(() => {
-        this.appPaused = true;
-      });
 
-      this.platform.resume.subscribe(() => {
-        this.appPaused = false;
-      });
-
-      this.locationAccuracy.canRequest().then((canRequest: boolean) => {
-
-        if (canRequest) {
-          // the accuracy option will be ignored by iOS
-          this.locationAccuracy.request(this.locationAccuracy.REQUEST_PRIORITY_HIGH_ACCURACY).then(() => {
-          }
-          ).catch(error => {
-            this.popup.showToast("You will not receive service requests unless you turn on you location.")
-          })
-        } else {
-          throw "Cannot request users location"
-        }
-
-      });
-    });
   }
 
 
@@ -194,9 +130,24 @@ export class Tab1Page {
   }
 
   initLocation() {
-    this.appLocation.locationUpdated.subscribe(location=>{
-      if(this.serviceRequestsService.serviceReq){
-        if (this.route.isActive('app/tabs/tab1', false) && this.serviceReq.data.driverStatus == 1 && this.map) {
+    this.appLocation.locationUpdated.subscribe(location => {
+      this.map.addMarkerSync({
+        title: "Current Location",
+        position: {
+          lat: location.latitude,
+          lng: location.longitude
+        },
+        animation: 'DROP',
+        icon: {
+          url: this.helpers.SPIcon,
+          size: {
+            width: 30,
+            height: 50
+          }
+        }
+      })
+      if (this.serviceRequestsService.serviceReq) {
+        if (this.route.isActive('app/tabs/tab1', false) && this.serviceRequestsService.serviceReq.data.driverStatus == 1 && this.map) {
 
           this.spMarker ? this.spMarker.isVisible() ? this.spMarker.setPosition({
             lat: location.latitude,
@@ -204,7 +155,8 @@ export class Tab1Page {
           }) : this.drawDriverMarker() : this.drawDriverMarker();
 
           if (!this.cameraMoving) {
-            switch (this.serviceReq.data.serviceRequests.status) {
+            switch (this.serviceRequestsService.serviceReq.data.serviceRequests.status) {
+              default:
               case 0:
               case 1:
               case 2:
@@ -214,6 +166,15 @@ export class Tab1Page {
               case 7:
               case 8:
               case 9:
+                this.fdPolyline?this.fdPolyline.remove():"";
+                this.fdPolyline?this.fdPolyline = null:"";
+                this.sceneMarker?this.sceneMarker.remove():"";
+                this.sceneMarker?this.sceneMarker = null:"";
+                this.scenePolyline?this.scenePolyline.remove():"";
+                this.scenePolyline?this.scenePolyline = null:"";
+                this.fdMarker?this.fdMarker.remove():"";
+                this.fdMarker?this.fdMarker = null:"";
+
                 this.cameraMoving = true;
                 this.map.animateCamera({
                   target: {
@@ -228,34 +189,54 @@ export class Tab1Page {
                 break;
               case 4:
               case 15:
+                this.scenePolyline?"":this.addPolyLines(
+                  this.appLocation.LastKnownLatitude,
+                  this.appLocation.LastKnownLongitude,
+                  this.serviceRequestsService.serviceReq.data.clientLocation.latitude,
+                  this.serviceRequestsService.serviceReq.data.clientLocation.longitude
+                  , "scene"
+                );
+                this.sceneMarker?"":this.drawSceneMarker();
+                if(this.fdPolyline){
+                  this.fdPolyline.destroy();
+                  this.fdPolyline = null;
+                }
                 this.cameraMoving = true;
+                let bounds = new LatLngBounds([
+                  { lat: this.serviceRequestsService.serviceReq.data.clientLocation.latitude, lng: this.serviceRequestsService.serviceReq.data.clientLocation.longitude },
+                  { lat: location.latitude, lng: location.longitude }])
                 this.map.animateCamera({
                   target: new LatLngBounds([
-                    { lat: this.serviceReq.data.clientLocation.latitude, lng: this.serviceReq.data.clientLocation.longitude },
-                    { lat: location.latitude, lng: location.longitude }
+                    {lat:bounds.northeast.lat ,lng: bounds.northeast.lng},
+                    {lat:bounds.southwest.lat ,lng: bounds.southwest.lng}
                   ]),
                   duration: 500,
                   zoom: 1
                 }).finally(() => {
-                  this.cameraMoving = false;
+                    this.cameraMoving = false;
                 })
                 break;
               case 13:
               case 16:
+                this.fdPolyline?"":this.addPolyLines(this.appLocation.LastKnownLatitude,
+                  this.appLocation.LastKnownLongitude,
+                  this.serviceRequestsService.serviceReq.data.finalDestination.latitude,
+                  this.serviceRequestsService.serviceReq.data.finalDestination.longitude, "fd");
+                this.fdMarker?"":this.drawFDMarker();
+                if(this.scenePolyline){
+                  this.scenePolyline.destroy();
+                  this.scenePolyline = null;
+                }
                 this.cameraMoving = true;
+
                 this.map.animateCamera({
-                  target: [
-                    { lat: this.serviceReq.data.finalDestination.latitude, lng: this.serviceReq.data.finalDestination.longitude },
-                    { lat: location.latitude, lng: this.driverDetails.location.coords.longitude }
-                  ],
+                  target: new LatLngBounds([{ lat: this.serviceRequestsService.serviceReq.data.finalDestination.latitude, lng: this.serviceRequestsService.serviceReq.data.finalDestination.longitude },
+                    { lat: location.latitude, lng: location.longitude }]),
                   duration: 500,
-                  zoom: 10
+                  zoom: 15
                 }).finally(() => {
-                  this.cameraMoving = false;
+                    this.cameraMoving = false;
                 })
-                let currentLoc = new google.maps.LatLng(location.latitude,location.longitude)
-                this.path?console.log(google.maps.geometry.poly.containsLocation(currentLoc, this.fdPolyline)):"";
-            
                 break;
             }
           }
@@ -265,151 +246,89 @@ export class Tab1Page {
     })
   }
 
+  async arrived() {
+    this.loadingCtrl.create({
+      message: "Please wait..."
+    }).then(loader => {
+      loader.present()
+      this._api.acceptJob(this.serviceRequestsService.serviceReq.data.serviceRequests.callId, "arrived", this.serviceRequestsService.serviceReq.data.serviceRequests.callRef).then(response => {
+        loader.dismiss();
+        let claim = new CurrentClaim();
+        claim.call = new ClaimCall();
+        let id = this.serviceRequestsService.serviceReq.data.serviceRequests.callId.toString();
+        claim.call.callRef = this.serviceRequestsService.serviceReq.data.serviceRequests.callRef.toString();
+        this.claimManager.updateClaims(id, claim)
+        this.claimManager.setClaimId(id)
+        this.route.navigateByUrl("/motoraccident/step1");
+      })
+    })
+  }
+
+  getExtendedBounds(map, overlay) {
+    //With _mapBoundsEnlargePixels we add some extra space surrounding the map
+    //change this value until you get the desired size
+    var _mapBoundsEnlargePixels = 500;
+
+    var projection = overlay.getProjection();
+    var bounds = map.getBounds();
+
+    // Turn the bounds into latlng.
+    var tr = new google.maps.LatLng(bounds.getNorthEast().lat(),
+        bounds.getNorthEast().lng());
+    var bl = new google.maps.LatLng(bounds.getSouthWest().lat(),
+        bounds.getSouthWest().lng());
+
+    // Convert the points to pixels and extend out
+    var trPix = projection.fromLatLngToDivPixel(tr);
+    trPix.x = trPix.x + _mapBoundsEnlargePixels;
+    trPix.y = trPix.y - _mapBoundsEnlargePixels;
+
+    var blPix = projection.fromLatLngToDivPixel(bl);
+    blPix.x = blPix.x - _mapBoundsEnlargePixels;
+    blPix.y = blPix.y + _mapBoundsEnlargePixels;
+
+    // Convert the pixel points back to LatLng
+    var ne = projection.fromDivPixelToLatLng(trPix);
+    var sw = projection.fromDivPixelToLatLng(blPix);
+
+    // Extend the bounds to contain the new bounds.
+    bounds.extend(ne);
+    bounds.extend(sw);
+
+    return bounds;
+}
+
   async ionViewWillEnter() {
     this.loadingCtrl.create({ "message": "Please wait" }).then(loader => {
       loader.present()
       this._api.getDriver().then(
         res => {
-          let loc = this.driverDetails.location
-          this.iscarSelected = res.data[0].driverVehicleId
           this.driverDetails = res.data[0];
-          this.driverDetails.location = loc
-          this.getRequests().then(() => {
-            loader.dismiss()
-            this.availableClick()
-            if (!this.iscarSelected) {
-              this.alertprovider.presentAlert(
-                "Alert",
-                "Select vehicle",
-                "Please select a vehicle before going on duty!"
-              );
-            }
-          })
-          if (this.driverDetails.driverImageUrl == "")
-            this.driverDetails.driverImageUrl = null;
+          console.log(this.driverDetails)
+          loader.dismiss()
+          if (!this.driverDetails.driverVehicle) {
+            this._api.setDriveStatus(0)
+            this.alertprovider.presentAlert(
+              "Alert",
+              "Select vehicle",
+              "Please select a vehicle before going on duty!"
+            );
+          }
         }
-      ).catch(err => {
-        console.log(err)
-        loader.dismiss()
-        this.alertprovider.presentAlert(
-          "Oops..",
-          "Error",
-          "Something went wrong, please login and try again!"
-        );
-        // this.navCtrl.navigateBack(["/login"]);
-      })
+      )
     })
   }
 
   async availableClick() {
-    this._api.setDriveStatus(this.serviceReq.data.driverStatus?1:0)
-    if (this.serviceReq.data.driverStatus && this.iscarSelected) {
-      this.insomnia.keepAwake()
-    } else {
-      this.map.clear();
-      this.insomnia.allowSleepAgain()
-    }
+    this._api.setDriveStatus(this.serviceRequestsService.serviceReq.data.driverStatus ? 1 : 0)
   }
+
 
 
   selectVeh() {
     this.route.navigateByUrl("select-vehicle");
   }
   count: number = 0;
-
-
-  async getRequests() {
-    if (this.helpers.requestCheckClosed()) {
-      this.helpers.setRequestCheck(interval(5000).subscribe(() => {
-        if (this.serviceReq.data.driverStatus == 1) {
-          this.getRequests()
-        }
-      }))
-    }
-    return this._api.checkServiceRequests().then(serviceRequestResponse => {
-      this.statusChanged = this.serviceReq.data.serviceRequests.status != serviceRequestResponse.data.serviceRequests.status
-      this.serviceReq = serviceRequestResponse
-      if (!this.checkingRequest) {
-        switch (this.serviceReq.data.serviceRequests.status) {
-          default:
-            this.isJobAllocaed = false;
-            this.navigatingToFD = false;
-            this.serviceReq.data.serviceRequests = {
-              callId: 0,
-              dateSent: {
-                date: "",
-                timezone_type: "",
-                timezone: ""
-              },
-              status: 0,
-              sub_sub_product_name: "",
-              callRef: 0,
-            }
-            this.tripDetails = {
-              Distance: null,
-              Eta: null,
-              finalDestination: null,
-              timeMinutesValue: -1
-            };
-            break;
-          case 1:
-          case 2:
-            this.resetTripDetails();
-            this.map.clear()
-            this.route.isActive('app/tabs/tab1', false) && this.driverDetails.location ? this.checkRequest("reviewing") : "";
-          case 3:
-            break;
-          case 4:
-            this.statusChanged ? this.resetTripDetails() : "";
-            this.statusChanged ? this.map.clear() : "";
-            !this.isJobAllocaed && this.driverDetails.location ? this.allocateJob() : "";
-            this.tripDetails.timeMinutesValue > 0 && this.tripDetails.timeMinutesValue < 6 ? this.checkRequest("nearScene") : "";
-            break;
-          case 8:
-            this.checkRequest("notAllocated");
-            break;
-          case 10:
-            this.route.isActive('app/tabs/tab1', false) ? this.arrived() : "";
-            this.navigatingToFD = false
-            this.resetTripDetails();
-            break;
-          case 11:
-            this.map.clear()
-            this.resetTripDetails();
-            this.navigatingToFD = false
-            this.isJobAllocaed = false
-            this.checkRequest("endTowResponse");
-            break;
-          case 13:
-            this.navigatingToFD ? "" : this.resetTripDetails();
-            !this.navigatingToFD && this.driverDetails.location ? this.map.clear().then(() => { this.navToFinalDest() }) : "";
-            this.tripDetails.timeMinutesValue > 0 && this.tripDetails.timeMinutesValue < 6 ? this.checkRequest("nearFD") : "";
-            break;
-          case 14:
-            this.resetTripDetails();
-            this.statusChanged ? this.map.clear() : "";
-            this.serviceReq.data.finalDestination.latitude ? this.checkRequest("startTow") : "";
-            break;
-          case 15:
-            !this.isJobAllocaed && this.driverDetails.location ? this.allocateJob() : "";
-            break;
-          case 16:
-            !this.navigatingToFD && this.driverDetails.location ? this.map.clear().then(() => { this.navToFinalDest() }) : "";
-            break;
-        }
-      }
-    })
-  }
-
-  resetTripDetails() {
-    this.tripDetails = {
-      Distance: null,
-      Eta: null,
-      finalDestination: null,
-      timeMinutesValue: -1
-    };
-  }
-
 
   cloneAsObject(obj) {
     if (obj === null || !(obj instanceof Object)) {
@@ -424,22 +343,22 @@ export class Tab1Page {
   }
 
   async checkRequest(acceptResponse) {
-    this._api.acceptJob(this.serviceReq.data.serviceRequests.callId, acceptResponse, this.serviceReq.data.serviceRequests.callRef).then(response => {
+    this._api.acceptJob(this.serviceRequestsService.serviceReq.data.serviceRequests.callId, acceptResponse, this.serviceRequestsService.serviceReq.data.serviceRequests.callRef).then(response => {
       this.checkingRequest = false;
       if (acceptResponse == "notAllocated") {
         this.alertprovider.presentAlert(
           "Oops",
-          "Job REF #" + this.serviceReq.data.serviceRequests.callRef,
+          "Job REF #" + this.serviceRequestsService.serviceReq.data.serviceRequests.callRef,
           "Unfortunately we could not allocate the job to you!"
         );
-        if(this.route.isActive('request-alert', false)){
+        if (this.route.isActive('request-alert', false)) {
           this.route.navigate(['app/tabs/tab1']);
         }
       }
       if (acceptResponse == "reviewing") {
         this.route.navigate(["request-alert"], {
           queryParams: {
-            serviceRequest: JSON.stringify(this.serviceReq),
+            serviceRequest: JSON.stringify(this.serviceRequestsService.serviceReq),
             serviceProvider: JSON.stringify(this.cloneAsObject(this.driverDetails))
           }
         });
@@ -453,43 +372,47 @@ export class Tab1Page {
 
 
 
-  async navToFinalDest() {
+  async drawFDMarker() {
+    this.serviceRequestsService.timeGotFD = Date.now()
     this.alertprovider.presentAlert(
-      "JOB REF:#" + this.serviceReq.data.serviceRequests.callRef,
+      "JOB REF:#" + this.serviceRequestsService.serviceReq.data.serviceRequests.callRef,
       "Final destination",
       "You may now drop of the vehicle at the final destination shown on the map."
     );
-    this.navigatingToFD = true;
-    let marker = this.map.addMarkerSync({
+    this.fdMarker = this.map.addMarkerSync({
       position: {
-        lat: this.serviceReq.data.finalDestination.latitude,
-        lng: this.serviceReq.data.finalDestination.longitude
+        lat: this.serviceRequestsService.serviceReq.data.finalDestination.latitude,
+        lng: this.serviceRequestsService.serviceReq.data.finalDestination.longitude
       },
       title: "Final Destination"
     })
-    marker.showInfoWindow();
-    this.addPolyLines(this.driverDetails.location.coords.latitude, this.driverDetails.location.coords.longitude, this.serviceReq.data.finalDestination.latitude, this.serviceReq.data.finalDestination.longitude);
+    this.fdMarker.showInfoWindow();
   }
 
-  async allocateJob() {
-    this.checkRequest("allocated") 
-    this.isJobAllocaed = true;
-    if (this.appPaused) {
-      this.helpers.allocationPush(
-        "Congragulations!! The job has been allocated to you."
-      );
-    } else {
-      this.alertprovider.presentAlert(
-        "Congragulations",
-        "Job Allocation",
-        "The job has been allocated to you."
-      );
-    }
-
-    let marker2 = this.map.addMarker({
+  async drawDriverMarker() {
+    this.spMarker = this.map.addMarkerSync({
+      title: "Current Location",
       position: {
-        lat: this.serviceReq.data.clientLocation.latitude,
-        lng: this.serviceReq.data.clientLocation.longitude
+        lat: this.appLocation.LastKnownLatitude,
+        lng: this.appLocation.LastKnownLongitude,
+      },
+      animation: 'DROP',
+      icon: {
+        url: this.helpers.SPIcon,
+        size: {
+          width: 30,
+          height: 50
+        }
+      }
+    })
+    this.spMarker.showInfoWindow();
+  }
+
+  async drawSceneMarker() {
+    this.sceneMarker = this.map.addMarkerSync({
+      position: {
+        lat: this.serviceRequestsService.serviceReq.data.clientLocation.latitude,
+        lng: this.serviceRequestsService.serviceReq.data.clientLocation.longitude
       },
       title: "Scene Location",
       icon: {
@@ -499,15 +422,11 @@ export class Tab1Page {
           height: 40
         }
       }
-    }).then(marker2 => {
-      marker2.showInfoWindow()
     })
-
-
-    this.addPolyLines(this.driverDetails.location.coords.latitude, this.driverDetails.location.coords.longitude, this.serviceReq.data.clientLocation.latitude, this.serviceReq.data.clientLocation.longitude);
+    this.sceneMarker.showInfoWindow();
   }
 
-  addPolyLines(spLat: number, spLong: number, clientLat: number, clientLng: number) {
+  addPolyLines(spLat: number, spLong: number, clientLat: number, clientLng: number, type: string) {
     let nRoutes;
     let directionsService = new google.maps.DirectionsService;
     let navPoints = [];
@@ -515,7 +434,7 @@ export class Tab1Page {
     directionsService.route({
       origin: { lat: spLat, lng: spLong },
       destination: { lat: clientLat, lng: clientLng }, //lat: -25.997911, lng: 28.133915   
-      travelMode: 'DRIVING'
+      travelMode: "DRIVING"
     }, (response, status) => {
       if (status === 'OK') {
         nRoutes = response.routes[0].legs[0].steps;
@@ -534,17 +453,22 @@ export class Tab1Page {
             lng: nRoutes[i].lat_lngs[j].lng()
           };
           navPoints.push(drivePlanCoordinates);
-          
         }
       }
-      this.path = navPoints;
-      this.fdPolyline = new google.maps.Polyline({
-        points: navPoints,
-        color: "#000000",
-        width: 5,
-        // geodesic: true
-      })
-      this.map.addPolyline(this.fdPolyline);
+      this.points = navPoints;
+      if (type == "scene") {
+        this.scenePolyline = this.map.addPolylineSync({
+          points: navPoints,
+          color: "#000000",
+          width: 5,
+        })
+      } else {
+        this.fdPolyline = this.map.addPolylineSync({
+          points: navPoints,
+          color: "#000000",
+          width: 5,
+        })
+      }
 
     });
   }
@@ -572,6 +496,10 @@ export class Tab1Page {
     }
   }
 
+  async alert(message){
+
+  }
+
   async canceljob() {
     this.alertController.create({
       header: "Confirm Cancellation",
@@ -581,7 +509,7 @@ export class Tab1Page {
           text: "Yes",
           cssClass: "secondary",
           handler: () => {
-            this._api.acceptJob(this.serviceReq.data.serviceRequests.callId, "cancel", this.serviceReq.data.serviceRequests.callRef).then(() => {
+            this._api.acceptJob(this.serviceRequestsService.serviceReq.data.serviceRequests.callId, "cancel", this.serviceRequestsService.serviceReq.data.serviceRequests.callRef).then(() => {
               this.map.clear();
             })
           }
@@ -597,19 +525,14 @@ export class Tab1Page {
   }
 
   async jobInfo() {
-    if (this.serviceReq.data.serviceRequests.status == 3) {
+    if (this.serviceRequestsService.serviceReq.data.serviceRequests.status == 3) {
       this.alertprovider.presentAlert(
-        "REF #" + this.serviceReq.data.serviceRequests.callRef,
+        "REF #" + this.serviceRequestsService.serviceReq.data.serviceRequests.callRef,
         "Please wait",
         "You will be notified if you are allocated this job"
       )
     } else {
-      this.route.navigate(["job-info"], {
-        queryParams: {
-          jobInfo: JSON.stringify(this.cloneAsObject(this.serviceReq)),
-          spDetails: JSON.stringify(this.cloneAsObject(this.driverDetails))
-        }
-      });
+      this.route.navigate(["job-info"]);
     }
   }
 
@@ -617,11 +540,11 @@ export class Tab1Page {
     let destination = []
     this.navigationStarted = true;
     if (this.navigatingToFD) {
-      destination.push(this.serviceReq.data.finalDestination.latitude)
-      destination.push(this.serviceReq.data.finalDestination.longitude)
+      destination.push(this.serviceRequestsService.serviceReq.data.finalDestination.latitude)
+      destination.push(this.serviceRequestsService.serviceReq.data.finalDestination.longitude)
     } else {
-      destination.push(this.serviceReq.data.clientLocation.latitude);
-      destination.push(this.serviceReq.data.clientLocation.longitude);
+      destination.push(this.serviceRequestsService.serviceReq.data.clientLocation.latitude);
+      destination.push(this.serviceRequestsService.serviceReq.data.clientLocation.longitude);
     }
     this.DriverTarget = 80;
     this.helpers.navigate(destination);
@@ -637,40 +560,4 @@ export class Tab1Page {
   }
 
 
-  async arrived() {
-    this.loadingCtrl.create({
-      message: "Please wait..."
-    }).then(loader => {
-      loader.present()
-      this._api.acceptJob(this.serviceReq.data.serviceRequests.callId, "arrived", this.serviceReq.data.serviceRequests.callRef).then(response => {
-        loader.dismiss();
-        let claim = new CurrentClaim();
-        claim.call = new ClaimCall();
-        let id = this.serviceReq.data.serviceRequests.callId.toString();
-        claim.call.callRef = this.serviceReq.data.serviceRequests.callRef.toString();
-        this.claimManager.updateClaims(id, claim)
-        this.claimManager.setClaimId(id)
-        this.route.navigateByUrl("/motoraccident/step1");
-      })
-    })
-  }
-
-  async drawDriverMarker() {
-    this.spMarker = this.map.addMarkerSync({
-      title: "Current Location",
-      position: {
-        lat: this.appLocation.LastKnownLatitude,
-        lng: this.appLocation.LastKnownLongitude,
-      },
-      animation: 'DROP',
-      icon: {
-        url: this.helpers.SPIcon,
-        size: {
-          width: 30,
-          height: 50
-        }
-      }
-    })
-    this.spMarker.showInfoWindow();
-  }
 }

@@ -117,7 +117,7 @@ export class MotorAccidentOverviewPage implements OnInit {
   }
 
 
-  private async submitClaim() {
+  async submitClaim() {
     // Submit claim
     await this.popup.showLoading('Submitting...');
     this._api.checkServiceRequests().then(data => {

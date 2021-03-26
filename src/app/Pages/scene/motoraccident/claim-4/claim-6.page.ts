@@ -94,15 +94,6 @@ export class Claim6Page implements OnInit {
     }
   }
 
-  async locateUser() {
-    this.popup.showLoading('Locating you...').then(()=>{
-      this.helpers.getCurrentLocationAddress().then(locationData => {
-          this.popup.dismissLoading()
-          console.log(locationData);
-          this.claim.call.accPlace = locationData['formatted_address'];
-      })
-    })
-  }
 
   public handleAddressChange(address: Address) {
     // Do some stuff

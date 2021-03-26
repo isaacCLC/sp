@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-row>
-      <ion-col size="2">
+      <ion-col size="1">
         <ion-button (click)="goToHome()">
           <ion-icon name="arrow-back"></ion-icon>
         </ion-button>
@@ -17,7 +17,7 @@
 
 
 
-  <div *ngIf="serviceRequestsService.serviceReq.data.serviceRequests.status != 13 && serviceRequestsService.serviceReq.data.serviceRequests.status != 14" class="client-details">
+  <div *ngIf="serviceRequestsService.serviceReq.data.serviceRequests.status != 13 && serviceRequestsService.serviceReq.data.serviceRequests.status != 14  && serviceRequestsService.serviceReq.data.serviceRequests.status != 16" class="client-details">
     <h5 class="center">Client Details</h5>
     <ion-grid>
       <ion-row>
@@ -42,7 +42,7 @@
         </ion-col>
         <ion-col size="6">
           <!-- {{appLocation?JSON.stringify(appLocation.tripDetails):""}} -->
-          <i>{{appLocation.tripDetails.Distance}}</i>
+          <i>{{appLocation.tripDetails?appLocation.tripDetails.Distance:""}}</i>
         </ion-col>
       </ion-row>
       <ion-row>
@@ -50,12 +50,12 @@
           <strong>ETA:</strong>
         </ion-col>
         <ion-col size="6">
-          <i> {{appLocation.tripDetails.Eta}}</i>
+          <i> {{appLocation.tripDetails?appLocation.tripDetails.Eta:""}}</i>
         </ion-col>
       </ion-row>
     </ion-grid>
   </div>
-  <div *ngIf="serviceRequestsService.serviceReq.data.serviceRequests.status == 13 || serviceRequestsService.serviceReq.data.serviceRequests.status == 14" class="client-details">
+  <div *ngIf="serviceRequestsService.serviceReq.data.serviceRequests.status == 13 || serviceRequestsService.serviceReq.data.serviceRequests.status == 14 || serviceRequestsService.serviceReq.data.serviceRequests.status == 16" class="client-details">
     <h5 class="center">Final Destination Details</h5>
     <ion-grid>
       <ion-row>
@@ -71,7 +71,7 @@
           <strong>Distance:</strong>
         </ion-col>
         <ion-col size="6">
-          <i>{{serviceRequestsService.serviceReq.data.finalDestination.distance}}</i>
+          <i>{{appLocation.tripDetails?appLocation.tripDetails.Distance:""}}</i>
         </ion-col>
       </ion-row>
       <ion-row>
@@ -79,7 +79,7 @@
           <strong>ETA:</strong>
         </ion-col>
         <ion-col size="6">
-          <i> {{serviceRequestsService.serviceReq.data.finalDestination.time}}</i>
+          <i> {{appLocation.tripDetails?appLocation.tripDetails.Eta:""}}</i>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -109,24 +109,24 @@
   <ion-row class="contact-btns">
     <ion-col size="4">
       <ion-button (click)="callCLC()" shape="round">
-        CLC &nbsp;&nbsp;
         <ion-icon style="color: green" size="large" name="call">
         </ion-icon>
+        CLC &nbsp;&nbsp;
       </ion-button>
     </ion-col>
     <ion-col size="4">
       <ion-button (click)="callClient()" shape="round">
-        Client
         <ion-icon style="color: green" size="large" name="call">
         </ion-icon>
+        Client
       </ion-button>
     </ion-col>
     <ion-col size="4">
       <!-- <ion-button style="font-size: 10px;" color="primary" >Message CLC</ion-button> -->
       <ion-button (click)="messageClient()" shape="round">
-        CLC &nbsp;
         <ion-icon style="color:orange" size="large" name="chatbubble-ellipses-outline">
         </ion-icon>
+        CLC &nbsp;
         <!-- <ion-badge [class.badge-one]="1 ==1" color="danger">1</ion-badge> -->
       </ion-button>
     </ion-col>

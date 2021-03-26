@@ -35,17 +35,17 @@ export class SelectVehiclePage implements OnInit {
     private alertprovider: AlertsProviderService,
     private _api: ApiGateWayService,
     private helpers: Helpers,
-  ) { 
+  ) {
   }
 
-  
+
 
   ngOnInit() {
-    
+
   }
 
   async ionViewWillEnter() {
-    this._api.getDriver().then(driver=>{
+    this._api.getDriver().then(driver => {
       console.log(driver)
       this.driverDetails = driver.data[0]
       this.loadVehicles(this.driverDetails.driverSpId);
@@ -66,7 +66,7 @@ export class SelectVehiclePage implements OnInit {
         err => {
           loader.dismiss()
           this.alertprovider
-            .presentAlert("Alert","Information", "No Vehicles availale")
+            .presentAlert("Alert", "Information", "No Vehicles availale")
             .then(() => {
               this.route.navigateByUrl("app/tabs/tab3");
             });
@@ -98,7 +98,7 @@ export class SelectVehiclePage implements OnInit {
           }
         }
       ]
-    }).then(alert=>{
+    }).then(alert => {
       alert.present();
     })
   }
@@ -122,50 +122,41 @@ export class SelectVehiclePage implements OnInit {
           let data = new Array();
           data = receivedData.split("%");
           this.scannedCarLicNum = data[6];
-          if (this.platform.is("android")) {
-            // if (this.scannedCarLicNum == this.myVehicles[idx].registrationNumber.split(" ").join("")) {
+          console.log(this.scannedCarLicNum)
+          console.log(this.myVehicles[idx].registrationNumber.split(" ").join(""))
+
+          // if (this.scannedCarLicNum == this.myVehicles[idx].registrationNumber.split(" ").join("")) {
             if (true) {
-              this._api.verifyVehicle(this.myVehicles[idx].registrationNumber.split(" ").join("")).then(response=>{
-                if(response.status){
-                  this.isVehicleSet = true;
-                  this.storage.set("isVehicleSet", this.isVehicleSet).then(() => {
-                    this.storage.set("clc_selectedVehicle", this.myVehicles[idx]).then(()=>{
-                      this.route.navigateByUrl("select-tel-number");
-                    })
-                  });
-                }else{
-                  this.alertprovider.presentAlert(
-                    "Oops",
-                    "Something went wrong",
-                    "Could not assign you this vehicle, Please Try Again"
-                  );    
-                }
-              },err=>{
+            this._api.verifyVehicle(this.myVehicles[idx].registrationNumber.split(" ").join("")).then(response => {
+              if (response.status) {
+                this.isVehicleSet = true;
+                this.storage.set("isVehicleSet", this.isVehicleSet).then(() => {
+                  this.storage.set("clc_selectedVehicle", this.myVehicles[idx]).then(() => {
+                    this.route.navigateByUrl("select-tel-number");
+                  })
+                });
+              } else {
                 this.alertprovider.presentAlert(
                   "Oops",
                   "Something went wrong",
-                  "Could not assign you this vehicle, Please try again or contact CLC"
+                  "Could not assign you this vehicle, Please Try Again"
                 );
-              })
-            } else {
+              }
+            }, err => {
               this.alertprovider.presentAlert(
                 "Oops",
-                "Vehicle Validation",
-                "The Selected Vehicle Does Not Match The Scanned License Disk, Please Try Another Vehicle"
+                "Something went wrong",
+                "Could not assign you this vehicle, Please try again or contact CLC"
               );
-            }
+            })
           } else {
             this.alertprovider.presentAlert(
               "Oops",
-              "Error",
-              "Couldn't scan license disk, please try again"
+              "Vehicle Validation",
+              "The Selected Vehicle Does Not Match The Scanned License Disk, Please Try Another Vehicle"
             );
-            // this.isVehicleSet = true;
-            // this.storage.set("isVehicleSet", this.isVehicleSet).then(() => {
-            //   this.route.navigateByUrl("select-tel-number");
-            // });
-            // this.storage.set("clc_selectedVehicle", this.myVehicles[idx]);
           }
+
         },
         err => {
           loader.dismiss();
