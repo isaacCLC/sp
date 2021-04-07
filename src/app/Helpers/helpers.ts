@@ -169,7 +169,7 @@ export class Helpers {
 
   }
 
-  async getCurrentLocationAddress() {  
+  async getCurrentLocationAddress(): Promise<any> {  
     return new Promise(resolve=>{
       this.getCurrentLocation().then((location: Geoposition)=>{
         if("coords" in location){
@@ -286,11 +286,11 @@ export class Helpers {
     ]);
   }
 
-  allocationPush(text: string) {
+  allocationPush(text: string, title?) {
     this.localNotifications.schedule([
       {
         id: 2,
-        title: "Job Allocation",
+        title: title?title:"Job Allocation",
         text: text,
         icon:
           "https://cdn.iconscout.com/icon/free/png-256/car-location-find-navigate-gps-location-29571.png"

@@ -44,20 +44,20 @@
 
   <div *ngIf="gotToTns">
     <div [innerHTML]="tNc"></div>
-    <ion-radio-group>
+    <ion-radio-group [(ngModel)]='termsState' (click)="checkState()">
       <ion-item>
-        <ion-label>I Agree To The Terms Of Service</ion-label>
-        <ion-radio slot="start" value="IAgree" (click)="getTermsState(true)">
+        <ion-label>I Agree To The Terms Of {{termsState}}</ion-label>
+        <ion-radio slot="start" value="true">
         </ion-radio>
       </ion-item>
       <ion-item>
         <ion-label>I Don't Agree To The Terms Of Service</ion-label>
-        <ion-radio slot="start" value="IDontAgree" (click)="getTermsState(false)">
+        <ion-radio slot="start" value="false">
         </ion-radio>
       </ion-item>
     </ion-radio-group>
     <br>
-    <ion-button expand="block" (click)="continue()">Continue</ion-button>
+    <ion-button expand="block" [disabled]="termsState == undefined"  (click)="continue()">Continue</ion-button>
   </div>
 
 </ion-content>

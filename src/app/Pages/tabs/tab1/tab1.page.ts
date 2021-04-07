@@ -131,21 +131,6 @@ export class Tab1Page {
 
   initLocation() {
     this.appLocation.locationUpdated.subscribe(location => {
-      this.map.addMarkerSync({
-        title: "Current Location",
-        position: {
-          lat: location.latitude,
-          lng: location.longitude
-        },
-        animation: 'DROP',
-        icon: {
-          url: this.helpers.SPIcon,
-          size: {
-            width: 30,
-            height: 50
-          }
-        }
-      })
       if (this.serviceRequestsService.serviceReq) {
         if (this.route.isActive('app/tabs/tab1', false) && this.serviceRequestsService.serviceReq.data.driverStatus == 1 && this.map) {
 
@@ -539,7 +524,7 @@ export class Tab1Page {
   async navigate() {
     let destination = []
     this.navigationStarted = true;
-    if (this.navigatingToFD) {
+    if ([13, 16].includes(this.serviceRequestsService.serviceReq.data.serviceRequests.status)) {
       destination.push(this.serviceRequestsService.serviceReq.data.finalDestination.latitude)
       destination.push(this.serviceRequestsService.serviceReq.data.finalDestination.longitude)
     } else {

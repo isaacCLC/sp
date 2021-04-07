@@ -15,8 +15,6 @@ import { ServiceRequestsService } from "src/app/utils/service-requests.service";
 })
 export class JobInfoPage implements OnInit {
   map: GoogleMap;
-  jobDetails: iServiceRequest;
-  spDetails: DriverDetails;
   marker: Marker;
   JSON: any;
   constructor(
@@ -72,7 +70,7 @@ export class JobInfoPage implements OnInit {
   }
 
   callClient() {  
-    this.callNumber.callNumber(this.jobDetails.data.client.number, true)
+    this.callNumber.callNumber(this.serviceRequestsService.serviceReq.data.client.number, true)
       .then(res => console.log('Launched dialer!', res))
       .catch(err => console.log('Error launching dialer', err));
   }

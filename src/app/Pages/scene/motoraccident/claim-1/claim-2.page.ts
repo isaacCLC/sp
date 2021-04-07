@@ -10,6 +10,7 @@ import { ApiGateWayService } from 'src/app/Providers/api-gate-way.service';
 import { LookupId, LookupOperation } from 'src/app/Providers/lookup-operation';
 import { MediaManager } from "src/app/utils/media-manager";
 import { PopupHelper } from "src/app/utils/popup-helper";
+import { ServiceRequestsService } from 'src/app/utils/service-requests.service';
 
 @Component({
   selector: 'app-motoraccident-claim-2',
@@ -33,7 +34,7 @@ export class Claim2Page implements OnInit {
   licenseCodeOptions: getLookupData[] = [];
   occupationOptions: getLookupData[] = [];
 
-  constructor(private actionSheetController: ActionSheetController, private statusBar: StatusBar, private platform: Platform, private navController: NavController,
+  constructor(public serviceRequestsService: ServiceRequestsService, private actionSheetController: ActionSheetController, private statusBar: StatusBar, private platform: Platform, private navController: NavController,
     private _api: ApiGateWayService,
     private claimManager: ClaimManager, private mediaManager: MediaManager, private lookupOperation: LookupOperation, private popup: PopupHelper) {
     if (!this.claim.drivers)
@@ -42,8 +43,14 @@ export class Claim2Page implements OnInit {
 
   async ngOnInit() {
     this.claimId = await this.claimManager.getClaimId();
-    if (!this.claimId || this.claimId == '')
-      this.navController.navigateRoot('/app/tabs/tab1', { animated: true });
+    if (!this.claimId || this.claimId == ''){
+      let claim = new CurrentClaim();
+      claim.call = new ClaimCall();
+      let id = this.serviceRequestsService.serviceReq.data.serviceRequests.callId.toString();
+      claim.call.callRef = this.serviceRequestsService.serviceReq.data.serviceRequests.callRef.toString();
+      this.claimManager.updateClaims(id, claim)
+      this.claimManager.setClaimId(id)
+    }
     await this.getClaim();
     await this.getAllOptions();
   }

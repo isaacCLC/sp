@@ -10,6 +10,7 @@ import { AppLocation } from './app-location';
 import { ClaimCall, ClaimManager, ClaimTypeId, CurrentClaim } from "src/app/Helpers/claim-manager";
 import { Insomnia } from '@ionic-native/insomnia/ngx';
 import { StaticMapService } from './static-map';
+import { BackgroundGeolocation } from '@ionic-native/background-geolocation/ngx';
 
 @Injectable({
   providedIn: 'root'
@@ -37,14 +38,18 @@ export class ServiceRequestsService {
     private platform: Platform,
     private insomnia: Insomnia,
     public mapService: StaticMapService,
+    private backgroundGeolocation: BackgroundGeolocation
   ) {
 
-    // setup a timer check for service requests every 5 seconds
-    window.setInterval(() => {
-      !this.checkingRequest ? this.getServiceRequest() : "";
-    }, 5000);
+
 
     platform.ready().then(() => {
+      // setup a timer check for service requests every 5 seconds
+      this.getServiceRequest()
+      window.setInterval(() => {
+        !this.checkingRequest ? this.getServiceRequest() : "";
+      }, 10000);
+
       this.platform.pause.subscribe(() => {
         this.appPaused = true;
       });
@@ -60,74 +65,117 @@ export class ServiceRequestsService {
     this.checkingRequest = true;
     this._api.checkServiceRequests()
       .then(serviceRequestResponse => {
-        this.appLocation.serviceReq = serviceRequestResponse
-        this.serviceReq = serviceRequestResponse
-        if (this.serviceReq.data.driverStatus) {
-          this.insomnia.keepAwake()
-        } else {
-          this.insomnia.allowSleepAgain()
-        }
-        switch (serviceRequestResponse.data.serviceRequests.status) {
-          case 1:
-          case 2:
-            if (!this.route.isActive("/request-alert", false)) {
+        if (serviceRequestResponse) {
+          console.log(this.appLocation.geolocationSub)
+          this.appLocation.serviceReq = serviceRequestResponse
+          this.serviceReq = serviceRequestResponse
+          if (this.serviceReq.data.driverStatus) {
+            this.insomnia.keepAwake()
+          } else {
+            this.insomnia.allowSleepAgain()
+          }
+          this.backgroundGeolocation.configure({
+            notificationTitle: serviceRequestResponse.data.serviceRequests.status ? this.serviceReq.data.serviceRequests.statusDescription : "Available",
+            notificationText: serviceRequestResponse.data.serviceRequests.status ? "Click to view job." : "We will alert you when you recieve a service request."
+          })
+          switch (serviceRequestResponse.data.serviceRequests.status) {
+            case 1:
               this.checkRequest("reviewing");
               this.route.navigate(["request-alert"]);
-            }
-            if(this.mapService.currenLocLat != serviceRequestResponse.data.clientLocation.latitude && this.mapService.currenLocLng != serviceRequestResponse.data.clientLocation.longitude){
-              console.log("Updating map")
-              this.mapService.getStaticMapBase64(Number(serviceRequestResponse.data.clientLocation.latitude), Number(serviceRequestResponse.data.clientLocation.longitude), '5', 12).then(pic=>{
+              this.mapService.getStaticMapBase64(Number(serviceRequestResponse.data.clientLocation.latitude), Number(serviceRequestResponse.data.clientLocation.longitude), '5', 12).then(pic => {
                 this.staticMapsURL = pic
                 this.mapService.currenLocLat = serviceRequestResponse.data.clientLocation.latitude
                 this.mapService.currenLocLng = serviceRequestResponse.data.clientLocation.longitude
               })
-            }
-            break;
-          case 17:
-            this.checkRequest("allocated");
-            if (this.appPaused) {
-              this.helpers.allocationPush(
-                "Congragulations!! The job has been allocated to you."
-              );
-            } else {
+              break;
+            case 2:
+              if (!this.route.isActive("/request-alert", false)) {
+                this.route.navigate(["request-alert"]);
+              }
+              if (this.mapService.currenLocLat != serviceRequestResponse.data.clientLocation.latitude && this.mapService.currenLocLng != serviceRequestResponse.data.clientLocation.longitude) {
+                this.mapService.getStaticMapBase64(Number(serviceRequestResponse.data.clientLocation.latitude), Number(serviceRequestResponse.data.clientLocation.longitude), '5', 12).then(pic => {
+                  this.staticMapsURL = pic
+                  this.mapService.currenLocLat = serviceRequestResponse.data.clientLocation.latitude
+                  this.mapService.currenLocLng = serviceRequestResponse.data.clientLocation.longitude
+                })
+              }
+              this.backgroundGeolocation.configure({
+                notificationText: "You have a new service request"
+              })
+              break;
+            case 3:
+              this.backgroundGeolocation.configure({
+                notificationText: "You will be notified if this job is allocated to you."
+              })
+              break;
+            case 17:
+              this.checkRequest("allocated");
+              if (this.appPaused) {
+                this.helpers.allocationPush(
+                  "Congragulations!! The job has been allocated to you"
+                );
+              } else {
+                this.alertprovider.presentAlert(
+                  "Congragulations",
+                  "Job Allocation",
+                  "The job has been allocated to you."
+                );
+              }
+              this.backgroundGeolocation.configure({
+                notificationText: "The job has been allocated to you"
+              })
+              break;
+            case 4:
+              this.appLocation.tripDetails && this.appLocation.tripDetails.timeMinutesValue < 6 ? this.checkRequest("nearScene") : "";
+              this.backgroundGeolocation.configure({
+                notificationText: "Dont forget to take details of the scene when you arive"
+              })
+              break;
+            case 8:
+              this.checkRequest("notAllocated");
               this.alertprovider.presentAlert(
-                "Congragulations",
-                "Job Allocation",
-                "The job has been allocated to you."
+                "Oops",
+                "Job REF #" + this.serviceReq.data.serviceRequests.callRef,
+                "Unfortunately we could not allocate the job to you!"
               );
-            }
-            break;
-          case 4:
-            this.appLocation.tripDetails && this.appLocation.tripDetails.timeMinutesValue < 6 ? this.checkRequest("nearScene") : "";              
-            break;
-          case 8:
-            this.checkRequest("notAllocated");
-            this.alertprovider.presentAlert(
-              "Oops",
-              "Job REF #" + this.serviceReq.data.serviceRequests.callRef,
-              "Unfortunately we could not allocate the job to you!"
-            );
-            if (this.route.isActive('request-alert', false)) {
-              this.route.navigate(['app/tabs/tab1']);
-            }
-            break;
-          case 10:
-            if (!this.route.isActive("/motoraccident", false)) {
-              this.route.navigateByUrl("/motoraccident/step1");
-            }
-            break;
-          case 11:
-            this.checkRequest("endTowResponse");
-            break;
-          case 13:
-            if(this.timeGotFD && ((Date.now()-this.timeGotFD)>30000)){
-              this.appLocation.tripDetails && this.appLocation.tripDetails.timeMinutesValue < 6 ? this.checkRequest("nearFD") : "";
-            }
-            break;
-          case 14:
-            this.serviceReq.data.finalDestination.latitude ? this.checkRequest("startTow") : "";
-            break;
+              this.backgroundGeolocation.configure({
+                notificationText: "Unfortunately we could not allocate the job to you!"
+              })
+              if (this.route.isActive('request-alert', false)) {
+                this.route.navigate(['app/tabs/tab1']);
+              }
+              break;
+            case 10:
+              if (!this.route.isActive("/motoraccident", false)) {
+                this.route.navigateByUrl("/motoraccident/step1");
+              }
+              this.backgroundGeolocation.configure({
+                notificationText: "Please capture the accident scene!"
+              })
+              break;
+            case 11:
+              this.backgroundGeolocation.configure({
+                notificationText: "Thank you for completing job: #" + this.serviceReq.data.serviceRequests.callRef
+              })
+              this.checkRequest("endTowResponse");
+              break;
+            case 13:
+              if (this.timeGotFD && ((Date.now() - this.timeGotFD) > 30000)) {
+                this.appLocation.tripDetails && this.appLocation.tripDetails.timeMinutesValue < 6 ? this.checkRequest("nearFD") : "";
+              }
+              this.backgroundGeolocation.configure({
+                notificationText: "You are near the final destination. Dont forget to take a photo of the towing slip"
+              })
+              break;
+            case 14:
+              this.backgroundGeolocation.configure({
+                notificationText: "We will alert you once the final destination is confirmed. Please do not take the car elsewhere"
+              })
+              this.serviceReq.data.finalDestination.latitude ? this.checkRequest("startTow") : "";
+              break;
+          }
         }
+
       }).finally(() => {
         this.checkingRequest = false;
       }).catch(err => {
@@ -139,8 +187,9 @@ export class ServiceRequestsService {
   async checkRequest(acceptResponse) {
     this.checkingRequest = true;
     this._api.acceptJob(this.serviceReq.data.serviceRequests.callId, acceptResponse, this.serviceReq.data.serviceRequests.callRef)
-    .finally(()=>{
-      this.checkingRequest = false;
-    })
+      .finally(() => {
+        this.checkingRequest = false;
+        this.getServiceRequest()
+      })
   }
 }

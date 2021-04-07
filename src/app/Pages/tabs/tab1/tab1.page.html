@@ -39,7 +39,7 @@
 </section>
 
 <ion-fab vertical="bottom" horizontal="end" slot="fixed"
-  *ngIf="serviceRequestsService.serviceReq && (serviceRequestsService.serviceReq.data.serviceRequests.status == 4 || serviceRequestsService.serviceReq.data.serviceRequests.status == 13)">
+  *ngIf="serviceRequestsService.serviceReq && (serviceRequestsService.serviceReq.data.serviceRequests.status == 4 || serviceRequestsService.serviceReq.data.serviceRequests.status == 13 || serviceRequestsService.serviceReq.data.serviceRequests.status == 6 || serviceRequestsService.serviceReq.data.serviceRequests.status == 15)">
   <ion-fab-button (click)="navigate();">
     <ion-icon class="iconSize" name="navigate-circle-outline"></ion-icon>
   </ion-fab-button>

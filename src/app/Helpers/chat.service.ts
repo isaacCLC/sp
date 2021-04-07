@@ -1,8 +1,9 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertController } from '@ionic/angular';
+import { AlertController, Platform } from '@ionic/angular';
 import { ApiGateWayService } from '../Providers/api-gate-way.service';
 import { ServiceRequestsService } from '../utils/service-requests.service';
+import { Helpers } from './helpers';
 
 @Injectable({
   providedIn: 'root'
@@ -11,15 +12,27 @@ export class ChatService {
   messages: [];
   private _chatsUpdated: EventEmitter<any> = new EventEmitter();
   currentAlert: HTMLIonAlertElement;
+  appPaused: boolean;
 
   constructor(
     private _api: ApiGateWayService,
     private serviceRequestsService: ServiceRequestsService,
     private route: Router,
-    public alertController: AlertController) {
+    public alertController: AlertController,
+    private platform: Platform,
+    private helpers: Helpers,) {
     this.getMessages()
     window.setInterval(() => this.serviceRequestsService.serviceReq ? this.getMessages() : "", 5000);
+    platform.ready().then(() => {
+      this.platform.pause.subscribe(() => {
+        this.appPaused = true;
+      });
 
+      this.platform.resume.subscribe(() => {
+        this.appPaused = false;
+      });
+
+    });
   }
 
   public get chatsUpdated(): EventEmitter<any> {
@@ -40,45 +53,51 @@ export class ChatService {
             this.chatsUpdated.emit(true);
           } else {
             if (element.messageRead == 0 && element.sentBy == 'agent' && (!this.currentAlert)) {
-              console.log(this.currentAlert)
-              this.alertController.create({
-                header: "New Message from CLC",
-                subHeader: element.user_first_name + " " + element.user_last_name,
-                message: element.chatMessage,
-                backdropDismiss: false,
-                inputs: [
-                  {
-                    name: 'message',
-                    type: 'text',
-                    placeholder: 'Enter a reply message.'
-                  },
-                ],
-                buttons: [
-                  {
-                    text: 'Mark as read',
-                    role: 'cancel',
-                    cssClass: 'secondary',
-                    handler: (data) => {
-                      this.markAsRead(element.chatID).then(read => {
-                        this.currentAlert = undefined;
-                      })
-                    }
-                  }, {
-                    text: 'Reply',
-                    handler: (data) => {
-                      console.log(data);
-                      this.sendMessage(data.message).then(sent => {
+               if (this.appPaused) {
+                this.helpers.allocationPush(
+                  element.chatMessage, "New message From "+element.user_first_name + " " + element.user_last_name
+                );
+               }else{
+                this.alertController.create({
+                  header: "New Message from CLC",
+                  subHeader: element.user_first_name + " " + element.user_last_name,
+                  message: element.chatMessage,
+                  backdropDismiss: false,
+                  inputs: [
+                    {
+                      name: 'message',
+                      type: 'text',
+                      placeholder: 'Enter a reply message.'
+                    },
+                  ],
+                  buttons: [
+                    {
+                      text: 'Mark as read',
+                      role: 'cancel',
+                      cssClass: 'secondary',
+                      handler: (data) => {
                         this.markAsRead(element.chatID).then(read => {
                           this.currentAlert = undefined;
                         })
-                      })
+                      }
+                    }, {
+                      text: 'Reply',
+                      handler: (data) => {
+                        console.log(data);
+                        this.sendMessage(data.message).then(sent => {
+                          this.markAsRead(element.chatID).then(read => {
+                            this.currentAlert = undefined;
+                          })
+                        })
+                      }
                     }
-                  }
-                ]
-              }).then(alert => {
-                this.currentAlert = alert
-                this.currentAlert.present()
-              })
+                  ]
+                }).then(alert => {
+                  this.currentAlert = alert
+                  this.currentAlert.present()
+                })
+               }
+              
             }
           }
         });

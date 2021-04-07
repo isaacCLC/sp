@@ -30,7 +30,7 @@ export class RequestAlertPage implements OnInit {
   finalDest: string = '0';
   vehicleDescription: string;
   vehicleRegistration: string;
-  initialMapLoad: boolean = true;
+
   staticMapsURL = "https://maps.googleapis.com/maps/api/staticmap?center=-25.881055,%2028.181996&zoom=13&size=640x640&maptype=roadmap&key=AIzaSyBo-0cSqDB1H3mAsfJEdnyhTu0vrBGXsy0"
 
   constructor(
@@ -71,8 +71,13 @@ export class RequestAlertPage implements OnInit {
     this.termsState = evt;
   }
 
+  checkState(){
+    console.log(this.termsState)
+  }
+
   continue() {
-    if (this.termsState == true) {
+    console.log(typeof this.termsState)
+    if (this.termsState.toString() == 'true') {
       this._api.acceptJob(this.serviceRequestsService.serviceReq.data.serviceRequests.callId, true, this.serviceRequestsService.serviceReq.data.serviceRequests.callRef).then(apiResponse => {
         if(apiResponse.data.Allocated){
           this.alertProvider.presentAlert(

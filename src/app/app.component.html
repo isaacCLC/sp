@@ -1,3 +1,60 @@
 <ion-app>
   <ion-router-outlet></ion-router-outlet>
+  <ion-slides *ngIf="serviceRequestsService.serviceReq && serviceRequestsService.serviceReq.data.driverStatus == 1 && (!appLocation.locationServiceStatus || !appLocation.locationServiceStatus.locationServicesEnabled || !appLocation.locationServiceStatus.hasPermissions)" pager="true">
+    <ion-slide>
+      <div class="slide">
+        <br>
+        <ion-icon style="font-size: 80px; color: red;" name="location-sharp"></ion-icon>
+        <h2>Use your location</h2>
+        <p>To receive service requests for clients that are near you, allow <b>CLC Service Providers app</b> to use your location all of the time.</p>
+        <br>
+        <p><b>CLC Service Providers app</b> will use your location in the background to match you to the nearest service requests.</p>
+        <ion-item *ngIf="appLocation.locationServiceStatus">
+          <ion-label>Location Service:</ion-label>
+          <ion-toggle color="success" (click)="appLocation.requestLocationServices($event);" [(ngModel)]="appLocation.locationServiceStatus.locationServicesEnabled" [disabled]="appLocation.locationServiceStatus.locationServicesEnabled"></ion-toggle>
+        </ion-item>
+        <ion-item *ngIf="appLocation.locationServiceStatus">
+          <ion-label>Location Permissions:</ion-label>
+          <ion-toggle color="success" (click)="appLocation.requestLocationPermission($event);" [(ngModel)]="appLocation.locationServiceStatus.hasPermissions" [disabled]="appLocation.locationServiceStatus.hasPermissions"></ion-toggle>
+        </ion-item>
+        <!-- <ion-button color="primary" (click)="requestLocation();" fill="clear">Continue <ion-icon slot="end" name="arrow-forward"></ion-icon></ion-button> -->
+      </div>
+    </ion-slide>
+  </ion-slides>
 </ion-app>
+<style>
+  ion-slides {
+    height: 100%;
+    background-color: white;
+  }
+
+  .swiper-slide {
+    display: block;
+  }
+
+  .swiper-slide h2 {
+    margin-top: 2.8rem;
+  }
+
+  .swiper-slide img {
+    max-height: 50%;
+    max-width: 80%;
+    margin: 60px 0 40px;
+    pointer-events: none;
+  }
+
+  b {
+    font-weight: 500;
+  }
+
+  p {
+    padding: 0 40px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--ion-color-step-600, #60646b);
+  }
+
+  p b {
+    color: var(--ion-text-color, #000000);
+  }
+</style>
