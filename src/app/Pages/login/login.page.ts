@@ -8,6 +8,7 @@ import { Storage } from "@ionic/storage";
 import { ApiGateWayService } from "../../Providers/api-gate-way.service";
 import { AlertsProviderService } from "../../Providers/alerts-provider.service";
 import { OneSignal } from "@ionic-native/onesignal/ngx";
+
 @Component({
   selector: "app-login",
   templateUrl: "./login.page.html",
@@ -31,7 +32,7 @@ export class LoginPage implements OnInit {
     private _api: ApiGateWayService,
     private loadingCtrl: LoadingController,
     private alerts: AlertsProviderService,
-    private oneSignal: OneSignal
+    private oneSignal: OneSignal,
   ) {
     this.showPass = false;
   }
@@ -41,9 +42,9 @@ export class LoginPage implements OnInit {
     this.oneSignal.getIds().then(ids => {
       this.pushPlayerId = ids.userId;
     });
-
-
   }
+
+  
 
   ionViewWillEnter() {
     this.storage.get("username").then(username => {

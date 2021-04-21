@@ -66,6 +66,17 @@ export class Claim6Page implements OnInit {
     await this.getOptions(LookupId.streetLighting);
   }
 
+  async locateUser() {
+    this.popup.showLoading("Getting you location").then(locationLoader=>{
+      console.log(locationLoader)
+      this.helpers.getCurrentLocationAddress().then(response=>{
+        console.log(response)
+        this.popup.dismissLoading()
+        this.claim.call.accPlace =  response.formatted_address
+      })
+    })
+   
+  }
 
   async getOptions(lookup: LookupId) {
     let response = await this.lookupOperation.getLookup(lookup);
