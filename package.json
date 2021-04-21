@@ -85,6 +85,7 @@
     "cordova-androidx-build": "^1.0.4",
     "cordova-plugin-actionsheet": "^2.3.3",
     "cordova-plugin-appavailability": "^0.4.2",
+    "cordova-plugin-background-geolocation": "^1.0.6",
     "cordova-plugin-background-mode": "^0.7.3",
     "cordova-plugin-badge": "^0.8.8",
     "cordova-plugin-camera": "^5.0.1",
@@ -156,12 +157,18 @@
       "cordova-plugin-background-mode": {},
       "uk.co.workingedge.phonegap.plugin.launchnavigator": {
         "GOOGLE_API_KEY_FOR_ANDROID": "AIzaSyBo-0cSqDB1H3mAsfJEdnyhTu0vrBGXsy0",
-        "OKHTTP_VERSION": "3.12.0"
+        "OKHTTP_VERSION": "3.12.0",
+        "LOCATION_USAGE_DESCRIPTION": "This app requires access to your location for navigation purposes"
       },
       "cordova-plugin-network-information": {},
-      "cordova-plugin-media": {},
+      "cordova-plugin-media": {
+        "KEEP_AVAUDIOSESSION_ALWAYS_ACTIVE": "NO"
+      },
       "call-number": {},
-      "cordova-plugin-googlemaps": {},
+      "cordova-plugin-googlemaps": {
+        "LOCATION_WHEN_IN_USE_DESCRIPTION": "This app wants to get your location while this app runs only.",
+        "LOCATION_ALWAYS_USAGE_DESCRIPTION": "This app wants to get your location always, even this app runs in background."
+      },
       "cordova-plugin-pin-dialog": {},
       "com-sarriaroman-photoviewer": {},
       "cordova-plugin-sms-retriever-manager": {
