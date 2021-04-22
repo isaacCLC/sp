@@ -11,7 +11,6 @@ import { Platform } from '@ionic/angular';
 export class DeviceInfo {
 
     constructor(public platformService: Platform, public device: Device) {
-        console.log("Platforms: " + platformService.platforms());
     }
 
     public get isAndroid(): boolean {

@@ -6,9 +6,9 @@
         <br>
         <ion-icon style="font-size: 80px; color: red;" name="location-sharp"></ion-icon>
         <h2>Use your location</h2>
-        <p>To receive service requests for clients that are near you, allow <b>CLC Service Providers app</b> to use your location all of the time.</p>
+        <p>To receive service requests for clients that are near you, allow <b>CLC Service Providers app</b> to use your location all.</p>
         <br>
-        <p><b>CLC Service Providers app</b> will use your location in the background to match you to the nearest service requests.</p>
+        <!-- <p><b>CLC Service Providers app</b> will use your location in the background to match you to the nearest service requests.</p> -->
         <ion-item *ngIf="appLocation.locationServiceStatus">
           <ion-label>Location Service:</ion-label>
           <ion-toggle color="success" (click)="appLocation.requestLocationServices($event);" [(ngModel)]="appLocation.locationServiceStatus.locationServicesEnabled" [disabled]="appLocation.locationServiceStatus.locationServicesEnabled"></ion-toggle>
@@ -17,6 +17,8 @@
           <ion-label>Location Permissions:</ion-label>
           <ion-toggle color="success" (click)="appLocation.requestLocationPermission($event);" [(ngModel)]="appLocation.locationServiceStatus.hasPermissions" [disabled]="appLocation.locationServiceStatus.hasPermissions"></ion-toggle>
         </ion-item>
+        <br>
+        <ion-img *ngIf="!appLocation.canRequestLocation" style="height: 500px;" src="../../assets/location-help.gif"></ion-img>
         <!-- <ion-button color="primary" (click)="requestLocation();" fill="clear">Continue <ion-icon slot="end" name="arrow-forward"></ion-icon></ion-button> -->
       </div>
     </ion-slide>

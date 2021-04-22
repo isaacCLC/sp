@@ -4,7 +4,6 @@ import { AlertsProviderService } from "../../Providers/alerts-provider.service";
 import { ApiGateWayService } from "../../Providers/api-gate-way.service";
 import { GeneralService } from "../../Helpers/generals";
 import { Storage } from "@ionic/storage";
-import { load } from "google-maps";
 import { Router } from "@angular/router";
 import { not } from "@angular/compiler/src/output/output_ast";
 import { DriverDetails } from "src/app/models/appModels";

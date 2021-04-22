@@ -5,7 +5,6 @@ import { Storage } from "@ionic/storage";
 import { ApiGateWayService } from "../../Providers/api-gate-way.service";
 import { GeneralService } from "../../Helpers/generals";
 import { AlertsProviderService } from '../../Providers/alerts-provider.service';
-import { load } from 'google-maps';
 import { SmsRetriever } from '@ionic-native/sms-retriever/ngx';
 import { Helpers } from "src/app/Helpers/helpers";
 import { DriverDetails } from "src/app/models/appModels";

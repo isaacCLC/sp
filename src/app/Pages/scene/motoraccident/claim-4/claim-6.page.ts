@@ -2,7 +2,6 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormGroup } from "@angular/forms";
 import { StatusBar } from "@ionic-native/status-bar/ngx";
 import { NavController, Platform } from "@ionic/angular";
-import { data } from 'jquery';
 import * as moment from 'moment';
 import { Address } from "ngx-google-places-autocomplete/objects/address";
 import { ClaimCall, ClaimManager, CurrentClaim } from 'src/app/Helpers/claim-manager';

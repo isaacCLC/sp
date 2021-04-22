@@ -2,7 +2,7 @@
 import { Injectable } from '@angular/core';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
-import { DeviceInfo } from './device-info';
+import { DeviceInfo } from '../Helpers/device-info';
 
 @Injectable({
     providedIn: 'root',

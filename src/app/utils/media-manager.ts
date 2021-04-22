@@ -6,10 +6,10 @@ import { FilePath } from '@ionic-native/file-path/ngx';
 import { File as FilePlugin } from '@ionic-native/file/ngx';
 import { ActionSheetController, Platform } from '@ionic/angular';
 import { CommonUtils } from './common-utils';
-import { DeviceInfo } from './device-info';
 import { FileUtil } from './file-util';
 import { PopupHelper } from './popup-helper';
 import { MediaCapture, MediaFile, CaptureError, CaptureImageOptions } from '@ionic-native/media-capture/ngx';
+import { DeviceInfo } from '../Helpers/device-info';
 
 
 @Injectable()

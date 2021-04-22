@@ -9,7 +9,6 @@ import { Storage } from "@ionic/storage";
 import { Router } from '@angular/router';
 import { ChatService } from "./Helpers/chat.service";
 import { BackgroundGeolocation, BackgroundGeolocationAuthorizationStatus, BackgroundGeolocationConfig, BackgroundGeolocationEvents, BackgroundGeolocationResponse } from '@ionic-native/background-geolocation/ngx';
-import { ServiceStatus } from "plugins/cordova-plugin-background-geolocation/www/BackgroundGeolocation";
 import { LocationAccuracy } from "@ionic-native/location-accuracy/ngx";
 import { AppLocation } from "./utils/app-location";
 import { ServiceRequestsService } from "./utils/service-requests.service";
@@ -34,34 +33,16 @@ export class AppComponent {
     public serviceRequestsService: ServiceRequestsService,
   ) {
     this.initializeApp();
+    this.storage.create()
   }
 
   async initializeApp() {
     this.platform.ready().then(() => {
       this.statusBar.styleLightContent();
       this.statusBar.backgroundColorByHexString("#0e3083")
-      // this.statusBar.styleDefault()
       this.pushSetUp();
-      // await this.storage.get("clcDriverID").then(res => {
-      //   console.log(res)
-      //   if (res != undefined || res != null) {
-      //     this.route.navigateByUrl("/tab1");
-      //   }
-      // })
       this.splashScreen.hide();
   
-      // this.deeplinks
-      //   .route({
-      //     "/": {} // this specifies the root of the app
-      //   })
-      //   .subscribe(
-      //     match => {
-      //       let param = match.$link.queryString; //this is the passed parameter from another application/website
-      //     },
-      //     err => {
-      //       throw err
-      //     }
-      //   );
     })
  
   }

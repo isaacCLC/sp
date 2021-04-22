@@ -48,7 +48,7 @@
 <div id="map_canvas">
 </div>
 
-<div *ngIf='serviceRequestsService.serviceReq && driverDetails'>
+<div style="background-color: white;" *ngIf='serviceRequestsService.serviceReq && driverDetails'>
   <div *ngIf="appLocation.tripDetails" id="over_map">
     <label>ETA: {{appLocation.tripDetails.Eta}}... <strong><i>{{appLocation.tripDetails.Distance}}</i></strong></label>
   </div>

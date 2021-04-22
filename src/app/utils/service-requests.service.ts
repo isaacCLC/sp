@@ -66,7 +66,7 @@ export class ServiceRequestsService {
     this._api.checkServiceRequests()
       .then(serviceRequestResponse => {
         if (serviceRequestResponse) {
-          console.log(this.appLocation.geolocationSub)
+          this.appLocation.updateStatus()
           this.appLocation.serviceReq = serviceRequestResponse
           this.serviceReq = serviceRequestResponse
           if (this.serviceReq.data.driverStatus) {

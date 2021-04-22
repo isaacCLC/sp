@@ -38,10 +38,13 @@ export class LoginPage implements OnInit {
   }
 
   async ngOnInit() {
-    this.imgSrc = "../../assets/ic_launcher.png";
-    this.oneSignal.getIds().then(ids => {
-      this.pushPlayerId = ids.userId;
-    });
+    this.platform.ready().then(() => {
+      this.imgSrc = "../../assets/ic_launcher.png";
+      this.oneSignal.getIds().then(ids => {
+        this.pushPlayerId = ids.userId;
+      });
+    })
+    
   }
 
   
@@ -94,7 +97,6 @@ export class LoginPage implements OnInit {
   }
 
   keyPress(keyCode) {
-    console.log("Key pressed" + keyCode)
     if (!this.username || !this.password)
       return;
 
