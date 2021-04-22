@@ -5,10 +5,10 @@ import {
   BarcodeScanner,
   BarcodeScannerOptions
 } from "@ionic-native/barcode-scanner/ngx";
-import { Helpers } from "../../Helpers/helpers";
+import { Helpers } from "../../helpers/helpers";
 import { Storage } from "@ionic/storage";
-import { AlertsProviderService } from "../../Providers/alerts-provider.service";
-import { ApiGateWayService } from "../../Providers/api-gate-way.service";
+import { AlertsProviderService } from "../../providers/alerts-provider.service";
+import { ApiGateWayService } from "../../providers/api-gate-way.service";
 import { DriverDetails, VehicleDetails } from "../../models/appModels";
 import { SmsRetriever } from '@ionic-native/sms-retriever/ngx';
 

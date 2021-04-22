@@ -1,9 +1,9 @@
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
-import { AlertsProviderService } from "../../Providers/alerts-provider.service";
-import { ApiGateWayService } from '../../Providers/api-gate-way.service';
+import { AlertsProviderService } from "../../providers/alerts-provider.service";
+import { ApiGateWayService } from '../../providers/api-gate-way.service';
 import { Storage } from "@ionic/storage";
-import { GeneralService } from '../../Helpers/generals';
+import { GeneralService } from '../../helpers/generals';
 @Component({
   selector: "app-update-password",
   templateUrl: "./update-password.page.html",

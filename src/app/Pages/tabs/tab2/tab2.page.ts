@@ -1,12 +1,12 @@
 import { Component } from "@angular/core";
 import { Camera, CameraOptions } from "@ionic-native/camera/ngx";
-import { AlertsProviderService } from "../../../Providers/alerts-provider.service";
+import { AlertsProviderService } from "../../../providers/alerts-provider.service";
 import { Storage } from "@ionic/storage";
 import { Router } from "@angular/router"; 
-import { GeneralService } from '../../../Helpers/generals';
-import { ApiGateWayService } from "src/app/Providers/api-gate-way.service";
+import { GeneralService } from '../../../helpers/generals';
+import { ApiGateWayService } from "src/app/providers/api-gate-way.service";
 import { LoadingController } from "@ionic/angular";
-import { Helpers } from "src/app/Helpers/helpers";
+import { Helpers } from "src/app/helpers/helpers";
 @Component({
   selector: "app-tab2",
   templateUrl: "tab2.page.html",

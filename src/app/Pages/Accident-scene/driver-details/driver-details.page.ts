@@ -2,10 +2,10 @@ import { Component, OnInit } from "@angular/core";
 import { DriverDetails } from "../../../models/appModels";
 import { Router } from "@angular/router";
 import { Camera, CameraOptions } from "@ionic-native/camera/ngx";
-import { Helpers } from '../../../Helpers/helpers';
+import { Helpers } from '../../../helpers/helpers';
 import { Platform, NavController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
-import { ApiGateWayService } from "src/app/Providers/api-gate-way.service";
+import { ApiGateWayService } from "src/app/providers/api-gate-way.service";
 @Component({
   selector: "app-driver-details",
   templateUrl: "./driver-details.page.html",

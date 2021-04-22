@@ -1,12 +1,10 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { NavParams, ModalController, LoadingController, IonItemSliding } from "@ionic/angular";
-import { AlertsProviderService } from "../../Providers/alerts-provider.service";
-import { ApiGateWayService } from "../../Providers/api-gate-way.service";
-import { GeneralService } from "../../Helpers/generals";
+import { AlertsProviderService } from "../../providers/alerts-provider.service";
+import { ApiGateWayService } from "../../providers/api-gate-way.service";
+import { GeneralService } from "../../helpers/generals";
 import { Storage } from "@ionic/storage";
-import { load } from "google-maps";
 import { Router } from "@angular/router";
-import { not } from "@angular/compiler/src/output/output_ast";
 import { DriverDetails } from "src/app/models/appModels";
 import { FaqItem } from "src/app/components/accordion/app-accordion.component";
 @Component({

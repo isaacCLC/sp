@@ -3,13 +3,13 @@ import { HttpClient } from "@angular/common/http";
 import { Observable, of } from "rxjs";
 import { HttpHeaders } from "@angular/common/http";
 import { AlertsProviderService } from './alerts-provider.service';
-import { GeneralService } from '../Helpers/generals';
+import { GeneralService } from '../helpers/generals';
 import { BaseMessage, DriverDetails, getJobHistory, iServiceRequest } from '../models/appModels';
-import { ClaimManager, CurrentClaim } from "../Helpers/claim-manager";
-import { AddClaimRequest } from "../Helpers/requests";
+import { ClaimManager, CurrentClaim } from "../helpers/claim-manager";
+import { AddClaimRequest } from "../helpers/requests";
 import { Storage } from "@ionic/storage";
 import { FormParameter } from "./base";
-import { addToDocumentWarehouseResponse } from "../Helpers/responses";
+import { addToDocumentWarehouseResponse } from "../helpers/responses";
 import { SmsRetriever } from "@ionic-native/sms-retriever/ngx";
 const httpOptions = {
   headers: new HttpHeaders({

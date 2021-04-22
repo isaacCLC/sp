@@ -4,7 +4,7 @@ import { Camera, CameraOptions } from "@ionic-native/camera/ngx";
 import { File } from "@ionic-native/file/ngx";
 // import { GeneralService } from "../global-helpers/generals";
 import { Storage } from "@ionic/storage";
-import { GeneralService } from 'src/app/Helpers/generals';
+import { GeneralService } from 'src/app/helpers/generals';
 @Component({
   selector: "app-vehicle-checklist",
   templateUrl: "./vehicle-checklist.page.html",

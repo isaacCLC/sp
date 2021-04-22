@@ -1,15 +1,15 @@
 import { Component, OnInit } from "@angular/core";
-import { Helpers } from "../../../Helpers/helpers";
+import { Helpers } from "../../../helpers/helpers";
 import {
   BarcodeScanner,
   BarcodeScannerOptions
 } from "@ionic-native/barcode-scanner/ngx";
 import { Router } from "@angular/router";
 import { Storage } from "@ionic/storage";
-import { ApiGateWayService } from "../../../Providers/api-gate-way.service";
+import { ApiGateWayService } from "../../../providers/api-gate-way.service";
 import { LoadingController } from "@ionic/angular";
 import { iClaimDetails } from '../../../models/appModels';
-import { ClaimManager, CurrentClaim } from "src/app/Helpers/claim-manager";
+import { ClaimManager, CurrentClaim } from "src/app/helpers/claim-manager";
 @Component({
   selector: "app-accident-scene1",
   templateUrl: "./accident-scene1.page.html",

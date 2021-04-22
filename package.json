@@ -158,12 +158,18 @@
       "cordova-plugin-background-mode": {},
       "uk.co.workingedge.phonegap.plugin.launchnavigator": {
         "GOOGLE_API_KEY_FOR_ANDROID": "AIzaSyBo-0cSqDB1H3mAsfJEdnyhTu0vrBGXsy0",
-        "OKHTTP_VERSION": "3.12.0"
+        "OKHTTP_VERSION": "3.12.0",
+        "LOCATION_USAGE_DESCRIPTION": "This app requires access to your location for navigation purposes"
       },
       "cordova-plugin-network-information": {},
-      "cordova-plugin-media": {},
+      "cordova-plugin-media": {
+        "KEEP_AVAUDIOSESSION_ALWAYS_ACTIVE": "NO"
+      },
       "call-number": {},
-      "cordova-plugin-googlemaps": {},
+      "cordova-plugin-googlemaps": {
+        "LOCATION_WHEN_IN_USE_DESCRIPTION": "This app wants to get your location while this app runs only.",
+        "LOCATION_ALWAYS_USAGE_DESCRIPTION": "This app wants to get your location always, even this app runs in background."
+      },
       "cordova-plugin-pin-dialog": {},
       "com-sarriaroman-photoviewer": {},
       "cordova-plugin-sms-retriever-manager": {
@@ -175,8 +181,8 @@
       "cordova-plugin-filepath": {},
       "cordova-plugin-inappbrowser": {},
       "cordova-plugin-media-capture": {},
-      "cordova-plugin-background-geolocation": {},
-      "cordova-plugin-android-permissions": {}
+      "cordova-plugin-android-permissions": {},
+      "cordova-plugin-background-geolocation": {}
     },
     "platforms": [
       "android",

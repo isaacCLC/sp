@@ -5,15 +5,15 @@ const routes: Routes = [
   { path: "", redirectTo: "login", pathMatch: "full" },
   { path: "login", loadChildren: "./pages/login/login.module#LoginPageModule" },
   { path: "app", loadChildren: "./pages/tabs/tabs.module#TabsPageModule" },
-  { path: "modal", loadChildren: "./Modals/modal/modal.module#ModalPageModule" },
+  { path: "modal", loadChildren: "./modals/modal/modal.module#ModalPageModule" },
   {
     path: "request-modal",
-    loadChildren: "./Modals/request-modal/request-modal.module#RequestModalPageModule"
+    loadChildren: "./modals/request-modal/request-modal.module#RequestModalPageModule"
   },
   {
     path: "job-desc-modal",
     loadChildren:
-      "./Modals/job-desc-modal/job-desc-modal.module#JobDescModalPageModule"
+      "./modals/job-desc-modal/job-desc-modal.module#JobDescModalPageModule"
   },
   {
     path: "accident-scene1",
@@ -42,7 +42,7 @@ const routes: Routes = [
   {
     path: "select-vehicle",
     loadChildren:
-      "./Modals//select-vehicle/select-vehicle.module#SelectVehiclePageModule"
+      "./modals//select-vehicle/select-vehicle.module#SelectVehiclePageModule"
   },
   {
     path: "select-tel-number",
@@ -56,7 +56,7 @@ const routes: Routes = [
   {
     path: "add-number-otp",
     loadChildren:
-      "./Modals/add-number-otp/add-number-otp.module#AddNumberOtpPageModule"
+      "./modals/add-number-otp/add-number-otp.module#AddNumberOtpPageModule"
   },
   {
     path: "forgot-password",
@@ -79,7 +79,7 @@ const routes: Routes = [
   },
   {
     path: "job-info",
-    loadChildren: "./Modals/job-info/job-info.module#JobInfoPageModule"
+    loadChildren: "./modals/job-info/job-info.module#JobInfoPageModule"
   },
   { path: 'final-checklist', loadChildren: './pages/Accident-scene/final-checklist/final-checklist.module#FinalChecklistPageModule' },
   { path: 'scene-information', loadChildren: './pages/Accident-scene/scene-information/scene-information.module#SceneInformationPageModule' },
@@ -91,7 +91,7 @@ const routes: Routes = [
   },
   {
     path: 'chat',
-    loadChildren: () => import('./Pages/chat/chat.module').then( m => m.ChatPageModule)
+    loadChildren: () => import('./pages/chat/chat.module').then( m => m.ChatPageModule)
   },
 
 ];

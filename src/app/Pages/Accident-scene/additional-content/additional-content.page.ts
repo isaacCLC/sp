@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { AlertController } from '@ionic/angular';
-import { Helpers } from '../../../Helpers/helpers';
+import { Helpers } from '../../../helpers/helpers';
 import { Router } from '@angular/router';
-import { AlertsProviderService } from '../../../Providers/alerts-provider.service'; 
+import { AlertsProviderService } from '../../../providers/alerts-provider.service'; 
 import { Camera, CameraOptions } from "@ionic-native/camera/ngx";
 @Component({
   selector: 'app-additional-content',

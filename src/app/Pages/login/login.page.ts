@@ -1,12 +1,12 @@
 import { Component, OnInit } from "@angular/core";
 import { NavController, Platform, LoadingController } from "@ionic/angular";
 import { Router } from "@angular/router";
-import * as launcher from "../../Providers/start-app";
-import { Helpers } from "../../Helpers/helpers";
+import * as launcher from "../../providers/start-app";
+import { Helpers } from "../../helpers/helpers";
 import { AppAvailability } from "@ionic-native/app-availability/ngx";
 import { Storage } from "@ionic/storage";
-import { ApiGateWayService } from "../../Providers/api-gate-way.service";
-import { AlertsProviderService } from "../../Providers/alerts-provider.service";
+import { ApiGateWayService } from "../../providers/api-gate-way.service";
+import { AlertsProviderService } from "../../providers/alerts-provider.service";
 import { OneSignal } from "@ionic-native/onesignal/ngx";
 
 @Component({

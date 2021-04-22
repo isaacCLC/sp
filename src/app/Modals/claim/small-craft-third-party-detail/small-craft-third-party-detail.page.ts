@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormGroup } from "@angular/forms";
 import { ModalController, NavParams } from "@ionic/angular";
 import { Address } from "ngx-google-places-autocomplete/objects/address";
-import { ClaimThirdparty } from 'src/app/Helpers/claim-manager';
+import { ClaimThirdparty } from 'src/app/helpers/claim-manager';
 import { AppLocation } from "src/app/utils/app-location";
 import { AppStorage } from "src/app/utils/app-storage";
 import { MediaManager } from "src/app/utils/media-manager";

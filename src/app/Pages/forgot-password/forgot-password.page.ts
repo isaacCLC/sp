@@ -1,7 +1,7 @@
 import { Component, OnInit } from "@angular/core";
-import { Helpers } from "../../Helpers/helpers";
+import { Helpers } from "../../helpers/helpers";
 import { Router } from "@angular/router";
-import { GeneralService } from "../../Helpers/generals";
+import { GeneralService } from "../../helpers/generals";
 
 @Component({
   selector: "app-forgot-password",

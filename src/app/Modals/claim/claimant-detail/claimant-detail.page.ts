@@ -2,9 +2,9 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormGroup } from "@angular/forms";
 import { ModalController, NavParams } from "@ionic/angular";
 import { Address } from "ngx-google-places-autocomplete/objects/address";
-import { ClaimClaimant } from 'src/app/Helpers/claim-manager';
-import { getLookupData } from 'src/app/Helpers/responses';
-import { LookupId, LookupOperation } from 'src/app/Providers/lookup-operation';
+import { ClaimClaimant } from 'src/app/helpers/claim-manager';
+import { getLookupData } from 'src/app/helpers/responses';
+import { LookupId, LookupOperation } from 'src/app/providers/lookup-operation';
 import { PopupHelper } from "src/app/utils/popup-helper";
 
 @Component({

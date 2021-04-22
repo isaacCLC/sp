@@ -1,13 +1,13 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoadingController, Platform } from '@ionic/angular';
-import { Helpers } from '../Helpers/helpers';
-import { UserState } from '../Helpers/user-state';
+import { Helpers } from '../helpers/helpers';
+import { UserState } from '../helpers/user-state';
 import { iServiceRequest, TripDetails } from '../models/appModels';
-import { AlertsProviderService } from '../Providers/alerts-provider.service';
-import { ApiGateWayService } from '../Providers/api-gate-way.service';
+import { AlertsProviderService } from '../providers/alerts-provider.service';
+import { ApiGateWayService } from '../providers/api-gate-way.service';
 import { AppLocation } from './app-location';
-import { ClaimCall, ClaimManager, ClaimTypeId, CurrentClaim } from "src/app/Helpers/claim-manager";
+import { ClaimCall, ClaimManager, ClaimTypeId, CurrentClaim } from "src/app/helpers/claim-manager";
 import { Insomnia } from '@ionic-native/insomnia/ngx';
 import { StaticMapService } from './static-map';
 import { BackgroundGeolocation } from '@ionic-native/background-geolocation/ngx';

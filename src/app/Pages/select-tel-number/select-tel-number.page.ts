@@ -2,14 +2,14 @@ import { Component, OnInit, ViewChildren } from "@angular/core";
 import { Platform, LoadingController, ModalController, IonItemSliding, IonButton } from "@ionic/angular";
 import { Router, NavigationExtras, ActivatedRoute } from "@angular/router";
 import { Storage } from "@ionic/storage";
-import { ApiGateWayService } from "../../Providers/api-gate-way.service";
-import { GeneralService } from "../../Helpers/generals";
-import { AlertsProviderService } from '../../Providers/alerts-provider.service';
+import { ApiGateWayService } from "../../providers/api-gate-way.service";
+import { GeneralService } from "../../helpers/generals";
+import { AlertsProviderService } from '../../providers/alerts-provider.service';
 import { load } from 'google-maps';
 import { SmsRetriever } from '@ionic-native/sms-retriever/ngx';
-import { Helpers } from "src/app/Helpers/helpers";
+import { Helpers } from "src/app/helpers/helpers";
 import { DriverDetails } from "src/app/models/appModels";
-import { UserState } from "src/app/Helpers/user-state";
+import { UserState } from "src/app/helpers/user-state";
 
 @Component({
   selector: "app-select-tel-number",

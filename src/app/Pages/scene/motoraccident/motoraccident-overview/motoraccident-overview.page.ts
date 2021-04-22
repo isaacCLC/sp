@@ -1,14 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from "@angular/router";
 import { ModalController, NavController } from "@ionic/angular";
-import { AppStorage } from 'src/app/Helpers/app-storage';
-import { ClaimCall, ClaimManager, ClaimTypeId, CurrentClaim } from 'src/app/Helpers/claim-manager';
-import { PopupHelper } from 'src/app/Helpers/popup-helper';
-import { SignatureCapturePage } from 'src/app/Modals/signature-capture/signature-capture.page';
-import { BaseMessage } from 'src/app/models/appModels';
-import { ApiGateWayService } from 'src/app/Providers/api-gate-way.service';
-import { FormParameter } from 'src/app/Providers/base';
-import { ClaimOperation, DocType } from 'src/app/Providers/claim-operation';
+import { AppStorage } from 'src/app/helpers/app-storage';
+import { ClaimCall, ClaimManager, ClaimTypeId, CurrentClaim } from 'src/app/helpers/claim-manager';
+import { PopupHelper } from 'src/app/helpers/popup-helper';
+import { SignatureCapturePage } from 'src/app/modals/signature-capture/signature-capture.page';
+import { ApiGateWayService } from 'src/app/providers/api-gate-way.service';
+import { ClaimOperation, DocType } from 'src/app/providers/claim-operation';
 
 
 @Component({

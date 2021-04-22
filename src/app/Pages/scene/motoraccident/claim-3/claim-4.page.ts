@@ -4,7 +4,7 @@ import { StatusBar } from "@ionic-native/status-bar/ngx";
 import { NavController, Platform } from "@ionic/angular";
 import * as moment from 'moment';
 import { Address } from "ngx-google-places-autocomplete/objects/address";
-import { ClaimCall, ClaimManager, CurrentClaim } from 'src/app/Helpers/claim-manager';
+import { ClaimCall, ClaimManager, CurrentClaim } from 'src/app/helpers/claim-manager';
 import { MediaManager } from "src/app/utils/media-manager";
 import { PopupHelper } from "src/app/utils/popup-helper";
 

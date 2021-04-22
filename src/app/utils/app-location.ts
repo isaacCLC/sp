@@ -1,9 +1,9 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { Geolocation, GeolocationOptions, PositionError, Geoposition } from '@ionic-native/geolocation/ngx';
 import { Subscription } from 'rxjs';
-import { UserState } from '../Helpers/user-state';
+import { UserState } from '../helpers/user-state';
 import { iServiceRequest, TripDetails } from '../models/appModels';
-import { ApiGateWayService } from '../Providers/api-gate-way.service';
+import { ApiGateWayService } from '../providers/api-gate-way.service';
 import { AppStorage } from '../utils/app-storage';
 import { Platform } from '@ionic/angular';
 import { BackgroundGeolocation, BackgroundGeolocationConfig, BackgroundGeolocationEvents, BackgroundGeolocationResponse, ServiceStatus } from '@ionic-native/background-geolocation/ngx';
@@ -39,6 +39,7 @@ export class AppLocation {
 
     constructor(public storage: AppStorage, private locationAccuracy: LocationAccuracy, private platform: Platform, private backgroundGeolocation: BackgroundGeolocation, private _api: ApiGateWayService, private geolocation: Geolocation) {
         this.platform.ready().then(() => {
+            console.log("Hello")
             const config: BackgroundGeolocationConfig = {
                 desiredAccuracy: 1,
                 stationaryRadius: 1,
@@ -253,6 +254,7 @@ export class AppLocation {
     }
 
     updateStatus() {
+        console.log("Schecking status")
         this.backgroundGeolocation.checkStatus().then(status => {
             console.log("Status " + JSON.stringify(status))
             this.locationServiceStatus = status

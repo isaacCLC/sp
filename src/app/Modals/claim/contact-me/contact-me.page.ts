@@ -1,9 +1,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormGroup } from "@angular/forms";
 import { ModalController, NavParams } from "@ionic/angular";
-import { ClaimTypeId, CurrentClaim } from 'src/app/Helpers/claim-manager';
-import { getClaimTypesListData } from 'src/app/Helpers/responses';
-import { ClaimOperation } from 'src/app/Providers/claim-operation';
+import { ClaimTypeId, CurrentClaim } from 'src/app/helpers/claim-manager';
+import { getClaimTypesListData } from 'src/app/helpers/responses';
+import { ClaimOperation } from 'src/app/providers/claim-operation';
 import { PopupHelper } from "src/app/utils/popup-helper";
 
 @Component({

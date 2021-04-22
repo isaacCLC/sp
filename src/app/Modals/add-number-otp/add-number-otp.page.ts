@@ -4,8 +4,8 @@ import { SmsRetriever } from '@ionic-native/sms-retriever/ngx';
 import { Platform, LoadingController } from "@ionic/angular";
 import { Storage } from "@ionic/storage";
 import { DriverDetails } from "src/app/models/appModels";
-import { AlertsProviderService } from "../../Providers/alerts-provider.service";
-import { ApiGateWayService } from "../../Providers/api-gate-way.service";
+import { AlertsProviderService } from "../../providers/alerts-provider.service";
+import { ApiGateWayService } from "../../providers/api-gate-way.service";
 
 @Component({
   selector: "app-add-number-otp",

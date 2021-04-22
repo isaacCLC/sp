@@ -2,12 +2,12 @@ import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import * as moment from 'moment';
 import { Observable } from 'rxjs';
-import { UserState } from "../Helpers/user-state";
-import { ClaimManager, CurrentClaim } from "../Helpers/claim-manager";
-import { AddClaimRequest } from "../Helpers/requests";
-import { addClaimResponse, addServiceRatingResponse, addToDocumentWarehouseResponse, GetDriverLocationResponse, GetLocationResponse, getUserCallsListResponse, SetLocationResponse, getSALicenseAPIKey, getDecodedSALicense, GetServiceRequestResponse } from "../Helpers/responses";
+import { UserState } from "../helpers/user-state";
+import { ClaimManager, CurrentClaim } from "../helpers/claim-manager";
+import { AddClaimRequest } from "../helpers/requests";
+import { addClaimResponse, addServiceRatingResponse, addToDocumentWarehouseResponse, GetDriverLocationResponse, GetLocationResponse, getUserCallsListResponse, SetLocationResponse, getSALicenseAPIKey, getDecodedSALicense, GetServiceRequestResponse } from "../helpers/responses";
 import { ApiGateWayService } from "./api-gate-way.service";
-import { PopupHelper } from "../Helpers/popup-helper";
+import { PopupHelper } from "../helpers/popup-helper";
 
 
 @Injectable({

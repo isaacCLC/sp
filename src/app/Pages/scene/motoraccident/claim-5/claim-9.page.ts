@@ -2,9 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { StatusBar } from "@ionic-native/status-bar/ngx";
 import { ModalController, NavController, Platform } from "@ionic/angular";
 import * as moment from 'moment';
-import { ClaimManager, CurrentClaim } from 'src/app/Helpers/claim-manager';
-import { UserState } from 'src/app/Helpers/user-state';
-import { OtherPropertyDetailPage } from 'src/app/Modals/claim/other-property-detail/other-property-detail.page';
+import { ClaimManager, CurrentClaim } from 'src/app/helpers/claim-manager';
+import { UserState } from 'src/app/helpers/user-state';
+import { OtherPropertyDetailPage } from 'src/app/modals/claim/other-property-detail/other-property-detail.page';
 
 import { PopupHelper } from "src/app/utils/popup-helper";
 

@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Camera, CameraOptions } from "@ionic-native/camera/ngx";
 import { AlertController } from '@ionic/angular';
-import { Helpers } from '../../../Helpers/helpers';
-import { AlertsProviderService } from '../../../Providers/alerts-provider.service';
+import { Helpers } from '../../../helpers/helpers';
+import { AlertsProviderService } from '../../../providers/alerts-provider.service';
 @Component({
   selector: 'app-scene-photos',
   templateUrl: './scene-photos.page.html',

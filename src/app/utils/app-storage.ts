@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage';
-import { CurrentClaim } from '../Helpers/claim-manager';
+import { CurrentClaim } from '../helpers/claim-manager';
 
 import { DeviceInfo } from './device-info';
 

@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormGroup } from "@angular/forms";
 import { ModalController, NavParams } from "@ionic/angular";
 import { Address } from "ngx-google-places-autocomplete/objects/address";
-import { ClaimWitness } from 'src/app/Helpers/claim-manager';
+import { ClaimWitness } from 'src/app/helpers/claim-manager';
 import { PopupHelper } from "src/app/utils/popup-helper";
 
 @Component({

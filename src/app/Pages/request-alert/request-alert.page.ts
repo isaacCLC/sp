@@ -1,11 +1,11 @@
 import { Component, OnInit } from "@angular/core";
 import { AlertController, LoadingController, ModalController, NavParams, Platform } from "@ionic/angular";
-import { ApiGateWayService } from "../../Providers/api-gate-way.service";
-import { Helpers } from "../../Helpers/helpers";
+import { ApiGateWayService } from "../../providers/api-gate-way.service";
+import { Helpers } from "../../helpers/helpers";
 import { GoogleMaps, GoogleMap, Marker, GoogleMapOptions, Circle, GoogleMapsEvent } from "@ionic-native/google-maps";
 import { Storage } from "@ionic/storage";
 import { Router, ActivatedRoute, NavigationExtras } from "@angular/router";
-import { AlertsProviderService } from "../../Providers/alerts-provider.service";
+import { AlertsProviderService } from "../../providers/alerts-provider.service";
 import { DriverDetails, iServiceRequest } from '../../models/appModels';
 import { StaticMapService } from "src/app/utils/static-map";
 import { ServiceRequestsService } from "src/app/utils/service-requests.service";

@@ -1,8 +1,8 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { AppConfig } from "../Helpers/app-config";
+import { AppConfig } from "../helpers/app-config";
 import { ClcApiBase } from "./base";
-import { GetContactResponse, getDocumentTypesListResponse, GetFaqResponse, getLookupResponse, GetSettingsResponse, GetTosResponse, GetUserVehicleListResponse } from "../Helpers/responses";
+import { GetContactResponse, getDocumentTypesListResponse, GetFaqResponse, getLookupResponse, GetSettingsResponse, GetTosResponse, GetUserVehicleListResponse } from "../helpers/responses";
 
 
 @Injectable({

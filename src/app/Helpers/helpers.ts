@@ -9,16 +9,16 @@ import {
   LaunchNavigatorOptions
 } from "@ionic-native/launch-navigator/ngx";
 import { GoogleMaps, GoogleMap, Marker } from "@ionic-native/google-maps";
-import { AlertsProviderService } from "../Providers/alerts-provider.service";
+import { AlertsProviderService } from "../providers/alerts-provider.service";
 import { Camera, CameraOptions } from "@ionic-native/camera/ngx";
 import { Market } from "@ionic-native/market/ngx";
 import { Storage } from "@ionic/storage";
 import { BackgroundMode } from "@ionic-native/background-mode/ngx";
 import { LocalNotifications } from "@ionic-native/local-notifications/ngx";
 import { Observable, Subscription } from "rxjs";
-import { ApiGateWayService } from "../Providers/api-gate-way.service";
+import { ApiGateWayService } from "../providers/api-gate-way.service";
 import { ClaimManager } from "./claim-manager";
-import { ClaimOperation } from "../Providers/claim-operation";
+import { ClaimOperation } from "../providers/claim-operation";
 import { PopupHelper } from "./popup-helper";
 @Injectable()
 export class Helpers {

@@ -1,7 +1,7 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, Platform } from '@ionic/angular';
-import { ApiGateWayService } from '../Providers/api-gate-way.service';
+import { ApiGateWayService } from '../providers/api-gate-way.service';
 import { ServiceRequestsService } from '../utils/service-requests.service';
 import { Helpers } from './helpers';
 
