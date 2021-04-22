@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
-import { DeviceInfo } from "./device-info";
+import { DeviceInfo } from '../Helpers/device-info';
 import { PopupHelper } from "./popup-helper";
 
 @Injectable({

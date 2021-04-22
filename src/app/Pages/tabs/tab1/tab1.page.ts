@@ -86,7 +86,7 @@ export class Tab1Page {
     longitude: 0
   }
   locationUpdated
-  bounds: LatLngBounds = new LatLngBounds;
+  bounds: LatLngBounds;
   points: any[] = [];
   backLocations: [];
   constructor(
@@ -125,7 +125,7 @@ export class Tab1Page {
     this.platform.ready().then(() => {
       this.map = GoogleMaps.create("map_canvas");
       this.map.one(GoogleMapsEvent.MAP_READY).then(this.initLocation.bind(this));
-      Environment.setBackgroundColor("white")
+      Environment.setBackgroundColor("red")
     });
   }
 

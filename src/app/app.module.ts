@@ -19,14 +19,13 @@ import { LaunchNavigator } from "@ionic-native/launch-navigator/ngx";
 import { Market } from "@ionic-native/market/ngx";
 import { AppAvailability } from "@ionic-native/app-availability/ngx";
 import { BarcodeScanner } from "@ionic-native/barcode-scanner/ngx";
-import { IonicStorageModule } from "@ionic/storage";
+import { IonicStorageModule } from '@ionic/storage-angular';
 import { File } from "@ionic-native/file/ngx";
 import { BackgroundMode } from "@ionic-native/background-mode/ngx";
 import { LocalNotifications } from "@ionic-native/local-notifications/ngx";
 import { Insomnia } from '@ionic-native/insomnia/ngx';
 import { OneSignal } from "@ionic-native/onesignal/ngx";
 import { CallNumber } from '@ionic-native/call-number/ngx';
-import { AgmCoreModule } from '@agm/core';
 import { PhotoViewer } from '@ionic-native/photo-viewer/ngx';
 import { SmsRetriever } from '@ionic-native/sms-retriever/ngx';
 import { LocationAccuracy } from '@ionic-native/location-accuracy/ngx';
@@ -42,6 +41,7 @@ import { PusherProvider } from "./providers/pusher/pusher";
 import {Nl2BrPipeModule} from 'nl2br-pipe';
 import { BackgroundGeolocation } from "@ionic-native/background-geolocation/ngx";
 import { Geolocation } from "@ionic-native/geolocation/ngx";
+import { AndroidPermissions } from "@ionic-native/android-permissions/ngx";
 
 @NgModule({
   declarations: [
@@ -59,9 +59,6 @@ import { Geolocation } from "@ionic-native/geolocation/ngx";
     RequestModalPageModule,
     JobDescModalPageModule,
     IonicStorageModule.forRoot(),
-    AgmCoreModule.forRoot({
-      apiKey: 'AIzaSyBo-0cSqDB1H3mAsfJEdnyhTu0vrBGXsy0'
-    }),
     GooglePlaceModule,
     Nl2BrPipeModule,
   ],
@@ -95,7 +92,8 @@ import { Geolocation } from "@ionic-native/geolocation/ngx";
     MediaCapture,
     PusherProvider,
     BackgroundGeolocation,
-    Geolocation
+    Geolocation,
+    AndroidPermissions
   ],
   bootstrap: [AppComponent]
 })

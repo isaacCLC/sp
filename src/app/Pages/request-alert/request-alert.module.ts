@@ -6,7 +6,6 @@ import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
 import { RequestAlertPage } from './request-alert.page';
-import { AgmCoreModule } from '@agm/core';
 
 const routes: Routes = [
   {
@@ -21,7 +20,6 @@ const routes: Routes = [
     FormsModule,
     IonicModule,
     RouterModule.forChild(routes),
-    AgmCoreModule
   ],
   declarations: [RequestAlertPage]
 })

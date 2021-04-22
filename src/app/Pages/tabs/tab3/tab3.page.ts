@@ -14,7 +14,6 @@ import { JsonPipe } from '@angular/common';
 import { GeneralService } from '../../../helpers/generals';
 import { ReturnStatement } from '@angular/compiler';
 import { PhotoViewer } from '@ionic-native/photo-viewer/ngx';
-import { load } from "google-maps";
 @Component({
   selector: "app-tab3",
   templateUrl: "tab3.page.html",

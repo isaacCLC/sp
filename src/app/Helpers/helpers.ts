@@ -82,12 +82,9 @@ export class Helpers {
 
   private connectedToNetwork() {
     this.connectSubscription = this.network.onConnect().subscribe(() => {
-      console.log("network connected!");
-      console.log(this.network.type)
       this.isNetworkAvailable = true;
       setTimeout(() => {
             if (this.network.type === 'wifi') {
-              console.log('we got a wifi connection, woohoo!');
               this.claimManager.getClaims().then(claims=>{
                 claims.forEach(claim=>{
                 console.log(claim)

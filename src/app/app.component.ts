@@ -35,28 +35,9 @@ export class AppComponent {
     this.platform.ready().then(() => {
       this.statusBar.styleLightContent();
       this.statusBar.backgroundColorByHexString("#0e3083")
-      // this.statusBar.styleDefault()
       this.pushSetUp();
-      // await this.storage.get("clcDriverID").then(res => {
-      //   console.log(res)
-      //   if (res != undefined || res != null) {
-      //     this.route.navigateByUrl("/tab1");
-      //   }
-      // })
       this.splashScreen.hide();
   
-      // this.deeplinks
-      //   .route({
-      //     "/": {} // this specifies the root of the app
-      //   })
-      //   .subscribe(
-      //     match => {
-      //       let param = match.$link.queryString; //this is the passed parameter from another application/website
-      //     },
-      //     err => {
-      //       throw err
-      //     }
-      //   );
     })
  
   }

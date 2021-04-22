@@ -24,6 +24,10 @@ export interface iJobHistory{
   desc: string; 
   service: string;
   date: any;
+  problem_summary: string;
+  sub_sub_product_name: string;
+  status_id: number;
+  date_opened: string;
 }
 
 export interface iFinalDest{
@@ -34,6 +38,12 @@ export interface iFinalDest{
 }
 
 export interface client {
+  name: string,
+  surname: string,
+  number: string
+}
+
+export interface ChatMessage {
   name: string,
   surname: string,
   number: string

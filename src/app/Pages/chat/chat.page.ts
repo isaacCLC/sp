@@ -15,7 +15,8 @@ import { v4 } from 'uuid';
 export class ChatPage implements OnInit {
   jobDetails: iServiceRequest;
   spDetails: DriverDetails;
-  messages: [];scrolled = false;
+  messages: [];
+  scrolled = false;
   newMessage: string;
   @ViewChild('content') private content: any;
   @ViewChild('messagesDiv') private messagesDiv: any;
