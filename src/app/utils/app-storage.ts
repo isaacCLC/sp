@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage';
 import { CurrentClaim } from '../helpers/claim-manager';
 
-import { DeviceInfo } from '../Helpers/device-info';
+import { DeviceInfo } from '../helpers/device-info';
 
 // npm i @ionic/storage
 // ionic cordova plugin add cordova-sqlite-storage --save

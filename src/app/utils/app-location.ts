@@ -28,7 +28,7 @@ export class AppLocation {
     tripDetails: TripDetails;
     fdTripDetails: TripDetails;
     serviceReq: iServiceRequest;
-    locationServiceStatus: ServiceStatus;
+    locationServiceStatus: any;
     canRequestLocation: boolean = true;
 
     intervalId: number;
@@ -194,6 +194,8 @@ export class AppLocation {
                 // this.backgroundGeolocation.finish(); // FOR IOS ONLY
             });
             // this.init()
+            this.backgroundGeolocation.start()
+
             this.updateStatus()
             // setInterval(()=>{this.getBackgroundLocation()}, 5000)
         })
@@ -243,8 +245,8 @@ export class AppLocation {
         console.log("Schecking status")
         this.backgroundGeolocation.checkStatus().then(status => {
             console.log("Status " + JSON.stringify(status))
-            this.locationServiceStatus = status
-            if(status.authorization == BackgroundGeolocationAuthorizationStatus.AUTHORIZED  && this.serviceReq && this.serviceReq.data.driverStatus == 1){
+            this.locationServiceStatus = JSON.parse(JSON.stringify(status))
+            if(this.locationServiceStatus.locationServicesEnabled == true && this.locationServiceStatus.hasPermissions == true  && this.serviceReq && this.serviceReq.data.driverStatus == 1){
                 this.geolocationSub?"":this.startWatching()
             }else{
                 this.geolocationSub?this.stopWatching():"";

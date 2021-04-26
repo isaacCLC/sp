@@ -9,7 +9,7 @@ import { CommonUtils } from './common-utils';
 import { FileUtil } from './file-util';
 import { PopupHelper } from './popup-helper';
 import { MediaCapture, MediaFile, CaptureError, CaptureImageOptions } from '@ionic-native/media-capture/ngx';
-import { DeviceInfo } from '../Helpers/device-info';
+import { DeviceInfo } from '../helpers/device-info';
 
 
 @Injectable()

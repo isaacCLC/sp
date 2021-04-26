@@ -19,7 +19,7 @@ import { LaunchNavigator } from "@ionic-native/launch-navigator/ngx";
 import { Market } from "@ionic-native/market/ngx";
 import { AppAvailability } from "@ionic-native/app-availability/ngx";
 import { BarcodeScanner } from "@ionic-native/barcode-scanner/ngx";
-import { IonicStorageModule } from '@ionic/storage-angular';
+import { IonicStorageModule } from '@ionic/storage';
 import { File } from "@ionic-native/file/ngx";
 import { BackgroundMode } from "@ionic-native/background-mode/ngx";
 import { LocalNotifications } from "@ionic-native/local-notifications/ngx";

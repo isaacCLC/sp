@@ -4,7 +4,6 @@ import { StatusBar } from "@ionic-native/status-bar/ngx";
 import { Platform } from "@ionic/angular";
 import { Storage } from '@ionic/storage';
 import * as Color from 'color';
-import { DeviceInfo } from "./device-info";
 
 // npm i color
 
@@ -14,7 +13,7 @@ import { DeviceInfo } from "./device-info";
 export class ThemeService {
   constructor(
     @Inject(DOCUMENT) private document: Document,
-    private storage: Storage, private statusBar: StatusBar, private platform: Platform, private device: DeviceInfo) {
+    private storage: Storage, private statusBar: StatusBar, private platform: Platform) {
     storage.get('theme').then(cssText => {
       this.setGlobalCSS(cssText);
     });

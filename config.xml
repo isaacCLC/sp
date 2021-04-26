@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.clc.sp" version="0.0.3" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="com.clc.sp" version="2.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>CLC SP</name>
     <description>CLC Service Provider App.</description>
     <author email="mavhungu2@gmail.com" href="https://clc.co.za/">Isaac Mpharalala</author>
@@ -46,6 +46,9 @@
         <splash density="port-xxxhdpi" src="resources/android/splash/drawable-port-xxxhdpi-screen.png" />
     </platform>
     <platform name="ios">
+        <edit-config file="*-Info.plist" mode="merge" target="NSCameraUsageDescription">
+            <string>To scan barcodes</string>
+        </edit-config>
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
         <icon height="57" src="resources/ios/icon/icon.png" width="57" />
