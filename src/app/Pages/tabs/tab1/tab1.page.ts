@@ -1,6 +1,6 @@
 import { Component, ɵConsole, ViewChild, ElementRef } from "@angular/core";
-import { Helpers } from "../../../Helpers/helpers";
-import { ApiGateWayService } from "../../../Providers/api-gate-way.service";
+import { Helpers } from "../../../helpers/helpers";
+import { ApiGateWayService } from "../../../providers/api-gate-way.service";
 import { GoogleMaps, GoogleMap, Marker, GoogleMapOptions, Environment, GoogleMapsEvent, LatLngBounds, Polyline, PolylineOptions, Poly, ILatLng, Spherical } from "@ionic-native/google-maps";
 import { Geolocation, Geoposition, PositionError } from "@ionic-native/geolocation/ngx";
 import { TripDetails, ClientDetails, myLoc, iServiceRequest, iFinalDest, DriverDetails } from "../../../models/appModels";
@@ -10,16 +10,16 @@ import {
 import { interval, Subscriber, Observable, Subscription, throwError } from "rxjs";
 import { Router, NavigationExtras, ActivatedRoute } from "@angular/router";
 import { Storage } from "@ionic/storage";
-import { AlertsProviderService } from "../../../Providers/alerts-provider.service";
-import { GeneralService } from "../../../Helpers/generals";
+import { AlertsProviderService } from "../../../providers/alerts-provider.service";
+import { GeneralService } from "../../../helpers/generals";
 import { ActionSheetController } from '@ionic/angular';
 import { LocationAccuracy } from '@ionic-native/location-accuracy/ngx';
-import { ClaimCall, ClaimManager, ClaimTypeId, CurrentClaim } from "src/app/Helpers/claim-manager";
-import { UserState } from "src/app/Helpers/user-state";
-import { PopupHelper } from "src/app/Helpers/popup-helper";
+import { ClaimCall, ClaimManager, ClaimTypeId, CurrentClaim } from "src/app/helpers/claim-manager";
+import { UserState } from "src/app/helpers/user-state";
+import { PopupHelper } from "src/app/helpers/popup-helper";
 import { ServiceRequestsService } from "src/app/utils/service-requests.service";
 import { AppLocation } from "src/app/utils/app-location";
-import { ChatService } from "src/app/Helpers/chat.service";
+import { ChatService } from "src/app/helpers/chat.service";
 
 declare var google;
 
@@ -86,7 +86,7 @@ export class Tab1Page {
     longitude: 0
   }
   locationUpdated
-  bounds: LatLngBounds = new LatLngBounds;
+  bounds: LatLngBounds;
   points: any[] = [];
   backLocations: [];
   constructor(
@@ -125,7 +125,7 @@ export class Tab1Page {
     this.platform.ready().then(() => {
       this.map = GoogleMaps.create("map_canvas");
       this.map.one(GoogleMapsEvent.MAP_READY).then(this.initLocation.bind(this));
-      Environment.setBackgroundColor("white")
+      Environment.setBackgroundColor("red")
     });
   }
 

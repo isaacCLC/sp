@@ -1,13 +1,14 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { Geolocation, GeolocationOptions, PositionError, Geoposition } from '@ionic-native/geolocation/ngx';
 import { Subscription } from 'rxjs';
-import { UserState } from '../Helpers/user-state';
+import { UserState } from '../helpers/user-state';
 import { iServiceRequest, TripDetails } from '../models/appModels';
-import { ApiGateWayService } from '../Providers/api-gate-way.service';
+import { ApiGateWayService } from '../providers/api-gate-way.service';
 import { AppStorage } from '../utils/app-storage';
 import { Platform } from '@ionic/angular';
-import { BackgroundGeolocation, BackgroundGeolocationConfig, BackgroundGeolocationEvents, BackgroundGeolocationResponse, ServiceStatus } from '@ionic-native/background-geolocation/ngx';
+import { BackgroundGeolocation, BackgroundGeolocationAuthorizationStatus, BackgroundGeolocationConfig, BackgroundGeolocationEvents, BackgroundGeolocationResponse, ServiceStatus } from '@ionic-native/background-geolocation/ngx';
 import { LocationAccuracy } from '@ionic-native/location-accuracy/ngx';
+import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
 
 // REQUIRES
 //  ionic cordova plugin add cordova-plugin-geolocation --save
@@ -27,7 +28,8 @@ export class AppLocation {
     tripDetails: TripDetails;
     fdTripDetails: TripDetails;
     serviceReq: iServiceRequest;
-    locationServiceStatus: ServiceStatus;
+    locationServiceStatus: any;
+    canRequestLocation: boolean = true;
 
     intervalId: number;
     options: GeolocationOptions = {
@@ -37,8 +39,9 @@ export class AppLocation {
     };
     background: boolean;
 
-    constructor(public storage: AppStorage, private locationAccuracy: LocationAccuracy, private platform: Platform, private backgroundGeolocation: BackgroundGeolocation, private _api: ApiGateWayService, private geolocation: Geolocation) {
+    constructor(public storage: AppStorage,private androidPermissions: AndroidPermissions, private locationAccuracy: LocationAccuracy, private platform: Platform, private backgroundGeolocation: BackgroundGeolocation, private _api: ApiGateWayService, private geolocation: Geolocation) {
         this.platform.ready().then(() => {
+            console.log("Hello")
             const config: BackgroundGeolocationConfig = {
                 desiredAccuracy: 1,
                 stationaryRadius: 1,
@@ -66,7 +69,7 @@ export class AppLocation {
                 console.log("Got a background")
                 this.background = true;
                 this.updateStatus()
-                if (this.serviceReq && this.serviceReq.data.driverStatus == 1) {
+                if (this.serviceReq && this.serviceReq.data.driverStatus == 1 && this.locationServiceStatus.authorization == 1) {
                     this.backgroundGeolocation.start()
                 }
                 // IMPORTANT:  You must execute the finish method here to inform the native plugin that you're finished,
@@ -191,6 +194,8 @@ export class AppLocation {
                 // this.backgroundGeolocation.finish(); // FOR IOS ONLY
             });
             // this.init()
+            this.backgroundGeolocation.start()
+
             this.updateStatus()
             // setInterval(()=>{this.getBackgroundLocation()}, 5000)
         })
@@ -198,13 +203,11 @@ export class AppLocation {
     }
 
     requestLocationServices(event: any) {
-        console.log(this.locationServiceStatus.locationServicesEnabled)
-        if (!this.locationServiceStatus.locationServicesEnabled) {
             event.stopImmediatePropagation();
             event.stopPropagation();
             event.preventDefault();
             this.locationAccuracy.canRequest().then((canRequest: boolean) => {
-
+                console.log(canRequest)
                 if (canRequest) {
                     // the accuracy option will be ignored by iOS
                     this.locationAccuracy.request(this.locationAccuracy.REQUEST_PRIORITY_HIGH_ACCURACY).then(
@@ -219,43 +222,35 @@ export class AppLocation {
                 }
     
             });
-          } else {
-            setTimeout(() => { this.locationServiceStatus.locationServicesEnabled = false; });
-          }
+      
        
     }
+ 
+    requestLocationPermission(event: any) {
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+        event.preventDefault();
 
-    requestLocationPermission() {
         this.backgroundGeolocation.getCurrentLocation().then(loc=>{
             console.log(loc)
         }).catch(err=>{
             console.log("permision error")
             console.log(err)
-            this.backgroundGeolocation.showAppSettings()
+            this.canRequestLocation?this.canRequestLocation = false:this.backgroundGeolocation.showAppSettings()
         })
 
-        // this.locationAccuracy.canRequest().then((canRequest: boolean) => {
-        //     console.log(canRequest)
-        //     if (canRequest) {
-        //         // the accuracy option will be ignored by iOS
-        //         this.locationAccuracy.request(this.locationAccuracy.REQUEST_PRIORITY_HIGH_ACCURACY).then(
-        //             () => {
-        //                 this.updateStatus()
-        //                 console.log('Request successful')
-        //             },
-        //             error => console.log('Error requesting location permissions', error)
-        //         );
-        //     } else {
-        //         this.backgroundGeolocation.showAppSettings()
-        //     }
-
-        // });
     }
 
     updateStatus() {
+        console.log("Schecking status")
         this.backgroundGeolocation.checkStatus().then(status => {
             console.log("Status " + JSON.stringify(status))
-            this.locationServiceStatus = status
+            this.locationServiceStatus = JSON.parse(JSON.stringify(status))
+            if(this.locationServiceStatus.locationServicesEnabled == true && this.locationServiceStatus.hasPermissions == true  && this.serviceReq && this.serviceReq.data.driverStatus == 1){
+                this.geolocationSub?"":this.startWatching()
+            }else{
+                this.geolocationSub?this.stopWatching():"";
+            }
         })
     }
 

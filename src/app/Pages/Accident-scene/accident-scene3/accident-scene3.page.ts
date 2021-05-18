@@ -1,8 +1,8 @@
 import { Component, OnInit } from "@angular/core";
-import { Helpers } from "../../../Helpers/helpers";
+import { Helpers } from "../../../helpers/helpers";
 import { Camera, CameraOptions } from "@ionic-native/camera/ngx";
 import { Router } from "@angular/router";
-import { AlertsProviderService } from "../../../Providers/alerts-provider.service";
+import { AlertsProviderService } from "../../../providers/alerts-provider.service";
 import { AlertController } from "@ionic/angular";
 @Component({
   selector: "app-accident-scene3",

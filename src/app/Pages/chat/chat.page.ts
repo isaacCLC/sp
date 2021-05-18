@@ -2,10 +2,9 @@ import { HttpClient } from '@angular/common/http';
 import { Component, NgZone, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController } from '@ionic/angular';
-import { ChatService } from 'src/app/Helpers/chat.service';
+import { ChatService } from 'src/app/helpers/chat.service';
 import { DriverDetails, iServiceRequest } from 'src/app/models/appModels';
-import { ApiGateWayService } from 'src/app/Providers/api-gate-way.service';
-import { PusherProvider } from 'src/app/Providers/pusher/pusher';
+import { ApiGateWayService } from 'src/app/providers/api-gate-way.service';
 import { v4 } from 'uuid';
 
 @Component({
@@ -16,7 +15,8 @@ import { v4 } from 'uuid';
 export class ChatPage implements OnInit {
   jobDetails: iServiceRequest;
   spDetails: DriverDetails;
-  messages: [];scrolled = false;
+  messages: [];
+  scrolled = false;
   newMessage: string;
   @ViewChild('content') private content: any;
   @ViewChild('messagesDiv') private messagesDiv: any;

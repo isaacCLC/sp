@@ -2,8 +2,8 @@ import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { Platform, LoadingController } from "@ionic/angular";
 import { Storage } from "@ionic/storage";
-import { AlertsProviderService } from "../../Providers/alerts-provider.service";
-import { ApiGateWayService } from "../../Providers/api-gate-way.service";
+import { AlertsProviderService } from "../../providers/alerts-provider.service";
+import { ApiGateWayService } from "../../providers/api-gate-way.service";
 @Component({
   selector: "app-otp-page",
   templateUrl: "./otp-page.page.html",

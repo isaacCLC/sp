@@ -1,7 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { Camera, CameraOptions } from "@ionic-native/camera/ngx";
-import { Helpers } from "../../../Helpers/helpers";
+import { Helpers } from "../../../helpers/helpers";
 import { Storage } from "@ionic/storage";
 import { iClaimDetails } from '../../../models/appModels';
 @Component({

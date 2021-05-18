@@ -1,10 +1,10 @@
 import { Component, OnInit } from "@angular/core";
 import { Router, ActivatedRoute } from "@angular/router";
-import { ApiGateWayService } from "../../Providers/api-gate-way.service";
-import { Helpers } from "../../Helpers/helpers";
+import { ApiGateWayService } from "../../providers/api-gate-way.service";
+import { Helpers } from "../../helpers/helpers";
 import { GoogleMaps, GoogleMap, Marker } from "@ionic-native/google-maps";
 import { CallNumber } from '@ionic-native/call-number/ngx';
-import { AlertsProviderService } from '../../Providers/alerts-provider.service';
+import { AlertsProviderService } from '../../providers/alerts-provider.service';
 import { iServiceRequest, DriverDetails } from "src/app/models/appModels";
 import { AppLocation } from "src/app/utils/app-location";
 import { ServiceRequestsService } from "src/app/utils/service-requests.service";

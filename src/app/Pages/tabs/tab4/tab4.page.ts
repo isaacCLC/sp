@@ -1,9 +1,9 @@
 import { Component, OnInit } from "@angular/core";
 import { Platform, LoadingController, ModalController } from "@ionic/angular";
-import {JobDescModalPage } from '../../../Modals/job-desc-modal/job-desc-modal.page';
-import { ApiGateWayService } from '../../../Providers/api-gate-way.service';
-import { AlertsProviderService } from '../../../Providers/alerts-provider.service';
-import { GeneralService } from '../../../Helpers/generals';
+import {JobDescModalPage } from '../../../modals/job-desc-modal/job-desc-modal.page';
+import { ApiGateWayService } from '../../../providers/api-gate-way.service';
+import { AlertsProviderService } from '../../../providers/alerts-provider.service';
+import { GeneralService } from '../../../helpers/generals';
 import { Storage } from "@ionic/storage";
 import { iJobHistory } from '../../../models/appModels';
 @Component({

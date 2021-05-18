@@ -2,9 +2,9 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { Camera, CameraOptions } from "@ionic-native/camera/ngx";
 import { Storage } from "@ionic/storage";
-import { GeneralService } from 'src/app/Helpers/generals';
-import { AlertsProviderService } from 'src/app/Providers/alerts-provider.service';
-import { ApiGateWayService } from 'src/app/Providers/api-gate-way.service';
+import { GeneralService } from 'src/app/helpers/generals';
+import { AlertsProviderService } from 'src/app/providers/alerts-provider.service';
+import { ApiGateWayService } from 'src/app/providers/api-gate-way.service';
 @Component({
   selector: 'app-final-checklist',
   templateUrl: './final-checklist.page.html',

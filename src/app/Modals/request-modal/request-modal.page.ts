@@ -1,9 +1,9 @@
 import { Component, OnInit } from "@angular/core";
 import { NavParams, ModalController, LoadingController } from "@ionic/angular";
-import { ApiGateWayService } from "../../Providers/api-gate-way.service";
-import { Helpers } from "../../Helpers/helpers";
+import { ApiGateWayService } from "../../providers/api-gate-way.service";
+import { Helpers } from "../../helpers/helpers";
 import { GoogleMaps, GoogleMap, Marker } from "@ionic-native/google-maps";
-import { AlertsProviderService } from "../../Providers/alerts-provider.service";
+import { AlertsProviderService } from "../../providers/alerts-provider.service";
 @Component({
   selector: "app-request-modal",
   templateUrl: "./request-modal.page.html",

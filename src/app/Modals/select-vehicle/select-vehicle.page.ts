@@ -5,10 +5,10 @@ import {
   BarcodeScanner,
   BarcodeScannerOptions
 } from "@ionic-native/barcode-scanner/ngx";
-import { Helpers } from "../../Helpers/helpers";
+import { Helpers } from "../../helpers/helpers";
 import { Storage } from "@ionic/storage";
-import { AlertsProviderService } from "../../Providers/alerts-provider.service";
-import { ApiGateWayService } from "../../Providers/api-gate-way.service";
+import { AlertsProviderService } from "../../providers/alerts-provider.service";
+import { ApiGateWayService } from "../../providers/api-gate-way.service";
 import { DriverDetails, VehicleDetails } from "../../models/appModels";
 import { SmsRetriever } from '@ionic-native/sms-retriever/ngx';
 
@@ -114,16 +114,16 @@ export class SelectVehiclePage implements OnInit {
         formats: "QR_CODE,PDF_417"
       };
       console.log("Opening scanner")
-      this.barcodeScanner.scan(this.barcodeScannerOptions).then(
-        barcodeData => {
-          console.log("Finisshed scanning")
+      // this.barcodeScanner.scan(this.barcodeScannerOptions).then(
+      //   barcodeData => {
+      //     console.log("Finisshed scanning")
           loader.dismiss();
-          let receivedData: string = JSON.stringify(barcodeData.text);
-          let data = new Array();
-          data = receivedData.split("%");
-          this.scannedCarLicNum = data[6];
-          console.log(this.scannedCarLicNum)
-          console.log(this.myVehicles[idx].registrationNumber.split(" ").join(""))
+      //     let receivedData: string = JSON.stringify(barcodeData.text);
+      //     let data = new Array();
+      //     data = receivedData.split("%");
+      //     this.scannedCarLicNum = data[6];
+      //     console.log(this.scannedCarLicNum)
+      //     console.log(this.myVehicles[idx].registrationNumber.split(" ").join(""))
 
           // if (this.scannedCarLicNum == this.myVehicles[idx].registrationNumber.split(" ").join("")) {
             if (true) {
@@ -157,20 +157,20 @@ export class SelectVehiclePage implements OnInit {
             );
           }
 
-        },
-        err => {
-          loader.dismiss();
-          console.log(err)
-          this.alertprovider.presentAlert(
-            "Oops",
-            "Error",
-            "Couldn't scan license disk, please try again"
-          );
-        }
-      ).catch(
-        err => {
-          console.log("Error", err);
-        });
+      //   },
+      //   err => {
+      //     loader.dismiss();
+      //     console.log(err)
+      //     this.alertprovider.presentAlert(
+      //       "Oops",
+      //       "Error",
+      //       "Couldn't scan license disk, please try again"
+      //     );
+      //   }
+      // ).catch(
+      //   err => {
+      //     console.log("Error", err);
+      //   });
     })
   }
 

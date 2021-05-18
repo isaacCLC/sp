@@ -182,8 +182,8 @@
       "cordova-plugin-filepath": {},
       "cordova-plugin-inappbrowser": {},
       "cordova-plugin-media-capture": {},
-      "cordova-plugin-background-geolocation": {},
-      "cordova-plugin-android-permissions": {}
+      "cordova-plugin-android-permissions": {},
+      "cordova-plugin-background-geolocation": {}
     },
     "platforms": [
       "android",

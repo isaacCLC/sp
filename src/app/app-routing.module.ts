@@ -5,81 +5,73 @@ const routes: Routes = [
   { path: "", redirectTo: "login", pathMatch: "full" },
   { path: "login", loadChildren: "./pages/login/login.module#LoginPageModule" },
   { path: "app", loadChildren: "./pages/tabs/tabs.module#TabsPageModule" },
-  { path: "modal", loadChildren: "./Modals/modal/modal.module#ModalPageModule" },
+  { path: "modal", loadChildren: "./modals/modal/modal.module#ModalPageModule" },
   {
     path: "request-modal",
-    loadChildren: "./Modals/request-modal/request-modal.module#RequestModalPageModule"
+    loadChildren: "./modals/request-modal/request-modal.module#RequestModalPageModule"
   },
   {
     path: "job-desc-modal",
     loadChildren:
-      "./Modals/job-desc-modal/job-desc-modal.module#JobDescModalPageModule"
+      "./modals/job-desc-modal/job-desc-modal.module#JobDescModalPageModule"
   },
   {
     path: "accident-scene1",
-    loadChildren:
-      "./pages/Accident-scene/accident-scene1/accident-scene1.module#AccidentScene1PageModule"
+    loadChildren: () => import("./pages/Accident-scene/accident-scene1/accident-scene1.module").then(m => m.AccidentScene1PageModule) 
   },
   {
     path: "accident-scene2",
-    loadChildren:
-      "./pages/Accident-scene/accident-scene2/accident-scene2.module#AccidentScene2PageModule"
+    loadChildren: () => import("./pages/Accident-scene/accident-scene2/accident-scene2.module").then(m => m.AccidentScene2PageModule) 
   },
   {
     path: "accident-scene3",
-    loadChildren:
-      "./pages/Accident-scene/accident-scene3/accident-scene3.module#AccidentScene3PageModule"
+    loadChildren: () => import("./pages/Accident-scene/accident-scene3/accident-scene3.module").then(m => m.AccidentScene3PageModule) 
   },
   {
     path: "update-password",
-    loadChildren:
-      "./pages/update-password/update-password.module#UpdatePasswordPageModule"
+    loadChildren: () => import("./pages/update-password/update-password.module").then(m => m.UpdatePasswordPageModule) 
   },
   {
     path: "otp-page",
-    loadChildren: "./pages/otp-page/otp-page.module#OtpPagePageModule"
+    loadChildren: () => import("./pages/otp-page/otp-page.module").then(m => m.OtpPagePageModule) 
   },
   {
     path: "select-vehicle",
     loadChildren:
-      "./Modals//select-vehicle/select-vehicle.module#SelectVehiclePageModule"
+      "./modals//select-vehicle/select-vehicle.module#SelectVehiclePageModule"
   },
   {
     path: "select-tel-number",
-    loadChildren:
-      "./pages/select-tel-number/select-tel-number.module#SelectTelNumberPageModule"
+    loadChildren: () => import("./pages/select-tel-number/select-tel-number.module").then(m => m.SelectTelNumberPageModule) 
   },
   {
     path: "request-alert",
-    loadChildren: "./pages/request-alert/request-alert.module#RequestAlertPageModule"
+    loadChildren: () => import("./pages/request-alert/request-alert.module").then(m => m.RequestAlertPageModule) 
   },
   {
     path: "add-number-otp",
     loadChildren:
-      "./Modals/add-number-otp/add-number-otp.module#AddNumberOtpPageModule"
+      "./modals/add-number-otp/add-number-otp.module#AddNumberOtpPageModule"
   },
   {
     path: "forgot-password",
-    loadChildren:
-      "./pages/forgot-password/forgot-password.module#ForgotPasswordPageModule"
+    loadChildren: () => import("./pages/forgot-password/forgot-password.module").then(m => m.ForgotPasswordPageModule) 
   },
   {
     path: "the-insured",
-    loadChildren: "./pages/Accident-scene/the-insured/the-insured.module#TheInsuredPageModule"
+    loadChildren: () => import("./pages/Accident-scene/the-insured/the-insured.module").then(m => m.TheInsuredPageModule) 
   },
   {
     path: "driver-details",
-    loadChildren:
-      "./pages/Accident-scene/driver-details/driver-details.module#DriverDetailsPageModule"
+    loadChildren: () => import("./pages/Accident-scene/driver-details/driver-details.module").then(m => m.DriverDetailsPageModule) 
   },
   {
     path: "vehicle-checklist",
-    loadChildren:
-      "./pages/Accident-scene/vehicle-checklist/vehicle-checklist.module#VehicleChecklistPageModule"
+    loadChildren: () => import("./pages/Accident-scene/vehicle-checklist/vehicle-checklist.module").then(m => m.VehicleChecklistPageModule) 
   },
   {
     path: "job-info",
-    loadChildren: "./Modals/job-info/job-info.module#JobInfoPageModule"
+    loadChildren: "./modals/job-info/job-info.module#JobInfoPageModule"
   },
   { path: 'final-checklist', loadChildren: './pages/Accident-scene/final-checklist/final-checklist.module#FinalChecklistPageModule' },
   { path: 'scene-information', loadChildren: './pages/Accident-scene/scene-information/scene-information.module#SceneInformationPageModule' },
@@ -91,15 +83,15 @@ const routes: Routes = [
   },
   {
     path: 'chat',
-    loadChildren: () => import('./Pages/chat/chat.module').then( m => m.ChatPageModule)
+    loadChildren: () => import('./pages/chat/chat.module').then( m => m.ChatPageModule)
   },
 
 ];
 
 @NgModule({
   imports: [
-    RouterModule.forRoot(routes, { preloadingStrategy: NoPreloading  })
+    RouterModule.forRoot(routes, { preloadingStrategy: NoPreloading })
   ],
   exports: [RouterModule]
 })
-export class AppRoutingModule {}
+export class AppRoutingModule { }

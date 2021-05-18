@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormGroup } from "@angular/forms";
 import { ModalController, NavParams } from "@ionic/angular";
-import { ClaimProperty } from 'src/app/Helpers/claim-manager';
+import { ClaimProperty } from 'src/app/helpers/claim-manager';
 import { MediaManager } from "src/app/utils/media-manager";
 import { PopupHelper } from "src/app/utils/popup-helper";
 

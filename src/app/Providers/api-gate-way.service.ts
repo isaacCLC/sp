@@ -3,14 +3,15 @@ import { HttpClient } from "@angular/common/http";
 import { Observable, of } from "rxjs";
 import { HttpHeaders } from "@angular/common/http";
 import { AlertsProviderService } from './alerts-provider.service';
-import { GeneralService } from '../Helpers/generals';
+import { GeneralService } from '../helpers/generals';
 import { BaseMessage, DriverDetails, getJobHistory, iServiceRequest } from '../models/appModels';
-import { ClaimManager, CurrentClaim } from "../Helpers/claim-manager";
-import { AddClaimRequest } from "../Helpers/requests";
+import { ClaimManager, CurrentClaim } from "../helpers/claim-manager";
+import { AddClaimRequest } from "../helpers/requests";
 import { Storage } from "@ionic/storage";
 import { FormParameter } from "./base";
-import { addToDocumentWarehouseResponse } from "../Helpers/responses";
+import { addToDocumentWarehouseResponse } from "../helpers/responses";
 import { SmsRetriever } from "@ionic-native/sms-retriever/ngx";
+import { Platform } from "@ionic/angular";
 const httpOptions = {
   headers: new HttpHeaders({
     "Content-Type": "application/json",
@@ -29,7 +30,7 @@ export class ApiGateWayService {
   private _generals: GeneralService = new GeneralService();
   private api_key: string;
 
-  constructor(private claimManager: ClaimManager, private storage: Storage, private _http: HttpClient, private alertProvider: AlertsProviderService,  private smsRetriever: SmsRetriever) {
+  constructor(private claimManager: ClaimManager,private platform: Platform, private storage: Storage, private _http: HttpClient, private alertProvider: AlertsProviderService,  private smsRetriever: SmsRetriever) {
 
     this.prodHost = "https://api.lmsystem.co.za";
     this.devHost = "https://apidev.lmsystem.co.za";
@@ -289,6 +290,7 @@ export class ApiGateWayService {
   }
 
   addDiverNumber(payLoad): Promise<any> {
+    console.log("Hello")
     let res = fetch(this.serverHost + "/rest/cca/v1/sp/addDriverMobile.php?key=" + this.api_key, {
       method: 'post',
       body: JSON.stringify(payLoad)
@@ -397,8 +399,11 @@ export class ApiGateWayService {
 
 
   async getOTP(cellNumber: any): Promise<any> {
+    console.log("HEtting OTP")
     let id = await this.storage.get("driverID")
-    let hash = await this.smsRetriever.getAppHash()
+    console.log(this.platform.is("android"))
+
+    let hash = this.platform.is("android")?await this.smsRetriever.getAppHash():"";
     return this._http.get(this.serverHost + "/rest/cca/v1/sp/getVerifyMobile.php", {
       params: {
         key: this.api_key,

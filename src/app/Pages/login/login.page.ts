@@ -1,12 +1,12 @@
 import { Component, OnInit } from "@angular/core";
 import { NavController, Platform, LoadingController } from "@ionic/angular";
 import { Router } from "@angular/router";
-import * as launcher from "../../Providers/start-app";
-import { Helpers } from "../../Helpers/helpers";
+import * as launcher from "../../providers/start-app";
+import { Helpers } from "../../helpers/helpers";
 import { AppAvailability } from "@ionic-native/app-availability/ngx";
 import { Storage } from "@ionic/storage";
-import { ApiGateWayService } from "../../Providers/api-gate-way.service";
-import { AlertsProviderService } from "../../Providers/alerts-provider.service";
+import { ApiGateWayService } from "../../providers/api-gate-way.service";
+import { AlertsProviderService } from "../../providers/alerts-provider.service";
 import { OneSignal } from "@ionic-native/onesignal/ngx";
 
 @Component({
@@ -38,10 +38,13 @@ export class LoginPage implements OnInit {
   }
 
   async ngOnInit() {
-    this.imgSrc = "../../assets/ic_launcher.png";
-    this.oneSignal.getIds().then(ids => {
-      this.pushPlayerId = ids.userId;
-    });
+    this.platform.ready().then(() => {
+      this.imgSrc = "../../assets/ic_launcher.png";
+      this.oneSignal.getIds().then(ids => {
+        this.pushPlayerId = ids.userId;
+      });
+    })
+    
   }
 
   
@@ -94,7 +97,6 @@ export class LoginPage implements OnInit {
   }
 
   keyPress(keyCode) {
-    console.log("Key pressed" + keyCode)
     if (!this.username || !this.password)
       return;
 

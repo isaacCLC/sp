@@ -4,17 +4,16 @@ import {
   NavController,
   LoadingController
 } from "@ionic/angular";
-import { ModalPage } from "../../../Modals/modal/modal.page";
+import { ModalPage } from "../../../modals/modal/modal.page";
 import { Router } from "@angular/router";
-import { Helpers } from "../../../Helpers/helpers";
+import { Helpers } from "../../../helpers/helpers";
 import { Storage } from "@ionic/storage";
-import { ApiGateWayService } from "../../../Providers/api-gate-way.service";
-import { AlertsProviderService } from '../../../Providers/alerts-provider.service';
+import { ApiGateWayService } from "../../../providers/api-gate-way.service";
+import { AlertsProviderService } from '../../../providers/alerts-provider.service';
 import { JsonPipe } from '@angular/common';
-import { GeneralService } from '../../../Helpers/generals';
+import { GeneralService } from '../../../helpers/generals';
 import { ReturnStatement } from '@angular/compiler';
 import { PhotoViewer } from '@ionic-native/photo-viewer/ngx';
-import { load } from "google-maps";
 @Component({
   selector: "app-tab3",
   templateUrl: "tab3.page.html",
