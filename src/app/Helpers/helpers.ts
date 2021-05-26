@@ -2,7 +2,6 @@ import { Geolocation, Geoposition } from "@ionic-native/geolocation/ngx";
 import { Injectable } from "@angular/core";
 import { DriverDetails, LoggedInStatus, myLoc } from "../models/appModels";
 import { ToastController, Platform } from "@ionic/angular";
-import { Media, MediaObject } from "@ionic-native/media/ngx";
 import { Network } from "@ionic-native/network/ngx";
 import {
   LaunchNavigator,
@@ -29,7 +28,6 @@ export class Helpers {
    devHost = "https://api.lmsystem.co.za"
   //prodHost = "http://localhost:" + this.hostPort;
   prodHost = "http://cca.lmsystem.co.za:" + this.hostPort;
-  file: MediaObject;
   map: GoogleMap;
   webServer: any;
   disconnectSubscription: any;
@@ -54,7 +52,6 @@ export class Helpers {
   constructor(
     private geolocation: Geolocation,
     private toastCtrl: ToastController,
-    private media: Media,
     private platform: Platform,
     private network: Network,
     private launchNavigator: LaunchNavigator,
@@ -189,18 +186,18 @@ export class Helpers {
   }
 
   async playSoundAlert(filePath, intervalTime) {
-    this.file = this.media.create(this.webServer + filePath);
-    this.intervalId = setInterval(() => {
-      console.log(555555);
-      this.file.play();
-    }, intervalTime);
+    // this.file = this.media.create(this.webServer + filePath);
+    // this.intervalId = setInterval(() => {
+    //   console.log(555555);
+    //   this.file.play();
+    // }, intervalTime);
   }
   async stopSoundAlert() {
-    if (this.file != undefined) {
-      this.file.stop();
-      clearInterval(this.intervalId);
-      if (this.platform.is("android")) this.file.release();
-    }
+    // if (this.file != undefined) {
+    //   this.file.stop();
+    //   clearInterval(this.intervalId);
+    //   if (this.platform.is("android")) this.file.release();
+    // }
   }
 
   navigate(destination) {
