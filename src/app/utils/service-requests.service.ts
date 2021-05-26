@@ -71,7 +71,9 @@ export class ServiceRequestsService {
           this.serviceReq = serviceRequestResponse
           if (this.serviceReq.data.driverStatus) {
             this.insomnia.keepAwake()
+            this.helpers.enableBackground()
           } else {
+            this.helpers.disableBackground()
             this.insomnia.allowSleepAgain()
           }
           this.backgroundGeolocation.configure({

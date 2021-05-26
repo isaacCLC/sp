@@ -83,7 +83,7 @@ export class AddNumberOtpPage implements OnInit {
                 loader.dismiss()
                 console.log(response)
                 if (response.status) {
-                  this.route.navigate(["app/tabs/tab1"]);
+                  this.route.navigate(["app/tabs/tab3"]);
                 }
               })
             } else {
