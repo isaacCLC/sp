@@ -3,15 +3,8 @@ import { NoPreloading, PreloadAllModules, RouterModule, Routes } from "@angular/
 
 const routes: Routes = [
   { path: "", redirectTo: "login", pathMatch: "full" },
-  { 
-    path: "login",
-    loadChildren: () => import("./pages/login/login.module").then(m=>m.LoginPageModule)
-  },
-  { 
-    path: "app",
-    loadChildren: () => import("./pages/tabs/tabs.module").then(m=>m.TabsPageModule)
-    // "./pages/tabs/tabs.module#TabsPageModule" 
-  },
+  { path: "login", loadChildren: "./pages/login/login.module#LoginPageModule" },
+  { path: "app", loadChildren: "./pages/tabs/tabs.module#TabsPageModule" },
   { path: "modal", loadChildren: "./modals/modal/modal.module#ModalPageModule" },
   {
     path: "request-modal",
@@ -59,6 +52,9 @@ const routes: Routes = [
     path: 'final-checklist',
     loadChildren: () => import("./modals/final-checklist/final-checklist.module").then(m=>m.FinalChecklistPageModule)
   },
+  { path: 'scene-information', loadChildren: './pages/Accident-scene/scene-information/scene-information.module#SceneInformationPageModule' },
+  { path: 'scene-photos', loadChildren: './pages/Accident-scene/scene-photos/scene-photos.module#ScenePhotosPageModule' },
+  { path: 'additional-content', loadChildren: './pages/Accident-scene/additional-content/additional-content.module#AdditionalContentPageModule' },
   {
     path: 'motoraccident',
     loadChildren: () => import('./pages/scene/motoraccident/claim-motoraccident.module').then(m => m.ClaimMotorAccidentModule)

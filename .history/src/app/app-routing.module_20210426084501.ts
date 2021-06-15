@@ -3,15 +3,8 @@ import { NoPreloading, PreloadAllModules, RouterModule, Routes } from "@angular/
 
 const routes: Routes = [
   { path: "", redirectTo: "login", pathMatch: "full" },
-  { 
-    path: "login",
-    loadChildren: () => import("./pages/login/login.module").then(m=>m.LoginPageModule)
-  },
-  { 
-    path: "app",
-    loadChildren: () => import("./pages/tabs/tabs.module").then(m=>m.TabsPageModule)
-    // "./pages/tabs/tabs.module#TabsPageModule" 
-  },
+  { path: "login", loadChildren: "./pages/login/login.module#LoginPageModule" },
+  { path: "app", loadChildren: "./pages/tabs/tabs.module#TabsPageModule" },
   { path: "modal", loadChildren: "./modals/modal/modal.module#ModalPageModule" },
   {
     path: "request-modal",
