@@ -289,6 +289,7 @@ export class Tab1Page {
       this._api.getDriver().then(
         res => {
           this.driverDetails = res.data[0];
+          console.log(this.driverDetails)
           loader.dismiss()
           if (!this.driverDetails.driverVehicle) {
             this._api.setDriveStatus(0)
@@ -416,8 +417,8 @@ export class Tab1Page {
     let navPoints = [];
     let drivePlanCoordinates = null;
     directionsService.route({
-      origin: { lat: Number(spLat), lng: Number(spLong) },
-      destination: { lat: Number(clientLat), lng: Number(clientLng) }, //lat: -25.997911, lng: 28.133915   
+      origin: { lat: spLat, lng: spLong },
+      destination: { lat: clientLat, lng: clientLng }, //lat: -25.997911, lng: 28.133915   
       travelMode: "DRIVING"
     }, (response, status) => {
       if (status === 'OK') {
@@ -454,8 +455,6 @@ export class Tab1Page {
         })
       }
 
-    }, err=>{
-      console.log(err)
     });
   }
 

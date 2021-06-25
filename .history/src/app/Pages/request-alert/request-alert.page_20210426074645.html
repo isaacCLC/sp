@@ -46,7 +46,7 @@
     <div [innerHTML]="tNc"></div>
     <ion-radio-group [(ngModel)]='termsState' (click)="checkState()">
       <ion-item>
-        <ion-label>I Agree To The Terms Of Service</ion-label>
+        <ion-label>I Agree To The Terms Of {{termsState}}</ion-label>
         <ion-radio slot="start" value="true">
         </ion-radio>
       </ion-item>

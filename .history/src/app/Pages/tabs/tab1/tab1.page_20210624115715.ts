@@ -20,6 +20,7 @@ import { PopupHelper } from "src/app/helpers/popup-helper";
 import { ServiceRequestsService } from "src/app/utils/service-requests.service";
 import { AppLocation } from "src/app/utils/app-location";
 import { ChatService } from "src/app/helpers/chat.service";
+import { stat } from "fs";
 
 declare var google;
 
@@ -174,6 +175,8 @@ export class Tab1Page {
                 break;
               case 4:
               case 15:
+                console.log(this.appLocation)
+                console.log(this.serviceRequestsService.serviceReq)
                 this.scenePolyline?"":this.addPolyLines(
                   this.appLocation.LastKnownLatitude,
                   this.appLocation.LastKnownLongitude,
@@ -289,6 +292,7 @@ export class Tab1Page {
       this._api.getDriver().then(
         res => {
           this.driverDetails = res.data[0];
+          console.log(this.driverDetails)
           loader.dismiss()
           if (!this.driverDetails.driverVehicle) {
             this._api.setDriveStatus(0)
@@ -411,15 +415,18 @@ export class Tab1Page {
   }
 
   addPolyLines(spLat: number, spLong: number, clientLat: number, clientLng: number, type: string) {
+    console.log("Adding poly")
     let nRoutes;
     let directionsService = new google.maps.DirectionsService;
     let navPoints = [];
     let drivePlanCoordinates = null;
     directionsService.route({
-      origin: { lat: Number(spLat), lng: Number(spLong) },
-      destination: { lat: Number(clientLat), lng: Number(clientLng) }, //lat: -25.997911, lng: 28.133915   
+      origin: { lat: spLat, lng: spLong },
+      destination: { lat: clientLat, lng: clientLng }, //lat: -25.997911, lng: 28.133915   
       travelMode: "DRIVING"
     }, (response, status) => {
+      console.log(status)
+      console.log(response)
       if (status === 'OK') {
         nRoutes = response.routes[0].legs[0].steps;
       } else {

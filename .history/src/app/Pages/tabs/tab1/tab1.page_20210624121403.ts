@@ -174,6 +174,8 @@ export class Tab1Page {
                 break;
               case 4:
               case 15:
+                console.log(this.appLocation)
+                console.log(this.serviceRequestsService.serviceReq)
                 this.scenePolyline?"":this.addPolyLines(
                   this.appLocation.LastKnownLatitude,
                   this.appLocation.LastKnownLongitude,
@@ -289,6 +291,7 @@ export class Tab1Page {
       this._api.getDriver().then(
         res => {
           this.driverDetails = res.data[0];
+          console.log(this.driverDetails)
           loader.dismiss()
           if (!this.driverDetails.driverVehicle) {
             this._api.setDriveStatus(0)
